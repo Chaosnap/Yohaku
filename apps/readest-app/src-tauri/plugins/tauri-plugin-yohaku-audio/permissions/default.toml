@@ -1,0 +1,11 @@
+[default]
+description = "Everything the audio spike page uses."
+permissions = [
+  "allow-pick-audio",
+  "allow-set-queue",
+  "allow-play",
+  "allow-pause",
+  "allow-apply-ambient",
+  "allow-set-sleep-timer",
+  "allow-get-state",
+]

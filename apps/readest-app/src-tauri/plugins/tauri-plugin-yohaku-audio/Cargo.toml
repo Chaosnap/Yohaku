@@ -1,0 +1,14 @@
+[package]
+name = "tauri-plugin-yohaku-audio"
+version = "0.1.0"
+description = "Yohaku's audio. Spike S1: a Media3 playback service on Android"
+edition = "2021"
+license = "AGPL-3.0"
+publish = false
+links = "tauri-plugin-yohaku-audio"
+
+[dependencies]
+tauri = { version = "2" }
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }

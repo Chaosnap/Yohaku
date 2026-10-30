@@ -474,6 +474,10 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onPullLibrary, setIsDropdow
       )}
       {isWebAppPlatform() && <MenuItem label={_('Download Readest')} onClick={downloadReadest} />}
       <MenuItem label={_('About Readest')} onClick={showAboutReadest} />
+      {/* [yohaku] Spike S1: the background audio test page, on Android only. */}
+      {isYohakuBuild() && appService?.isAndroidApp && (
+        <MenuItem label='Spike S1 · 后台音频' onClick={() => router.push('/yohaku/s1')} />
+      )}
     </Menu>
   );
 };

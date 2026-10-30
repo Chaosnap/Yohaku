@@ -58,7 +58,9 @@
 
 | 文件 | 改动 |
 |---|---|
-| `src-tauri/src/lib.rs` | 单实例 ID 改为 `io.github.chaosnap.yohaku`；窗口标题 |
+| `src-tauri/src/lib.rs` | 单实例 ID 改为 `io.github.chaosnap.yohaku`；窗口标题；注册 `tauri-plugin-yohaku-audio` |
+| `src-tauri/Cargo.toml`、`src-tauri/capabilities/default.json` | 加入 Yohaku 的音频插件 `tauri-plugin-yohaku-audio`（Spike S1：Android 的 Media3 播放服务）及其权限 |
+| `app/library/components/SettingsMenu.tsx` | Android 上的 Yohaku 构建在菜单最后显示 Spike S1 测试页入口 |
 | `src-tauri/src/macos/menu.rs` | 「帮助」菜单指向本仓库与 `PRIVACY.md` |
 | `src-tauri/plugins/tauri-plugin-native-tts/src/now_playing.rs` | 系统媒体控制名称与 MPRIS 名 `yohaku` |
 | `src-tauri/plugins/tauri-plugin-native-bridge/src/desktop.rs` | 钥匙串条目 `Yohaku Safe Storage` |
