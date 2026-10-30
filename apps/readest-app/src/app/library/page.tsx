@@ -742,7 +742,8 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
           setSettings(settings);
           saveSettings(envConfig, settings);
         }
-      } else if (settings.keepLogin) {
+      } else if (settings.keepLogin && !isYohakuBuild()) {
+        // [yohaku] No sign-in page to return to.
         router.push('/auth');
       }
     };

@@ -38,7 +38,8 @@
 | `app/library/components/BookItem.tsx` | 书本下的云按钮只在启用了文件同步（WebDAV、S3 等）且书只在服务器上时显示「下载」，不跳转登录（判断函数在 `yohaku/cloud.ts`） |
 | `app/library/components/BookshelfItem.tsx` | 书籍右键菜单去掉「分享书籍」；「上传 / 下载」只在启用文件同步时出现 |
 | `app/library/components/SelectModeActions.tsx` | 选择模式中没有可下载的书时不显示「下载」 |
-| `app/library/page.tsx` | 下拉刷新不再跳转登录，只刷新已配置的文件同步与 OPDS 订阅 |
+| `app/library/page.tsx` | 下拉刷新不再跳转登录，只刷新已配置的文件同步与 OPDS 订阅；启动时不因 `keepLogin` 跳到登录页 |
+| `app/user/layout.tsx`；新增 `app/auth/layout.tsx`、`app/link/layout.tsx`、`app/send/layout.tsx` | Yohaku 构建中登录、账户、设备配对与「发送到 Readest」页面不再渲染，直接回到书库（`src/yohaku/BackToLibrary.tsx`），深链接也打不开它们 |
 | `components/metadata/BookDetailModal.tsx`、`BookDetailView.tsx` | 书籍详情：上传、下载与「仅删除云端 / 仅删除本地」只在启用文件同步时出现，否则只有一个「删除」；去掉「分享书籍」 |
 | `app/reader/components/ViewMenu.tsx` | 阅读器菜单去掉「分享书籍」；没有配置任何同步服务时隐藏同步一行 |
 | `i18n/i18n.ts` | 注册 Yohaku 自己的翻译命名空间 `yohaku` 作为 `fallbackNS`（文案在 `src/yohaku/i18n/`，随应用打包，不改动 Readest 的翻译文件，合并上游时不冲突） |

@@ -25,3 +25,51 @@ jobs:
       attestations: write
     uses: ./.github/workflows/build-app.yml
     secrets: inherit
+
+  # Spike S3: does the Linux build start? Each package is started on a virtual
+  # display on Ubuntu 22.04 and 24.04 (whose AppArmor limits the user namespaces
+  # Chromium's sandbox uses); screenshots are uploaded with the run. A failure
+  # here is reported but does not fail the build.
+  linux-smoke:
+    name: linux smoke test (${{ matrix.os }}, ${{ matrix.package }})
+    needs: build
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+        package: [appimage, deb]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: scripts/yohaku
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: Yohaku-linux-x86_64
+          path: dist
+
+      - name: install a virtual display
+        run: sudo apt-get update && sudo apt-get install -y xvfb imagemagick x11-utils
+
+      - name: start Yohaku
+        env:
+          SMOKE_OUT: smoke
+          SMOKE_LABEL: Linux smoke test (${{ matrix.os }}, ${{ matrix.package }})
+        run: |
+          if [ "${{ matrix.package }}" = deb ]; then
+            sudo apt-get install -y ./dist/*.deb
+            bash scripts/yohaku/smoke-linux.sh yohaku
+          else
+            chmod +x dist/*.AppImage
+            APPIMAGE_EXTRACT_AND_RUN=1 bash scripts/yohaku/smoke-linux.sh dist/*.AppImage
+          fi
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: linux-smoke-${{ matrix.os }}-${{ matrix.package }}
+          path: smoke/
+          retention-days: 14

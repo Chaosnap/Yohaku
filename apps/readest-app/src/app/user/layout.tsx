@@ -1,4 +1,6 @@
 import { Metadata } from 'next';
+import { isYohakuBuild } from '@/yohaku/build';
+import BackToLibrary from '@/yohaku/BackToLibrary';
 
 export const metadata: Metadata = {
   title: 'Account & Sign In',
@@ -7,5 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  // [yohaku] There are no accounts in Yohaku: this page goes straight back to the library.
+  return isYohakuBuild() ? <BackToLibrary /> : <>{children}</>;
 }
