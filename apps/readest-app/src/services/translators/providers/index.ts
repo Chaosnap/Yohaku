@@ -5,6 +5,7 @@ import { deeplProvider } from './deepl';
 import { azureProvider } from './azure';
 import { googleProvider } from './google';
 import { yandexProvider } from './yandex';
+import { isYohakuBuild } from '@/yohaku/build';
 
 function createTranslator<T extends string>(
   name: T,
@@ -40,7 +41,11 @@ export const getTranslators = (): TranslationProvider[] => {
     .getState()
     .getAvailableTranslators()
     .map(createCustomTranslator);
-  return [...availableTranslators, ...custom];
+  // [yohaku] DeepL runs through Readest's server and needs a Readest account.
+  const builtIn = isYohakuBuild()
+    ? availableTranslators.filter((translator) => !translator.authRequired)
+    : availableTranslators;
+  return [...builtIn, ...custom];
 };
 
 export const getTranslator = (name: TranslatorName): TranslationProvider | undefined => {

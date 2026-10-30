@@ -4,5 +4,7 @@
   "Ink Night": "墨夜",
   "Comics": "マンガ",
   "Right to Left by Default": "右から左を既定にする",
-  "For comics that do not set a reading direction. Manga marked right to left in ComicInfo.xml always opens that way.": "読む方向が指定されていないマンガに適用されます。ComicInfo.xml で右から左と指定されたマンガは、常に右から左で開きます。"
+  "For comics that do not set a reading direction. Manga marked right to left in ComicInfo.xml always opens that way.": "読む方向が指定されていないマンガに適用されます。ComicInfo.xml で右から左と指定されたマンガは、常に右から左で開きます。",
+  "Online Voices": "オンライン音声",
+  "Read aloud with Microsoft Edge voices. The text being read is sent to Microsoft. Takes effect the next time reading aloud starts.": "Microsoft Edge のオンライン音声で読み上げます。読み上げる文章は Microsoft に送信されます。次に読み上げを始めたときから有効になります。"
 }

@@ -27,6 +27,8 @@ import {
 } from './primitives';
 import CustomTTSServices from './CustomTTSServices';
 import TTSHighlightStyleEditor, { TTSHighlightStyle } from './theme/TTSHighlightStyleEditor';
+import { isYohakuBuild } from '@/yohaku/build';
+import OnlineVoicesRow from '@/yohaku/reader/OnlineVoicesRow';
 
 const TTSPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }) => {
   const _ = useTranslation();
@@ -185,6 +187,8 @@ const TTSPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }
   return (
     <div className='my-4 w-full space-y-6'>
       <BoxedList title={_('Voices')} cardClassName='overflow-hidden'>
+        {/* [yohaku] Microsoft's online voices are opt-in. */}
+        {isYohakuBuild() && <OnlineVoicesRow />}
         <NavigationRow
           title={_('Custom TTS Services')}
           status={_('Use your own OpenAI-compatible speech service')}

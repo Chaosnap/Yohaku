@@ -45,6 +45,11 @@ const tauriEnv = readEnv('.env.tauri');
 if (tauriEnv?.get('NEXT_PUBLIC_YOHAKU_BUILD') !== 'true') {
   problems.push('.env.tauri must set NEXT_PUBLIC_YOHAKU_BUILD=true');
 }
+// Readest's web API falls back to web.readest.com unless pointed elsewhere.
+for (const key of ['NEXT_PUBLIC_API_BASE_URL', 'NEXT_PUBLIC_NODE_BASE_URL']) {
+  const host = URL.canParse(tauriEnv?.get(key) ?? '') ? new URL(tauriEnv.get(key)).hostname : '';
+  if (!host.endsWith('.invalid')) problems.push(`.env.tauri must point ${key} at a .invalid host`);
+}
 
 const conf = JSON.parse(fs.readFileSync(path.join(appDir, 'src-tauri/tauri.conf.json'), 'utf8'));
 if (conf.identifier !== 'io.github.chaosnap.yohaku') {

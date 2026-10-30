@@ -63,6 +63,8 @@ import {
   stripInlineReadingAnnotations,
   stripInlineReadingAnnotationsFromSSML,
 } from './inlineAnnotations';
+import { isYohakuBuild } from '@/yohaku/build';
+import { allowsOnlineVoices } from '@/yohaku/onlineVoices';
 
 // App-wide monotonic sequence for 'tts-position' events. A fresh TTSController
 // is constructed per `tts-speak`, so a per-instance counter would restart at 0
@@ -508,9 +510,15 @@ export class TTSController extends EventTarget {
     // Started together: each can take seconds (Edge synthesizes a probe
     // sentence, system TTS waits for its voices), and play waits on them all.
     // Results are still taken in priority order.
-    const readestReady = withinEngineTimeout(this.ttsReadestClient.init(), false);
+    // [yohaku] No Readest Voice (Readest's servers), and Edge's online voices only
+    // once the user turns them on: reading aloud stays on the device by default.
+    const readestReady = isYohakuBuild()
+      ? Promise.resolve(false)
+      : withinEngineTimeout(this.ttsReadestClient.init(), false);
     const customReady = withinEngineTimeout(this.ttsCustomClient.init(), false);
-    const edgeReady = withinEngineTimeout(this.ttsEdgeClient.init(), false);
+    const edgeReady = allowsOnlineVoices()
+      ? withinEngineTimeout(this.ttsEdgeClient.init(), false)
+      : Promise.resolve(false);
     const nativeReady = this.ttsNativeClient
       ? withinEngineTimeout(this.ttsNativeClient.init(), false)
       : undefined;
@@ -2252,7 +2260,9 @@ export class TTSController extends EventTarget {
 
   async getVoices(lang: string) {
     const ttsWebVoices = await this.ttsWebClient.getVoices(lang);
-    const ttsEdgeVoices = await this.ttsEdgeClient.getVoices(lang);
+    // [yohaku] Edge's voices are listed only once the user has turned them on.
+    const listsEdge = this.ttsEdgeClient.initialized || !isYohakuBuild();
+    const ttsEdgeVoices = listsEdge ? await this.ttsEdgeClient.getVoices(lang) : [];
     const ttsNativeVoices = (await this.ttsNativeClient?.getVoices(lang)) ?? [];
     // Listed for every reader, the voices their plan lacks greyed out; hidden
     // only when there is no catalog (kill switch, offline).

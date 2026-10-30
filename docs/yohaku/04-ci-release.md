@@ -120,7 +120,7 @@ base64 -i ~/yohaku-release.jks | pbcopy
 
 | 检查 | 位置 | 失败条件 |
 |---|---|---|
-| Yohaku 配置 | `scripts/yohaku/check-yohaku-config.mjs`（`ci.yml`） | `.env*` 或构建环境中出现 Readest 的服务密钥或遥测 DSN；`.env.tauri` 没有打开 Yohaku 构建；`tauri.conf.json` 的标识、产品名、更新地址或 CSP 指向 Readest / 遥测 / 支付服务 |
+| Yohaku 配置 | `scripts/yohaku/check-yohaku-config.mjs`（`ci.yml`） | `.env*` 或构建环境中出现 Readest 的服务密钥或遥测 DSN；`.env.tauri` 没有打开 Yohaku 构建，或 Readest Web API 地址没有指向 `.invalid` 域名；`tauri.conf.json` 的标识、产品名、更新地址或 CSP 指向 Readest / 遥测 / 支付服务 |
 | Android 目标版本 | `scripts/yohaku/check-android-package.sh`（每个 APK / AAB） | `targetSdkVersion` 低于 36 |
 | 16 KB 页对齐 | 同上 | 任一 64 位 `.so` 的 LOAD 段对齐小于 `0x4000`，或 APK 未通过 `zipalign -c -P 16` |
 | 权限审计 | 同上 | 请求 `BILLING`、`REQUEST_INSTALL_PACKAGES`；Google Play 版请求 `MANAGE_EXTERNAL_STORAGE` |
