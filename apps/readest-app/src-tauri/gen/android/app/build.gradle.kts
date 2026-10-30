@@ -17,7 +17,7 @@ val tauriProperties = Properties().apply {
 
 android {
     compileSdk = 36
-    namespace = "com.bilingify.readest"
+    namespace = "io.github.chaosnap.yohaku"
     if (project.findProperty("penFlavor") == "booxPen") {
         // The BOOX Pen SDK and its mmkv dependency both bundle libc++_shared.
         packaging.jniLibs.pickFirsts.add("lib/*/libc++_shared.so")
@@ -47,7 +47,7 @@ android {
                         ?.substringAfter("=")?.trim()?.trim('"', '\'')?.takeIf { it.isNotEmpty() }
                 }
             ?: ""
-        applicationId = "com.bilingify.readest"
+        applicationId = "io.github.chaosnap.yohaku"
         minSdk = 26
         targetSdk = 36
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
@@ -58,16 +58,19 @@ android {
         // (plugins/tauri-plugin-native-bridge/android/README-pen.md).
         val penFlavor = project.findProperty("penFlavor")?.toString() ?: "genericPen"
         missingDimensionStrategy("pen", penFlavor)
-        // Android Auto ships to the FOSS/GitHub builds only. Play's Auto
-        // review rejected version code 11020 for inconsistent in-car audio and
-        // blocked the entire release (#5038, #5235), so the Play build resolves
-        // the car meta-data to an inert name: Auto ignores it and Play does not
-        // put the submission through Auto review. Nothing else reads it.
-        manifestPlaceholders["carAppMetaName"] = if (storeFlavor == "googleplay") {
-            "com.bilingify.readest.androidauto.withheld"
-        } else {
-            "com.google.android.gms.car.application"
-        }
+        // [yohaku] Yohaku does not offer Android Auto, so every build resolves the
+        // car meta-data to an inert name: Auto ignores it and a Play submission
+        // skips Auto review. (Readest ships Auto in its FOSS/GitHub builds.)
+        manifestPlaceholders["carAppMetaName"] = "io.github.chaosnap.yohaku.androidauto.withheld"
+        // [yohaku] Google Play only allows all-files access for file managers and
+        // similar apps, so the Play build (-PyohakuStore=play) requests an inert
+        // permission name in its place. GitHub builds keep the real one.
+        manifestPlaceholders["manageExternalStoragePermission"] =
+            if (project.findProperty("yohakuStore") == "play") {
+                "io.github.chaosnap.yohaku.permission.UNUSED"
+            } else {
+                "android.permission.MANAGE_EXTERNAL_STORAGE"
+            }
     }
     signingConfigs {
         if (keystorePropertiesFile.exists()) {

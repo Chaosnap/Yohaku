@@ -1,23 +1,35 @@
-import i18n from 'i18next';
+import i18n, { PostProcessorModule } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import translatableLngs from '../../i18n-langs.json';
 import { initReactI18next } from 'react-i18next';
+import { isYohakuBuild, toYohakuBrand } from '@/yohaku/build';
 
 // 'en' is the source language and not listed in the translatable set.
 const SUPPORTED_LNGS = ['en', ...translatableLngs];
 
 const isBrowser = typeof window !== 'undefined';
 
+// [yohaku] Readest's strings name the app; a Yohaku build shows its own name.
+const yohakuBrand: PostProcessorModule = {
+  type: 'postProcessor',
+  name: 'yohakuBrand',
+  process: (value: string) => toYohakuBrand(value),
+};
+
 const initI18n = async () => {
   if (isBrowser) {
     const HttpApi = (await import('i18next-http-backend')).default;
     i18n.use(HttpApi);
+  }
+  if (isYohakuBuild()) {
+    i18n.use(yohakuBrand);
   }
 
   i18n
     .use(LanguageDetector)
     .use(initReactI18next)
     .init({
+      ...(isYohakuBuild() && { postProcess: ['yohakuBrand'] }),
       supportedLngs: SUPPORTED_LNGS,
       fallbackLng: {
         'zh-HK': ['zh-TW', 'en'],

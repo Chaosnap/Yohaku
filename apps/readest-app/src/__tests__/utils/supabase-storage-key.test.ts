@@ -13,10 +13,11 @@ describe('supabase session storage key', () => {
     vi.unstubAllEnvs();
   });
 
-  it('defaults to the Readest Cloud project URL', () => {
-    expect(atob(process.env['NEXT_PUBLIC_DEFAULT_SUPABASE_URL_BASE64']!)).toBe(
-      'https://vbsyxfusjjqdxkjqlysc.supabase.co',
-    );
+  // [yohaku] Yohaku ships no Readest Cloud keys; the client points at a host
+  // that can never resolve.
+  it('ships without the Readest Cloud project as a default', async () => {
+    expect(process.env['NEXT_PUBLIC_DEFAULT_SUPABASE_URL_BASE64']).toBeUndefined();
+    expect(await loadStorageKey()).toBe('sb-supabase-auth-token');
   });
 
   it.each([

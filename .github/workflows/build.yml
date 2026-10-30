@@ -1,0 +1,27 @@
+name: Build
+
+# Test builds for every platform, downloadable from the run's Artifacts for 14
+# days. Docs-only pushes skip it; it can also be started by hand.
+on:
+  push:
+    branches: [main, 'phase-*']
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    uses: ./.github/workflows/build-app.yml
+    secrets: inherit

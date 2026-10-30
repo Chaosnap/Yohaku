@@ -2,6 +2,7 @@
 // across devices): each device opts into being a LocalSend peer on its own.
 
 import { stubTranslation as _ } from '@/utils/misc';
+import { isYohakuBuild } from '@/yohaku/build';
 
 const ENABLED_KEY = 'readest-localsend-enabled';
 const ALIAS_KEY = 'readest-localsend-alias';
@@ -23,10 +24,14 @@ export const DEFAULT_ALIAS_NAMED_KEY = _("{{name}}'s Readest");
  * Settings stops the service.
  */
 export function isLocalSendEnabled(): boolean {
+  // [yohaku] Off until the user turns it on: Yohaku does not join the local
+  // network on first launch.
+  const defaultEnabled = !isYohakuBuild();
   try {
-    return localStorage.getItem(ENABLED_KEY) !== 'false';
+    const stored = localStorage.getItem(ENABLED_KEY);
+    return stored === null ? defaultEnabled : stored !== 'false';
   } catch {
-    return true;
+    return defaultEnabled;
   }
 }
 

@@ -6,6 +6,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
 import { checkForAppUpdates, checkAppReleaseNotes } from '@/helpers/updater';
 import { isTauriAppPlatform } from '@/services/environment';
+import { isYohakuBuild } from '@/yohaku/build';
 import { parseWebViewInfo } from '@/utils/ua';
 import { getAppVersion } from '@/utils/version';
 import { writeTextToClipboard } from '@/utils/clipboard';
@@ -134,7 +135,7 @@ export const AboutWindow = () => {
               <Image src='/icon.png' alt='App Logo' className='h-20 w-20' width={64} height={64} />
             </div>
             <div className='flex select-text flex-col items-center'>
-              <h2 className='mb-2 text-2xl font-bold'>Readest</h2>
+              <h2 className='mb-2 text-2xl font-bold'>{isYohakuBuild() ? 'Yohaku' : 'Readest'}</h2>
               <button
                 type='button'
                 title={_('Copy')}
@@ -145,7 +146,8 @@ export const AboutWindow = () => {
               </button>
             </div>
             <div className='my-1 h-5'>
-              {!updateStatus && (
+              {/* [yohaku] No update feed yet: Yohaku releases are on GitHub. */}
+              {!updateStatus && !isYohakuBuild() && (
                 <button
                   className='btn btn-sm btn-primary cursor-pointer p-1 text-xs'
                   onClick={appService?.hasUpdater ? handleCheckUpdate : handleShowRecentUpdates}
@@ -173,6 +175,10 @@ export const AboutWindow = () => {
             className='flex flex-1 flex-col items-center justify-start gap-2 px-4 text-center'
             dir='ltr'
           >
+            {/* [yohaku] Yohaku is a modified version of Readest; keep its notice. */}
+            {isYohakuBuild() && (
+              <p className='text-neutral-content text-sm'>Yohaku is built on Readest.</p>
+            )}
             <p className='text-neutral-content text-sm'>
               © {new Date().getFullYear()} Bilingify LLC. All rights reserved.
             </p>
@@ -190,15 +196,22 @@ export const AboutWindow = () => {
             </p>
             <p className='text-neutral-content text-xs'>
               Source code is available at{' '}
-              <Link href='https://github.com/readest/readest' className='text-blue-500 underline'>
+              <Link
+                href={
+                  isYohakuBuild()
+                    ? 'https://github.com/Chaosnap/Yohaku'
+                    : 'https://github.com/readest/readest'
+                }
+                className='text-blue-500 underline'
+              >
                 GitHub
               </Link>
               .
             </p>
 
-            <LegalLinks />
+            {!isYohakuBuild() && <LegalLinks />}
           </div>
-          <SupportLinks />
+          {!isYohakuBuild() && <SupportLinks />}
         </div>
       )}
     </Dialog>

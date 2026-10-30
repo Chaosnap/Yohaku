@@ -7,7 +7,7 @@
 /// **Important**: Thumbnails and previews are only shown when Readest.exe is the default
 /// application for the file type.
 ///
-/// ## CLSID: {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
+/// ## CLSID: {E3A27397-A38D-42A4-A551-3EA199A041E8}
 use std::cell::UnsafeCell;
 use std::ffi::c_void;
 use std::path::PathBuf;
@@ -51,8 +51,9 @@ use crate::preview::{create_preview_window, destroy_preview_window};
 // CLSID for Readest Thumbnail Provider
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// CLSID: {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
-pub const CLSID_READEST_THUMBNAIL: GUID = GUID::from_u128(0xA1B2C3D4_E5F6_7890_ABCD_EF1234567890);
+/// CLSID: {E3A27397-A38D-42A4-A551-3EA199A041E8}
+/// [yohaku] Yohaku's own class, so it never overwrites an installed Readest's.
+pub const CLSID_READEST_THUMBNAIL: GUID = GUID::from_u128(0xE3A27397_A38D_42A4_A551_3EA199A041E8);
 
 /// Supported file extensions
 pub const SUPPORTED_EXTENSIONS: &[&str] = &[
@@ -116,7 +117,8 @@ fn is_readest_default_for_extension(ext: &str) -> bool {
         if result.is_ok() {
             let len = buffer.iter().position(|&c| c == 0).unwrap_or(buffer.len());
             let path = String::from_utf16_lossy(&buffer[..len]).to_lowercase();
-            return path.contains("readest");
+            // [yohaku] The default app is yohaku.exe.
+            return path.contains("yohaku");
         }
     }
 

@@ -1,8 +1,8 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <color android:color="#FF323130" />
-    </item>
-    <item android:gravity="center" android:width="120dp" android:height="120dp">
-        <bitmap android:src="@drawable/splash_icon" />
-    </item>
+    <item android:drawable="@color/yohaku_icon_background" />
+    <item
+        android:drawable="@drawable/yohaku_icon_foreground"
+        android:gravity="center"
+        android:width="160dp"
+        android:height="160dp" />
 </layer-list>

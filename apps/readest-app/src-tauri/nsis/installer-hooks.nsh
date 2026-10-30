@@ -4,7 +4,8 @@
 !include "LogicLib.nsh"
 
 ; CLSID for Readest Thumbnail Provider
-!define CLSID_READEST_THUMBNAIL "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+; [yohaku] Yohaku's own class, so it never overwrites an installed Readest's.
+!define CLSID_READEST_THUMBNAIL "{E3A27397-A38D-42A4-A551-3EA199A041E8}"
 
 ; IThumbnailProvider Shell Extension Handler GUID
 !define SHELL_THUMBNAIL_HANDLER "{e357fccd-a995-4576-b01f-234630154e96}"
@@ -52,13 +53,13 @@
 ; NSIS_HOOK_POSTINSTALL - Called after files are installed
 ;------------------------------------------------------------------------------
 !macro NSIS_HOOK_POSTINSTALL
-    DetailPrint "Registering Readest Thumbnail Provider..."
+    DetailPrint "Registering Yohaku Thumbnail Provider..."
 
     ; Always do manual registration for reliability
     ; regsvr32 may fail silently if DLL can't find dependencies
 
     ; Register CLSID with full DLL path
-    WriteRegStr HKCR "CLSID\${CLSID_READEST_THUMBNAIL}" "" "Readest Thumbnail Provider"
+    WriteRegStr HKCR "CLSID\${CLSID_READEST_THUMBNAIL}" "" "Yohaku Thumbnail Provider"
     WriteRegStr HKCR "CLSID\${CLSID_READEST_THUMBNAIL}\InprocServer32" "" "$INSTDIR\readest_thumbnail.dll"
     WriteRegStr HKCR "CLSID\${CLSID_READEST_THUMBNAIL}\InprocServer32" "ThreadingModel" "Apartment"
 
@@ -68,8 +69,8 @@
 
     ; The same class is the preview handler, hosted by prevhost.exe
     WriteRegStr HKCR "CLSID\${CLSID_READEST_THUMBNAIL}" "AppID" "${APPID_PREVHOST}"
-    WriteRegStr HKCR "CLSID\${CLSID_READEST_THUMBNAIL}" "DisplayName" "Readest Preview Handler"
-    WriteRegStr SHCTX "${PREVIEW_HANDLERS_KEY}" "${CLSID_READEST_THUMBNAIL}" "Readest Preview Handler"
+    WriteRegStr HKCR "CLSID\${CLSID_READEST_THUMBNAIL}" "DisplayName" "Yohaku Preview Handler"
+    WriteRegStr SHCTX "${PREVIEW_HANDLERS_KEY}" "${CLSID_READEST_THUMBNAIL}" "Yohaku Preview Handler"
 
     ; Register the handlers directly on each extension (this is what Windows Shell uses)
     !insertmacro REGISTER_EXT ".epub"
@@ -92,7 +93,7 @@
 ; NSIS_HOOK_PREUNINSTALL - Called before files are removed
 ;------------------------------------------------------------------------------
 !macro NSIS_HOOK_PREUNINSTALL
-    DetailPrint "Unregistering Readest Thumbnail Provider..."
+    DetailPrint "Unregistering Yohaku Thumbnail Provider..."
 
     ; Remove CLSID
     DeleteRegKey HKCR "CLSID\${CLSID_READEST_THUMBNAIL}"

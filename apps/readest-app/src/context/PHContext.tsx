@@ -6,12 +6,14 @@ import { PostHogProvider } from 'posthog-js/react';
 import { applyPostHogConsent, getTelemetryDecision } from '@/utils/telemetry';
 import { getAppVersion } from '@/utils/version';
 
+// [yohaku] No default PostHog project ships with Yohaku: an empty key keeps
+// initPostHog from starting the SDK at all.
 const posthogUrl =
   process.env['NEXT_PUBLIC_POSTHOG_HOST'] ||
-  atob(process.env['NEXT_PUBLIC_DEFAULT_POSTHOG_URL_BASE64']!);
+  atob(process.env['NEXT_PUBLIC_DEFAULT_POSTHOG_URL_BASE64'] ?? '');
 const posthogKey =
   process.env['NEXT_PUBLIC_POSTHOG_KEY'] ||
-  atob(process.env['NEXT_PUBLIC_DEFAULT_POSTHOG_KEY_BASE64']!);
+  atob(process.env['NEXT_PUBLIC_DEFAULT_POSTHOG_KEY_BASE64'] ?? '');
 
 let initialized = false;
 

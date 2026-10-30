@@ -15,35 +15,33 @@ import { resolve } from 'path';
  * working in shipped builds.
  *
  * The CI/release flow regenerates `gen/android` from scratch
- * (`tauri android init` + `tauri icon`) and then `git checkout .` to restore the
- * *tracked* customizations. `tauri icon` does not emit a monochrome layer, so
- * the themed icon only survives if both the adaptive-icon XML and the
- * monochrome mipmaps are tracked under `gen/`.
+ * (`tauri android init`) and then restores the *tracked* customizations, so the
+ * themed icon only survives if the adaptive-icon XML and every layer it points
+ * at are tracked under `gen/`.
+ *
+ * [yohaku] Yohaku draws every adaptive-icon layer as a tracked vector drawable,
+ * so no per-density launcher PNGs are needed.
  *
  * Invariants:
  *  1. The committed adaptive icon declares a `<monochrome>` layer pointing at
- *     `@mipmap/ic_launcher_monochrome`.
- *  2. A tracked `ic_launcher_monochrome.png` exists for every launcher density
- *     so the resource resolves at build time (these are force-added past the
- *     `gen/` .gitignore, like the other customized resources).
+ *     `@drawable/yohaku_icon_monochrome`.
+ *  2. The vector drawables the adaptive icon points at are tracked.
  */
 
 const appRoot = process.cwd();
 const resRoot = resolve(appRoot, 'src-tauri/gen/android/app/src/main/res');
 
-const DENSITIES = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
-
 describe('Android themed (monochrome) launcher icon', () => {
   it('declares a <monochrome> layer in the adaptive icon', () => {
     const xml = readFileSync(resolve(resRoot, 'mipmap-anydpi-v26/ic_launcher.xml'), 'utf8');
     expect(xml).toMatch(/<monochrome\b/);
-    expect(xml).toMatch(/@mipmap\/ic_launcher_monochrome/);
+    expect(xml).toMatch(/@drawable\/yohaku_icon_monochrome/);
   });
 
-  it('ships a tracked monochrome mipmap for every density', () => {
-    const missing = DENSITIES.filter(
-      (d) => !existsSync(resolve(resRoot, `mipmap-${d}`, 'ic_launcher_monochrome.png')),
+  it('ships the tracked vector drawables the adaptive icon points at', () => {
+    const missing = ['yohaku_icon_foreground', 'yohaku_icon_monochrome'].filter(
+      (name) => !existsSync(resolve(resRoot, 'drawable', `${name}.xml`)),
     );
-    expect(missing, `missing tracked monochrome mipmaps for: ${missing.join(', ')}`).toEqual([]);
+    expect(missing, `missing tracked drawables: ${missing.join(', ')}`).toEqual([]);
   });
 });

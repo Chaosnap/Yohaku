@@ -22,6 +22,7 @@ import { useCloudSyncStatus } from '@/hooks/useCloudSyncStatus';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { useTransferQueue } from '@/hooks/useTransferQueue';
 import { navigateToLogin, navigateToProfile } from '@/utils/nav';
+import { isYohakuBuild } from '@/yohaku/build';
 import { tauriHandleSetAlwaysOnTop, tauriHandleToggleFullScreen } from '@/utils/window';
 import { setAboutDialogVisible } from '@/components/AboutWindow';
 import { setMigrateDataDirDialogVisible } from '@/app/library/components/MigrateDataWindow';
@@ -292,6 +293,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onPullLibrary, setIsDropdow
       )}
       onCancel={() => setIsDropdownOpen?.(false)}
     >
+      {/* [yohaku] No accounts in Yohaku, so no Sign In item. */}
       {user ? (
         <MenuItem
           label={
@@ -363,9 +365,9 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onPullLibrary, setIsDropdow
             <MenuItem label={_('Account')} onClick={handleUserProfile} />
           </ul>
         </MenuItem>
-      ) : (
+      ) : !isYohakuBuild() ? (
         <MenuItem label={_('Sign In')} Icon={PiUserCircle} onClick={handleUserLogin}></MenuItem>
-      )}
+      ) : null}
 
       {isTauriAppPlatform() && (
         <MenuItem

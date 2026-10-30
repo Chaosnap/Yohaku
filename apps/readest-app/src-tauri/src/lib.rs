@@ -523,8 +523,9 @@ type AppRuntime = tauri_runtime_cef::CefRuntime;
 #[cfg(not(all(feature = "cef", target_os = "linux")))]
 type AppRuntime = tauri::Wry;
 
+// [yohaku] Yohaku's own app id, so it never hands launches to a running Readest.
 #[cfg(desktop)]
-const SINGLE_INSTANCE_DBUS_ID: &str = "com.bilingify.readest";
+const SINGLE_INSTANCE_DBUS_ID: &str = "io.github.chaosnap.yohaku";
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[cfg_attr(
@@ -992,7 +993,7 @@ pub fn run() {
             let win_builder = win_builder
                 .decorations(true)
                 .title_bar_style(TitleBarStyle::Overlay)
-                .title("Readest");
+                .title("Yohaku");
 
             #[cfg(all(not(target_os = "macos"), desktop))]
             let win_builder = {
@@ -1000,7 +1001,7 @@ pub fn run() {
                     .decorations(false)
                     .visible(false)
                     .shadow(undecorated_shadow_is_symmetric())
-                    .title("Readest");
+                    .title("Yohaku");
 
                 #[cfg(target_os = "windows")]
                 {

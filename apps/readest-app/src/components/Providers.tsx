@@ -30,6 +30,7 @@ import {
   setTelemetryDecision,
 } from '@/utils/telemetry';
 import { getLibraryViewSettings } from '@/helpers/settings';
+import { isYohakuBuild } from '@/yohaku/build';
 import { SETTINGS_FILENAME } from '@/services/constants';
 import type { AppService } from '@/types/system';
 import type { SystemSettings } from '@/types/settings';
@@ -99,7 +100,8 @@ const finalizeTelemetryDecision = ({
 
   // Brand-new user. Default to opt-out for privacy; ask only the prompt
   // bucket so the rest get a friction-free first launch.
-  if (rollIntoTelemetryPromptBucket()) {
+  // [yohaku] Yohaku has no telemetry, so it never asks.
+  if (!isYohakuBuild() && rollIntoTelemetryPromptBucket()) {
     setTelemetryDecision('pending');
     onShowPrompt();
   } else {

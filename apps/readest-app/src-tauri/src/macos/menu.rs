@@ -41,7 +41,7 @@ pub fn setup_macos_menu(app: &AppHandle) -> tauri::Result<()> {
             .text("privacy_policy", "Privacy Policy")
             .separator()
             .text("report_issue", "Report An Issue...")
-            .text("readest_help", "Readest Help")
+            .text("readest_help", "Yohaku Help")
             .build()?,
     )?;
 
@@ -53,15 +53,19 @@ pub fn setup_macos_menu(app: &AppHandle) -> tauri::Result<()> {
 }
 
 pub fn handle_menu_event(app: &AppHandle, event: &MenuEvent) {
+    // [yohaku] Help points at Yohaku's repository instead of readest.com.
     let opener = app.opener();
     if event.id() == "open_file" {
         handle_open_file(app);
     } else if event.id() == "privacy_policy" {
-        let _ = opener.open_url("https://readest.com/privacy-policy", None::<&str>);
+        let _ = opener.open_url(
+            "https://github.com/Chaosnap/Yohaku/blob/main/PRIVACY.md",
+            None::<&str>,
+        );
     } else if event.id() == "report_issue" {
-        let _ = opener.open_url("https://github.com/readest/readest/issues", None::<&str>);
+        let _ = opener.open_url("https://github.com/Chaosnap/Yohaku/issues", None::<&str>);
     } else if event.id() == "readest_help" {
-        let _ = opener.open_url("https://readest.com/support", None::<&str>);
+        let _ = opener.open_url("https://github.com/Chaosnap/Yohaku", None::<&str>);
     }
 }
 

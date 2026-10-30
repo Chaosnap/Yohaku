@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [yohaku] Launcher and splash motif; mirrors assets-src/icon/yohaku-icon.svg
+     inside the 66dp safe zone of a 108dp adaptive icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M18,40 Q54,50 90,40"
+        android:strokeColor="#FFC9B48C"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.6" />
+    <group
+        android:pivotX="54"
+        android:pivotY="45"
+        android:rotation="-3">
+        <path
+            android:fillColor="#38000000"
+            android:pathData="M40,48h32v39h-32z" />
+        <path
+            android:fillColor="#FFF4ECDC"
+            android:pathData="M39,46h32v39h-32z" />
+        <path
+            android:fillColor="#FFECE1CB"
+            android:pathData="M42,49h26v26h-26z" />
+        <path
+            android:fillColor="#FFC4553F"
+            android:pathData="M60,70m-2.2,0a2.2,2.2 0,1 0,4.4 0a2.2,2.2 0,1 0,-4.4 0" />
+        <path
+            android:fillColor="#FFA9804F"
+            android:pathData="M53.4,42h3.2v7h-3.2z" />
+    </group>
+</vector>

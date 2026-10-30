@@ -572,7 +572,8 @@ impl<R: Runtime> NativeBridge<R> {
     }
 }
 
-const KEYRING_SERVICE: &str = "Readest Safe Storage";
+// [yohaku] Its own keychain entry, separate from an installed Readest.
+const KEYRING_SERVICE: &str = "Yohaku Safe Storage";
 const KEYRING_USER: &str = "default";
 
 fn keyring_entry() -> std::result::Result<keyring_core::Entry, keyring_core::Error> {

@@ -7,6 +7,7 @@ import { ScrollBarStyle } from '@tauri-apps/api/window';
 import { TranslationFunc } from '@/hooks/useTranslation';
 import { setUpdaterWindowVisible } from '@/components/UpdaterWindow';
 import { isTauriAppPlatform } from '@/services/environment';
+import { isYohakuBuild } from '@/yohaku/build';
 import { getAppVersion, isUpdateNewer } from '@/utils/version';
 import {
   CHECK_UPDATE_INTERVAL_SEC,
@@ -222,6 +223,8 @@ export const getLastShownReleaseNotesVersion = () => {
 };
 
 export const checkAppReleaseNotes = async (isAutoCheck = true) => {
+  // [yohaku] The release notes on Readest's servers describe Readest, not Yohaku.
+  if (isYohakuBuild()) return false;
   const currentVersion = getAppVersion();
   const lastShownVersion = getLastShownReleaseNotesVersion();
   if ((lastShownVersion && semver.gt(currentVersion, lastShownVersion)) || !isAutoCheck) {

@@ -57,23 +57,16 @@ describe('Android Auto declarations (#3919)', () => {
    * (#5038, #5235). Android Auto ships to the FOSS/GitHub builds while the Play
    * build withholds the declaration, so a Play submission is never routed
    * through Auto review until the car audio path is validated on hardware.
+   *
+   * [yohaku] Yohaku does not offer Android Auto, so every build withholds it.
    */
-  it('withholds the car declaration from the Google Play flavor only', () => {
+  it('withholds the car declaration from every build', () => {
     const placeholder = appGradle.slice(
       appGradle.indexOf('manifestPlaceholders["carAppMetaName"]'),
       appGradle.indexOf('signingConfigs'),
     );
-    expect(placeholder).toContain('storeFlavor == "googleplay"');
-    expect(placeholder).toContain('com.google.android.gms.car.application');
-    // The googleplay branch must resolve to something Android never reads.
-    const googlePlayBranch = placeholder.slice(0, placeholder.indexOf('} else {'));
-    expect(googlePlayBranch).not.toContain('com.google.android.gms.car.application');
-
-    const releaseScript = readFileSync(
-      resolve(process.cwd(), 'scripts/release-google-play.sh'),
-      'utf-8',
-    );
-    expect(releaseScript).toContain('storeFlavor=googleplay');
+    expect(placeholder).toContain('androidauto.withheld');
+    expect(placeholder).not.toContain('com.google.android.gms.car.application');
   });
 
   it('keeps the automotive descriptor with the media capability for re-enabling', () => {

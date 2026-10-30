@@ -139,9 +139,10 @@ fn create_controls<R: Runtime>(app: &AppHandle<R>, listeners: Listeners) -> Opti
         let _ = app;
         None
     };
+    // [yohaku] Its own MPRIS name, so it never collides with an installed Readest.
     let config = PlatformConfig {
-        display_name: "Readest",
-        dbus_name: "readest",
+        display_name: "Yohaku",
+        dbus_name: "yohaku",
         hwnd,
     };
     let mut controls = MediaControls::new(config)

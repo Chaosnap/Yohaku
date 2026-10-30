@@ -29,6 +29,7 @@ import { DEFAULT_ANNOTATION_TOOLBAR_ITEMS } from '@/utils/annotationToolbar';
 import { canShareText } from '@/utils/share';
 import { useEinkRefreshSupported } from '@/hooks/useEinkRefreshSupported';
 import { optInTelemetry, optOutTelemetry } from '@/utils/telemetry';
+import { isYohakuBuild } from '@/yohaku/build';
 import KeyboardShortcutsSettings from './KeyboardShortcutsSettings';
 
 const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }) => {
@@ -733,14 +734,17 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
         />
       </BoxedList>
 
-      <BoxedList title={_('Privacy')} data-setting-id='settings.control.telemetry'>
-        <SettingsSwitchRow
-          label={_('Help improve Readest')}
-          description={isTelemetryEnabled ? _('Sharing anonymized statistics') : ''}
-          checked={isTelemetryEnabled}
-          onChange={toggleTelemetry}
-        />
-      </BoxedList>
+      {/* [yohaku] Yohaku has no telemetry to switch on. */}
+      {!isYohakuBuild() && (
+        <BoxedList title={_('Privacy')} data-setting-id='settings.control.telemetry'>
+          <SettingsSwitchRow
+            label={_('Help improve Readest')}
+            description={isTelemetryEnabled ? _('Sharing anonymized statistics') : ''}
+            checked={isTelemetryEnabled}
+            onChange={toggleTelemetry}
+          />
+        </BoxedList>
+      )}
     </div>
   );
 };

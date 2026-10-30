@@ -1,4 +1,5 @@
 import { getRuntimeConfig } from '@/services/runtimeConfig';
+import { isYohakuBuild } from '@/yohaku/build';
 import { isCJKEnv } from '@/utils/misc';
 import { getFilename } from '@/utils/path';
 import { md5Fingerprint } from '@/utils/md5';
@@ -117,6 +118,9 @@ const getAdditionalCJKFontFaces = () => `
 export const mountAdditionalFonts = async (document: Document, isCJK = false) => {
   // An SVG spine item has no <head> to mount into.
   if (!document.head) return;
+  // [yohaku] These are all web fonts (Google Fonts, jsDelivr, cdnjs, Readest's
+  // storage). Yohaku stays offline, so books use system and imported fonts.
+  if (isYohakuBuild()) return;
   const mountCJKFonts = isCJK || isCJKEnv();
 
   // Mount font stylesheets and @font-face rules

@@ -9,6 +9,7 @@ import { TbSunMoon } from 'react-icons/tb';
 import { MdRefresh } from 'react-icons/md';
 import { IconType } from 'react-icons';
 import { stubTranslation as _ } from '@/utils/misc';
+import { isYohakuBuild } from '@/yohaku/build';
 
 export type CommandCategory = 'settings' | 'actions' | 'navigation';
 
@@ -909,12 +910,15 @@ export const buildCommandRegistry = (options: CommandRegistryOptions): CommandIt
     }),
   );
 
-  items.push(
-    createActionItem({
-      id: 'action.telemetry',
-      action: options.toggleTelemetry,
-    }),
-  );
+  // [yohaku] Yohaku has no telemetry to switch on.
+  if (!isYohakuBuild()) {
+    items.push(
+      createActionItem({
+        id: 'action.telemetry',
+        action: options.toggleTelemetry,
+      }),
+    );
+  }
 
   return items;
 };

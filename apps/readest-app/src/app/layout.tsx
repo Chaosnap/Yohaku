@@ -4,11 +4,14 @@ import Script from 'next/script';
 import { ViewTransitions } from '@/components/ViewTransitions';
 import { EnvProvider } from '@/context/EnvContext';
 import Providers from '@/components/Providers';
+import { isYohakuBuild } from '@/yohaku/build';
 
 import '../styles/globals.css';
 
+// [yohaku] A Yohaku build names its windows Yohaku; the rest describes Readest's web app.
+const appName = isYohakuBuild() ? 'Yohaku' : 'Readest';
 const url = 'https://web.readest.com/';
-const title = 'Readest — Where You Read, Digest and Get Insight';
+const title = isYohakuBuild() ? 'Yohaku' : 'Readest — Where You Read, Digest and Get Insight';
 const description =
   'Discover Readest, the ultimate online ebook reader for immersive and organized reading. ' +
   'Enjoy seamless access to your digital library, powerful tools for highlighting, bookmarking, ' +
@@ -20,7 +23,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(url),
   title: {
     default: title,
-    template: '%s | Readest',
+    template: `%s | ${appName}`,
   },
   description,
   generator: 'Next.js',
@@ -38,7 +41,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: 'Readest',
+    title: appName,
     statusBarStyle: 'default',
   },
   openGraph: {

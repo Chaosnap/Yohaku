@@ -9,7 +9,7 @@
 
 | Phase | 主题 | 规模 | 关键交付 | 对应版本 |
 |---|---|---|---|---|
-| 0 | 基础建立 | M | Fork Readest、改名、去云端化、四平台 CI 打通 | `v0.1.0-alpha` |
+| 0 | 基础建立 | M | Fork Readest、改名、去云端化、四平台 CI 打通 | `v0.0.x` |
 | 1 | 阅读核心验证与精修 | M | 格式与漫画验证、Yohaku 阅读主题；并行完成 4 个技术 Spike | `v0.1.0` |
 | 2 | 音乐与环境声音 | XL | 双原生音频引擎、音乐库、环境声音混音、Android 后台播放 | `v0.2.0` |
 | 3 | 暗室 Anshitsu | L | 悬挂照片的书库、显影、摆动、翻转、自由整理 | `v0.3.0` |
@@ -46,13 +46,15 @@ flowchart LR
 
 ### 任务
 
-- [ ] **P0-1 导入 Readest**：以最新稳定版 `v0.12.16` 为基线（发布版比 `main` 更稳定），添加 `upstream` 远程仓库，以 `--allow-unrelated-histories` 合并并保留完整历史；解决 README 与 `.gitignore` 冲突；确认子模块在 CI 中可以完整拉取。
-- [ ] **P0-2 Yohaku 项目说明**：新增面向 Yohaku 的 `CLAUDE.md` / `AGENTS.md`，替换 Readest 维护者专用的流程说明（社区 PR 审查、维护循环、gstack 技能路由等），指向 `docs/yohaku/`。
-- [ ] **P0-3 品牌替换**：按[架构 §2.3](02-architecture.md#23-品牌替换清单)执行；Android 包名、`MainActivity` 路径、数据目录、深链接、图标（占位）、i18n 品牌后处理器、关于页致谢。
-- [ ] **P0-4 去云端化**：按[架构 §7](02-architecture.md#7-readest-裁剪清单)中 P0 项执行；首先删除 `.env` 中的默认密钥；新增 `src/yohaku/flags.ts` 离线开关；收紧 CSP；关闭更新器；移除受限权限（Google Play 渠道）。
-- [ ] **P0-5 CI/CD**：按 [04 · 构建与发布](04-ci-release.md)新建 `ci.yml`、`build.yml`、`release.yml`，删除无关工作流；加入「禁止外联」检查、Android 16 KB 对齐与权限审计、AAB 构建。
+- [x] **P0-1 导入 Readest**：以最新稳定版 `v0.12.16` 为基线（发布版比 `main` 更稳定），添加 `upstream` 远程仓库，以 `--allow-unrelated-histories` 合并并保留完整历史；解决 README 与 `.gitignore` 冲突；确认子模块在 CI 中可以完整拉取。
+- [x] **P0-2 Yohaku 项目说明**：新增面向 Yohaku 的 `CLAUDE.md` / `AGENTS.md`，替换 Readest 维护者专用的流程说明（社区 PR 审查、维护循环、gstack 技能路由等），指向 `docs/yohaku/`。
+- [x] **P0-3 品牌替换**：按[架构 §2.3](02-architecture.md#23-品牌替换清单)执行；Android 包名、`MainActivity` 路径、数据目录、深链接、图标（占位）、i18n 品牌后处理器、关于页致谢。
+- [x] **P0-4 去云端化**：按[架构 §7](02-architecture.md#7-readest-裁剪清单)中 P0 项执行；首先删除 `.env` 中的默认密钥；新增 `src/yohaku/build.ts`（`isYohakuBuild()`，由 `.env.tauri` 的 `NEXT_PUBLIC_YOHAKU_BUILD` 打开）；收紧 CSP；关闭更新器；移除受限权限（Google Play 渠道）。
+- [x] **P0-5 CI/CD**：按 [04 · 构建与发布](04-ci-release.md)新建 `ci.yml`、`build.yml`、`release.yml`，删除无关工作流；加入「禁止外联」检查、Android 16 KB 对齐与权限审计、AAB 构建。
 - [ ] **P0-6 密钥**：你在本地生成 Android keystore 并上传到 GitHub Secrets（步骤见 [04 §5](04-ci-release.md#5-签名与密钥管理)）。
-- [ ] **P0-7 首个预发布**：`v0.1.0-alpha.1` 作为 GitHub Pre-release 发布全部平台产物。
+- [ ] **P0-7 首个预发布**：`v0.0.1` 作为 GitHub Pre-release 发布全部平台产物（应用版本号只用纯数字，见 [04 §4](04-ci-release.md#4-产物命名)）。
+
+实际改动逐项登记在 [upstream-patches.md](upstream-patches.md)，其中也列出了暂缓的差异（`readest://` 深链接、数据子目录名等）。
 
 ### 验收
 

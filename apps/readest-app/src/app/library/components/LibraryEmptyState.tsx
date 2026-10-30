@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppRouter } from '@/hooks/useAppRouter';
 import { navigateToLogin } from '@/utils/nav';
+import { isYohakuBuild } from '@/yohaku/build';
 import LibraryImportButton from './LibraryImportButton';
 
 interface LibraryEmptyStateProps {
@@ -36,7 +37,8 @@ const LibraryEmptyState: React.FC<LibraryEmptyStateProps> = ({ onImport }) => {
           <LibraryImportButton onImport={onImport} primary />
           {/* TODO: add a 'Browse free catalogs' secondary action that opens the
               OPDS dialog (handleShowOPDSDialog) once we settle on placement. */}
-          {!user && (
+          {/* [yohaku] No accounts in Yohaku. */}
+          {!user && !isYohakuBuild() && (
             <button
               type='button'
               className={clsx(
