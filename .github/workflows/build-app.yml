@@ -49,6 +49,7 @@ jobs:
             args: '--target x86_64-pc-windows-msvc --bundles nsis'
     env:
       NODE_OPTIONS: '--max-old-space-size=8192'
+      NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -134,7 +135,7 @@ jobs:
         shell: bash
         working-directory: apps/readest-app
         run: |
-          pnpm tauri icon ../../assets-src/icon/yohaku-icon.svg
+          bash ../../scripts/yohaku/run-logged.sh pnpm tauri icon ../../assets-src/icon/yohaku-icon.svg
           cp src-tauri/icons/icon.png public/icon.png
 
       # Ad-hoc signing (tauri.conf.json) unless an Apple certificate is set up.
@@ -163,7 +164,7 @@ jobs:
           # scripts/tauri.mjs runs the CEF CLI installed above on Linux.
           TAURI_CEF_CARGO: '1'
           STRACE_MODE: '0'
-        run: pnpm tauri build ${{ matrix.config.args }}
+        run: bash ../../scripts/yohaku/run-logged.sh pnpm tauri build ${{ matrix.config.args }}
 
       # quick-sharun skips what it cannot find without failing; catch that.
       - name: verify the AppImage bundle contents (linux only)
@@ -190,7 +191,7 @@ jobs:
         working-directory: apps/readest-app
         run: |
           echo "NEXT_PUBLIC_PORTABLE_APP=true" >> .env.local
-          pnpm tauri build --target x86_64-pc-windows-msvc --no-bundle
+          bash ../../scripts/yohaku/run-logged.sh pnpm tauri build --target x86_64-pc-windows-msvc --no-bundle
           cp ../../target/x86_64-pc-windows-msvc/release/yohaku.exe "$RUNNER_TEMP/yohaku-portable.exe"
 
       - name: collect the bundles
@@ -253,6 +254,7 @@ jobs:
         variant: ${{ fromJSON(inputs.aab && '["arm64", "armv7", "aab"]' || '["arm64", "armv7"]') }}
     env:
       NODE_OPTIONS: '--max-old-space-size=8192'
+      NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -324,8 +326,8 @@ jobs:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
         run: |
           rm -rf src-tauri/gen/android
-          pnpm tauri android init
-          pnpm tauri icon ../../assets-src/icon/yohaku-icon.svg
+          bash ../../scripts/yohaku/run-logged.sh pnpm tauri android init
+          bash ../../scripts/yohaku/run-logged.sh pnpm tauri icon ../../assets-src/icon/yohaku-icon.svg
           git checkout -- src-tauri/gen/android
           cp src-tauri/icons/icon.png public/icon.png
 
@@ -364,7 +366,7 @@ jobs:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
           # The Play bundle swaps all-files access for an inert permission name.
           ORG_GRADLE_PROJECT_yohakuStore: ${{ matrix.variant == 'aab' && 'play' || 'github' }}
-        run: pnpm tauri android build ${{ steps.cfg.outputs.args }}
+        run: bash ../../scripts/yohaku/run-logged.sh pnpm tauri android build ${{ steps.cfg.outputs.args }}
 
       - name: check and collect the package
         env:

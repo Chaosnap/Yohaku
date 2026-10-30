@@ -25,15 +25,14 @@
 
 ```mermaid
 flowchart LR
-  A["本地修改代码与素材"] --> B["推送功能分支"]
+  A["本地修改代码与素材"] --> B["直接推送到 main"]
   B --> C["CI：格式 · Lint · 类型检查 · 单元测试"]
-  C --> D["构建工作流：四平台测试包"]
+  B --> D["构建工作流：四平台测试包"]
   D --> E["下载 Artifacts<br/>在真机上验收"]
-  E --> F["合并到 main"]
-  F --> G["打 tag → Release 工作流<br/>签名产物发布到 GitHub Releases"]
+  E --> G["打 tag → Release 工作流<br/>签名产物发布到 GitHub Releases"]
 ```
 
-- **分支**：`main` 始终保持可发布；每项工作在独立分支上进行并通过 PR 合并。
+- **分支**：直接推送到 `main`，不使用功能分支与 PR。CI 与构建在每次推送时运行；同一分支上新的推送会取消仍在进行的旧运行，所以相关改动尽量合并成一次推送。
 - **自动化测试**：Vitest（前端与领域服务）、Rust 单元测试（含音频引擎离线渲染测试）、Kotlin JVM 单元测试、Playwright（使用 Mock 音频引擎测试空间与列表界面，并上传截图供审阅）、Android 模拟器冒烟测试（复用 Readest 的 `android-e2e.yml`）、Linux AppImage 在 xvfb 下的启动测试。
 - **真机验收**：CI 无法测量真实的后台播放、厂商杀进程、帧率与耗电，这部分由你在自己的设备上用 CI 产出的测试包完成。每个 Phase 附带一份验收清单。
 - **建议的测试设备**：一台中端 Android（Android 13–16），最好再有一台旧设备（Android 8–10）用于低性能测试；你的 Mac；一台 Windows 电脑或虚拟机；一台 Linux 虚拟机（Ubuntu 24.04）。

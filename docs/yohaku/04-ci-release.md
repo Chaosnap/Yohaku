@@ -22,6 +22,10 @@
 | `build-app.yml` | 被 `build.yml` 与 `release.yml` 调用 | 实际的构建矩阵与打包、检查、上传 | — |
 | `release.yml` | 推送 `v*` tag | 创建 Draft Release → 构建全部平台与 Google Play AAB 并上传 → 生成 `SHA256SUMS.txt` 与构建来源证明；确认后由你手动发布 | 90–150 分钟（并行） |
 
+- CI 的 Linux 任务固定在 `ubuntu-24.04`：`ubuntu-latest` 自 2026-10-19 起迁移到 Ubuntu 26.04，Playwright 1.60 还无法在上面安装 Chromium。
+- 构建与测试命令经 `scripts/yohaku/run-logged.sh` 运行：失败时把日志末尾写成 annotation，不登录 GitHub 也能在 API 与运行页面上看到错误原因。
+- 构建时关闭 Next.js 的 CLI 遥测（`NEXT_TELEMETRY_DISABLED=1`）。
+
 计划中（Phase 1 起）：Android 模拟器冒烟测试（改造 Readest 的 `android-e2e.yml`）、每月的上游同步工作流。
 
 ---
