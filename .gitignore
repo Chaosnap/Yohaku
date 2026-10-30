@@ -1,0 +1,20 @@
+# ---- 仅本地保存，不上传 GitHub ----
+# 上游与参考项目的只读克隆（Readest、Harmonia、foliate-js 等）
+/references/
+# 原始素材、工作文件、实验代码
+/local/
+
+# ---- 密钥与凭据：任何情况下都不得提交 ----
+*.jks
+*.keystore
+keystore.properties
+*.p12
+*.pem
+*.key
+.env.local
+.env.*.local
+
+# ---- 系统与编辑器 ----
+.DS_Store
+Thumbs.db
+.idea/
