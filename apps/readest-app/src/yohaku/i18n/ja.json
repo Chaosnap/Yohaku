@@ -6,5 +6,14 @@
   "Right to Left by Default": "右から左を既定にする",
   "For comics that do not set a reading direction. Manga marked right to left in ComicInfo.xml always opens that way.": "読む方向が指定されていないマンガに適用されます。ComicInfo.xml で右から左と指定されたマンガは、常に右から左で開きます。",
   "Online Voices": "オンライン音声",
-  "Read aloud with Microsoft Edge voices. The text being read is sent to Microsoft. Takes effect the next time reading aloud starts.": "Microsoft Edge のオンライン音声で読み上げます。読み上げる文章は Microsoft に送信されます。次に読み上げを始めたときから有効になります。"
+  "Read aloud with Microsoft Edge voices. The text being read is sent to Microsoft. Takes effect the next time reading aloud starts.": "Microsoft Edge のオンライン音声で読み上げます。読み上げる文章は Microsoft に送信されます。次に読み上げを始めたときから有効になります。",
+  "Music": "音楽",
+  "Not Playing": "再生していません",
+  "{{minutes}} min": "{{minutes}} 分",
+  "Ambient Sounds": "環境音",
+  "Add Sound": "音を追加",
+  "Tracks": "曲",
+  "Add Music": "音楽を追加",
+  "Rain, wind or any recording: up to three sounds loop beside the music.": "雨や風、どんな録音でも。最大 3 つの音が音楽のそばでループ再生されます。",
+  "Add your own audio files. On Android, music keeps playing with the screen locked.": "自分の音声ファイルを追加します。Android では画面をロックしても音楽が再生され続けます。"
 }

@@ -101,6 +101,7 @@ flowchart LR
 ### 任务
 
 - [ ] `tauri-plugin-yohaku-audio`：统一接口（[架构 §3.2](02-architecture.md#32-统一接口)）、桌面 Rust 引擎、Android Kotlin 服务、Mock 引擎。
+  - 初版已在 v0.0.4 提供：书库菜单 →「音乐」。自选音频文件的队列、最多三个循环的环境声、睡眠定时；Android 由 Media3 后台服务播放（锁屏、通知栏与蓝牙按键可用），桌面暂由 WebView 播放。接口在 `src/yohaku/audio/engine.ts`。
 - [ ] 音乐库：来源管理（桌面文件夹、Android MediaStore 与 SAF）、扫描、元数据与封面、专辑 / 艺术家 / 歌曲 / 播放列表、搜索与排序、传统列表视图。
 - [ ] 播放：队列、随机、循环、无缝播放、进度记忆、独立音量、输出设备变化、耳机拔出、音频焦点。
 - [ ] 系统媒体控制：桌面复用 souvlaki，并与朗读互斥；Android 通知栏、锁屏、蓝牙按键。

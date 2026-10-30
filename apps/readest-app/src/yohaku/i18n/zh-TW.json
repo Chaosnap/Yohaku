@@ -6,5 +6,14 @@
   "Right to Left by Default": "預設從右到左",
   "For comics that do not set a reading direction. Manga marked right to left in ComicInfo.xml always opens that way.": "適用於沒有指定閱讀方向的漫畫。ComicInfo.xml 中標記為從右到左的漫畫一律從右到左開啟。",
   "Online Voices": "線上語音",
-  "Read aloud with Microsoft Edge voices. The text being read is sent to Microsoft. Takes effect the next time reading aloud starts.": "使用 Microsoft Edge 的線上語音朗讀，朗讀的文字會傳送給微軟。下次開始朗讀時生效。"
+  "Read aloud with Microsoft Edge voices. The text being read is sent to Microsoft. Takes effect the next time reading aloud starts.": "使用 Microsoft Edge 的線上語音朗讀，朗讀的文字會傳送給微軟。下次開始朗讀時生效。",
+  "Music": "音樂",
+  "Not Playing": "未在播放",
+  "{{minutes}} min": "{{minutes}} 分鐘",
+  "Ambient Sounds": "環境聲音",
+  "Add Sound": "新增聲音",
+  "Tracks": "曲目",
+  "Add Music": "新增音樂",
+  "Rain, wind or any recording: up to three sounds loop beside the music.": "雨聲、風聲或任何錄音：最多三個聲音在音樂旁循環播放。",
+  "Add your own audio files. On Android, music keeps playing with the screen locked.": "新增你自己的音訊檔案。在 Android 上，鎖定螢幕後音樂會繼續播放。"
 }

@@ -52,15 +52,15 @@
 | `components/settings/LayoutPanel.tsx` | 漫画与书库设置中显示「漫画」一节（`src/yohaku/reader/ComicsSettings.tsx`） |
 | `services/tts/TTSController.ts` | 不初始化 Readest Voice（Readest 的服务器）；Edge 在线语音只在用户开启后初始化与列出（开关保存在 localStorage，与 Readest 的朗读偏好相同，见 `src/yohaku/onlineVoices.ts`；不读取设置 store，因为 `services/constants` 导入了这个文件） |
 | `components/settings/TTSPanel.tsx` | 「语音」中加入「在线语音」开关（`src/yohaku/reader/OnlineVoicesRow.tsx`） |
-| `services/translators/providers/index.ts` | 去掉 DeepL：它经过 Readest 的服务器，需要 Readest 账户 |
+| `services/translators/providers/index.ts` | 去掉需要 Readest 账户的翻译服务：DeepL 总是经过 Readest 的服务器；Azure、Yandex 只在网页版中需要，应用里直连，保留 |
 
 ## 原生层
 
 | 文件 | 改动 |
 |---|---|
 | `src-tauri/src/lib.rs` | 单实例 ID 改为 `io.github.chaosnap.yohaku`；窗口标题；注册 `tauri-plugin-yohaku-audio` |
-| `src-tauri/Cargo.toml`、`src-tauri/capabilities/default.json` | 加入 Yohaku 的音频插件 `tauri-plugin-yohaku-audio`（Spike S1：Android 的 Media3 播放服务）及其权限 |
-| `app/library/components/SettingsMenu.tsx` | Android 上的 Yohaku 构建在菜单最后显示 Spike S1 测试页入口 |
+| `src-tauri/Cargo.toml`、`src-tauri/capabilities/default.json` | 加入 Yohaku 的音频插件 `tauri-plugin-yohaku-audio`（Android 的 Media3 后台播放服务；桌面上只负责让 WebView 读取用户选择的音频文件）及其权限 |
+| `app/library/components/SettingsMenu.tsx` | 菜单中加入「音乐」，进入 `/music`；新增路由 `app/music/page.tsx`（页面在 `src/yohaku/music/`） |
 | `src-tauri/src/macos/menu.rs` | 「帮助」菜单指向本仓库与 `PRIVACY.md` |
 | `src-tauri/plugins/tauri-plugin-native-tts/src/now_playing.rs` | 系统媒体控制名称与 MPRIS 名 `yohaku` |
 | `src-tauri/plugins/tauri-plugin-native-bridge/src/desktop.rs` | 钥匙串条目 `Yohaku Safe Storage` |

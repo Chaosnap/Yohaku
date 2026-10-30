@@ -17,9 +17,9 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Spike S1: plays the music queue, and up to a few looping ambient layers
- * beside it, in a foreground media service, so that playback outlives the
- * WebView and the Activity. Media3 provides the notification, the lock screen
+ * Plays the music queue, and up to a few looping ambient layers beside it, in
+ * a foreground media service, so that playback outlives the WebView and the
+ * Activity (Spike S1, now the music player's Android engine). Media3 provides the notification, the lock screen
  * and Bluetooth buttons. The music player owns audio focus and pauses when
  * headphones are unplugged; the ambient layers follow whatever it does.
  */
@@ -37,6 +37,7 @@ class YohakuPlaybackService : MediaSessionService() {
     private lateinit var music: ExoPlayer
     private var session: MediaSession? = null
     private val ambient = mutableListOf<Pair<ExoPlayer, Float>>()
+    private var ambientUris = listOf<String>()
     private val handler = Handler(Looper.getMainLooper())
     private var sleepFade: Runnable? = null
 
@@ -86,6 +87,16 @@ class YohakuPlaybackService : MediaSessionService() {
     }
 
     private fun applyAmbient(uris: Array<String>, volumes: FloatArray) {
+        // The same sounds: only their volumes change, without restarting them.
+        if (uris.toList() == ambientUris) {
+            ambient.forEachIndexed { index, (player, _) ->
+                val volume = volumes.getOrElse(index) { 1f }
+                player.volume = volume
+                ambient[index] = player to volume
+            }
+            return
+        }
+        ambientUris = uris.toList()
         ambient.forEach { (player, _) -> player.release() }
         ambient.clear()
         uris.forEachIndexed { index, uri ->

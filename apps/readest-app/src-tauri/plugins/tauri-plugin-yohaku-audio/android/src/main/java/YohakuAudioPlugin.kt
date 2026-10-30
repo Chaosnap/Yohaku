@@ -30,6 +30,16 @@ class QueueArgs {
 }
 
 @InvokeArg
+class IndexArgs {
+    var index: Int = 0
+}
+
+@InvokeArg
+class SeekArgs {
+    var positionMs: Long = 0
+}
+
+@InvokeArg
 class AmbientLayerArgs {
     var uri: String = ""
     var volume: Float = 1f
@@ -48,9 +58,9 @@ class SleepTimerArgs {
 }
 
 /**
- * Spike S1: the WebView's remote control for [YohakuPlaybackService]. Every
- * command goes through a MediaController, so the page can be reloaded or the
- * Activity recreated without touching what is playing.
+ * The WebView's remote control for [YohakuPlaybackService]. Every command goes
+ * through a MediaController, so the page can be reloaded or the Activity
+ * recreated without touching what is playing.
  */
 @TauriPlugin
 class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
@@ -105,7 +115,8 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-            } catch (_: SecurityException) {
+            } catch (ignored: SecurityException) {
+                // Not every provider grants persistable access; it still plays now.
             }
         }
         val ret = JSObject()
@@ -145,6 +156,41 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     fun pause(invoke: Invoke) {
         withController(invoke) { controller ->
             controller.pause()
+            invoke.resolve()
+        }
+    }
+
+    @Command
+    fun next(invoke: Invoke) {
+        withController(invoke) { controller ->
+            controller.seekToNextMediaItem()
+            invoke.resolve()
+        }
+    }
+
+    @Command
+    fun previous(invoke: Invoke) {
+        withController(invoke) { controller ->
+            controller.seekToPreviousMediaItem()
+            invoke.resolve()
+        }
+    }
+
+    @Command
+    fun skip_to(invoke: Invoke) {
+        val args = invoke.parseArgs(IndexArgs::class.java)
+        withController(invoke) { controller ->
+            controller.seekToDefaultPosition(args.index)
+            controller.play()
+            invoke.resolve()
+        }
+    }
+
+    @Command
+    fun seek_to(invoke: Invoke) {
+        val args = invoke.parseArgs(SeekArgs::class.java)
+        withController(invoke) { controller ->
+            controller.seekTo(args.positionMs)
             invoke.resolve()
         }
     }

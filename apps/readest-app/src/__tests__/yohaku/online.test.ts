@@ -29,9 +29,11 @@ describe('translation services', () => {
     expect(translatorNames()).toContain('deepl');
   });
 
-  it('leave out DeepL in a Yohaku build, as it needs a Readest account', () => {
+  // Azure and Yandex need an account only on the web, so this test (not in the
+  // app) leaves them out too; the app keeps them.
+  it('leave out those that need a Readest account in a Yohaku build', () => {
     vi.stubEnv('NEXT_PUBLIC_YOHAKU_BUILD', 'true');
     expect(translatorNames()).not.toContain('deepl');
-    expect(translatorNames()).toEqual(expect.arrayContaining(['azure', 'google', 'yandex']));
+    expect(translatorNames()).toContain('google');
   });
 });

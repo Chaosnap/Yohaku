@@ -521,7 +521,7 @@ CREATE TABLE reading_listening (               -- 「曾经陪伴阅读的歌曲
 | OAuth 深链接（Google Drive、OneDrive） | 移除 | P0 |
 | AI 助手 | 默认隐藏 | P0 |
 | 在线朗读（Edge TTS） | 默认关闭，在「朗读 → 语音 → 在线语音」中手动开启；Readest Voice（Readest 的云端语音）移除 | P1（已完成） |
-| 在线翻译 | DeepL（经过 Readest 的服务器，需要账户）移除；Google、Azure、Yandex 保留，只在用户每次点击「翻译」时联网。原计划「默认隐藏」：Readest 的翻译组件假定至少有一个可用的翻译服务，全部隐藏会使其出错，因此改为现在的做法 | P1（已完成） |
+| 在线翻译 | DeepL（经过 Readest 的服务器，需要账户）移除；Google、Azure、Yandex 在应用中直连，保留，只在用户每次点击「翻译」时联网。原计划「默认隐藏」：Readest 的翻译组件假定至少有一个可用的翻译服务，全部隐藏会使其出错，因此改为现在的做法 | P1（已完成） |
 | Readest Web API（在线元数据检索、Readest Voice、发送到 Readest 等） | `.env.tauri` 把 API 地址指向 `https://readest.invalid`，残留的调用立即失败，不会连到 Readest；在线元数据检索之后改为直接访问公开书目服务 | P1（已完成） |
 | 第三方集成（Hardcover、Readwise、Notion、BookOrbit、Audiobookshelf、RSS、网页剪藏与内置浏览器） | 隐藏或移除 | P0–P1 |
 | Discord Rich Presence | 移除 | P0 |
