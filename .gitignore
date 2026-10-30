@@ -1,20 +1,83 @@
-# ---- 仅本地保存，不上传 GitHub ----
+# ---- Yohaku：仅本地保存，不上传 GitHub ----
 # 上游与参考项目的只读克隆（Readest、Harmonia、foliate-js 等）
 /references/
 # 原始素材、工作文件、实验代码
 /local/
 
-# ---- 密钥与凭据：任何情况下都不得提交 ----
+# ---- Yohaku：密钥与凭据，任何情况下都不得提交 ----
 *.jks
 *.keystore
 keystore.properties
 *.p12
-*.pem
 *.key
-.env.local
 .env.*.local
 
 # ---- 系统与编辑器 ----
-.DS_Store
 Thumbs.db
 .idea/
+
+# ---- 以下来自上游 Readest ----
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+docker/.env
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+/certs
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Rust build
+target
+
+fastlane/report.xml
+fastlane/metadata/android/en-US/changelogs
+
+*.koplugin.zip
+
+# nix
+result*
+
+.playwright-mcp/
+.gstack
+
+.claude/worktrees
+.claude/settings.local.json
+
+fastlane/staging/
+fastlane/metadata-play/android/en-US/changelogs
+
+apps/readest.koplugin/bin/
+apps/readest.koplugin/native/localsend-bin/target/
+
+# scripts/tauri.mjs parks the wry Cargo.lock here during a Linux CEF build
+/Cargo.lock.wry

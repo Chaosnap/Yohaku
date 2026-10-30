@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Yohaku placeholder icon: a photograph that is mostly blank space (余白),
+       hung from a cord by a wooden clip, with one small vermilion seal.
+       Source for `tauri icon`; the Android vectors in gen/android mirror it. -->
+  <defs>
+    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2633"/>
+      <stop offset="1" stop-color="#15131a"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6efe0"/>
+      <stop offset="1" stop-color="#e6d9bf"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#room)"/>
+  <path d="M150 330 Q512 430 874 330" fill="none" stroke="#c9b48c" stroke-width="10" stroke-linecap="round"/>
+  <g transform="rotate(-3 512 380)">
+    <rect x="342" y="406" width="360" height="440" rx="8" fill="#000000" opacity="0.22"/>
+    <rect x="332" y="392" width="360" height="440" rx="8" fill="url(#paper)"/>
+    <rect x="356" y="416" width="312" height="312" fill="#efe5d1" stroke="#d9c9a9" stroke-width="2"/>
+    <circle cx="610" cy="668" r="22" fill="#c4553f"/>
+    <rect x="494" y="350" width="36" height="78" rx="6" fill="#a9804f"/>
+    <rect x="494" y="384" width="36" height="6" fill="#7d5b35"/>
+  </g>
+</svg>

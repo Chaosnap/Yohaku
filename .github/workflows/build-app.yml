@@ -1,0 +1,409 @@
+name: Build app
+
+# Builds Yohaku for every platform. Called by build.yml (test builds, uploaded as
+# workflow artifacts) and by release.yml (uploaded to a draft GitHub release).
+# Adapted from Readest's release workflow: same toolchains, the Linux CEF CLI
+# pinned to the same readest/tauri revision, same Android signing flow.
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Upload the bundles to this (draft) release instead of workflow artifacts.
+        type: string
+        default: ''
+      aab:
+        description: Also build the Google Play app bundle.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  desktop:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    timeout-minutes: 90
+    permissions:
+      contents: write # gh release upload
+      id-token: write # build provenance attestation
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: linux-x86_64
+            os: ubuntu-22.04
+            platform: linux
+            rust_target: x86_64-unknown-linux-gnu
+            args: '--bundles appimage,deb'
+          - name: macos-universal
+            os: macos-latest
+            platform: macos
+            rust_target: x86_64-apple-darwin,aarch64-apple-darwin
+            args: '--target universal-apple-darwin --bundles dmg'
+          - name: windows-x64
+            os: windows-latest
+            platform: windows
+            rust_target: x86_64-pc-windows-msvc
+            args: '--target x86_64-pc-windows-msvc --bundles nsis'
+    env:
+      NODE_OPTIONS: '--max-old-space-size=8192'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # gstack is a skill pack for Readest's agents; nothing builds from it.
+      - name: initialize git submodules
+        shell: bash
+        run: git -c submodule."apps/readest-app/.claude/skills/gstack".update=none submodule update --init --recursive
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: name the build
+        id: label
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          if [ -n "$RELEASE_TAG" ]; then
+            echo "value=${RELEASE_TAG#v}" >> "$GITHUB_OUTPUT"
+          else
+            version=$(node -p "require('./apps/readest-app/package.json').version")
+            echo "value=${version}-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: copy pdfjs-dist and simplecc-dist to public directory
+        run: pnpm --filter @readest/readest-app setup-vendors
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+        with:
+          targets: ${{ matrix.config.rust_target }}
+
+      - uses: Swatinem/rust-cache@f0d9c3887740aee45f6153b24b3a6b815192ec16 # v2
+        with:
+          key: ${{ matrix.config.name }}-cargo
+
+      # Linux ships on the CEF runtime, built with the tauri CLI from
+      # readest/tauri at the revision Readest v0.12.16 pins (see Readest's
+      # release workflow for why the npm cli-cef cannot be used).
+      - name: install the CEF tauri CLI from readest/tauri (linux only)
+        if: matrix.config.platform == 'linux'
+        run: |
+          set -euo pipefail
+          rev=6beeb209b5514f597a26f48b7a5b9fe4c59b5f12
+          marker="$HOME/.cargo/bin/.cargo-tauri-rev"
+          if [ -x "$HOME/.cargo/bin/cargo-tauri" ] && [ "$(cat "$marker" 2>/dev/null)" = "$rev" ]; then
+            echo "cargo-tauri at $rev already installed"
+            exit 0
+          fi
+          cargo install tauri-cli --git https://github.com/readest/tauri --rev "$rev" --locked --force
+          echo "$rev" > "$marker"
+
+      - name: install dependencies (linux only)
+        if: matrix.config.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libfontconfig-dev libgtk-3-dev libwebkit2gtk-4.1 libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1 libjavascriptcoregtk-4.1-dev gir1.2-javascriptcoregtk-4.1 gir1.2-webkit2-4.1 libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      # Chromium dlopens NSS, libpulse, libspeechd and libxkbcommon-x11 by
+      # soname; stage the copies the AppImage bundler misses (as Readest does).
+      - name: stage CEF AppImage runtime libraries (linux only)
+        if: matrix.config.platform == 'linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y libnss3 libpulse0 libspeechd2 libxkbcommon-x11-0
+          nss_dir=$(dirname "$(ls /usr/lib/*-linux-gnu/nss/libsoftokn3.so)")
+          lib_dir=${nss_dir%/nss}
+          sudo cp -f --remove-destination "$nss_dir"/*.so "$lib_dir/"
+          conf=apps/readest-app/src-tauri/tauri.conf.json
+          jq --arg d "$lib_dir" '.bundle.linux.appimage.files += {
+              "/usr/lib/libspeechd.so.2": ($d + "/libspeechd.so.2"),
+              "/usr/lib/libxkbcommon-x11.so.0": ($d + "/libxkbcommon-x11.so.0")
+            }' "$conf" > "$conf.tmp" && mv "$conf.tmp" "$conf"
+
+      - name: apply the Yohaku icon
+        shell: bash
+        working-directory: apps/readest-app
+        run: |
+          pnpm tauri icon ../../assets-src/icon/yohaku-icon.svg
+          cp src-tauri/icons/icon.png public/icon.png
+
+      # Ad-hoc signing (tauri.conf.json) unless an Apple certificate is set up.
+      - name: configure macOS signing (optional)
+        if: matrix.config.platform == 'macos'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          if [ -z "$APPLE_CERTIFICATE" ]; then
+            echo "No Apple certificate: the app is ad-hoc signed and not notarized."
+            exit 0
+          fi
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            echo "$name=${!name}" >> "$GITHUB_ENV"
+          done
+
+      - name: build
+        shell: bash
+        working-directory: apps/readest-app
+        env:
+          # scripts/tauri.mjs runs the CEF CLI installed above on Linux.
+          TAURI_CEF_CARGO: '1'
+          STRACE_MODE: '0'
+        run: pnpm tauri build ${{ matrix.config.args }}
+
+      # quick-sharun skips what it cannot find without failing; catch that.
+      - name: verify the AppImage bundle contents (linux only)
+        if: matrix.config.platform == 'linux'
+        run: |
+          set -euo pipefail
+          lib=target/release/bundle/appimage/Yohaku.AppDir/lib
+          for so in libsoftokn3.so libfreeblpriv3.so libnssckbi.so libsqlite3.so.0 \
+                    libpulse.so.0 libspeechd.so.2 libxkbcommon-x11.so.0; do
+            [ -e "$lib/$so" ] || { echo "::error::$so is missing from the AppImage bundle"; exit 1; }
+          done
+          ls "$lib"/pulseaudio/libpulsecommon-*.so > /dev/null 2>&1 \
+            || { echo "::error::libpulsecommon is missing from the AppImage bundle"; exit 1; }
+          grep -qx '+/pulseaudio' "$lib/lib.path" \
+            || { echo "::error::lib.path does not cover lib/pulseaudio, so libpulse cannot load"; exit 1; }
+          [ -e "${lib%/lib}/bin/00-no-userns-prompt.hook" ] \
+            || { echo "::error::the no-userns-prompt hook is missing from the AppImage bundle"; exit 1; }
+
+      # The portable exe keeps its data next to itself; it is the same app
+      # rebuilt with NEXT_PUBLIC_PORTABLE_APP, without an installer.
+      - name: build the portable exe (windows only)
+        if: matrix.config.platform == 'windows'
+        shell: bash
+        working-directory: apps/readest-app
+        run: |
+          echo "NEXT_PUBLIC_PORTABLE_APP=true" >> .env.local
+          pnpm tauri build --target x86_64-pc-windows-msvc --no-bundle
+          cp ../../target/x86_64-pc-windows-msvc/release/yohaku.exe "$RUNNER_TEMP/yohaku-portable.exe"
+
+      - name: collect the bundles
+        shell: bash
+        env:
+          LABEL: ${{ steps.label.outputs.value }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          case "${{ matrix.config.platform }}" in
+            linux)
+              cp target/release/bundle/appimage/*.AppImage "dist/Yohaku_${LABEL}_linux_amd64.AppImage"
+              cp target/release/bundle/deb/*.deb "dist/Yohaku_${LABEL}_linux_amd64.deb"
+              ;;
+            macos)
+              cp target/universal-apple-darwin/release/bundle/dmg/*.dmg "dist/Yohaku_${LABEL}_macos_universal.dmg"
+              ;;
+            windows)
+              cp target/x86_64-pc-windows-msvc/release/bundle/nsis/*-setup.exe "dist/Yohaku_${LABEL}_windows_x64-setup.exe"
+              cp "$RUNNER_TEMP/yohaku-portable.exe" "dist/Yohaku_${LABEL}_windows_x64-portable.exe"
+              ;;
+          esac
+          ls -la dist
+
+      - name: upload the test build
+        if: inputs.release_tag == ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Yohaku-${{ matrix.config.name }}
+          path: dist/*
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: upload to the release
+        if: inputs.release_tag != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: gh release upload "$RELEASE_TAG" dist/* --clobber --repo "$GITHUB_REPOSITORY"
+
+      - name: attest the release bundles
+        if: inputs.release_tag != ''
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*
+
+  android:
+    name: android-${{ matrix.variant }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ matrix.variant == 'aab' && 170 || 110 }}
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # One APK per ABI keeps each download small; the Play bundle carries both.
+        variant: ${{ fromJSON(inputs.aab && '["arm64", "armv7", "aab"]' || '["arm64", "armv7"]') }}
+    env:
+      NODE_OPTIONS: '--max-old-space-size=8192'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: initialize git submodules
+        run: git -c submodule."apps/readest-app/.claude/skills/gstack".update=none submodule update --init --recursive
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: select the build
+        id: cfg
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          case "${{ matrix.variant }}" in
+            arm64) targets=aarch64-linux-android; args="-t aarch64 --apk" ;;
+            armv7) targets=armv7-linux-androideabi; args="-t armv7 --apk" ;;
+            aab) targets=aarch64-linux-android,armv7-linux-androideabi; args="-t aarch64 -t armv7 --aab" ;;
+          esac
+          if [ -n "$RELEASE_TAG" ]; then
+            label=${RELEASE_TAG#v}
+          else
+            label="$(node -p "require('./apps/readest-app/package.json').version")-${GITHUB_SHA::7}"
+          fi
+          {
+            echo "rust_targets=$targets"
+            echo "args=$args"
+            echo "label=$label"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          # The legacy `tools` package no longer exists and makes sdkmanager fail.
+          packages: 'platform-tools'
+
+      - name: install NDK
+        run: sdkmanager "ndk;28.2.13676358"
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: copy pdfjs-dist and simplecc-dist to public directory
+        run: pnpm --filter @readest/readest-app setup-vendors
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+        with:
+          targets: ${{ steps.cfg.outputs.rust_targets }}
+
+      - uses: Swatinem/rust-cache@f0d9c3887740aee45f6153b24b3a6b815192ec16 # v2
+        with:
+          key: android-${{ matrix.variant }}-cargo
+
+      # `tauri android init` regenerates the whole Gradle project; the tracked
+      # Yohaku sources (manifest, Gradle file, MainActivity, icon vectors) are
+      # then put back over it.
+      - name: prepare the Android project
+        working-directory: apps/readest-app
+        env:
+          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
+        run: |
+          rm -rf src-tauri/gen/android
+          pnpm tauri android init
+          pnpm tauri icon ../../assets-src/icon/yohaku-icon.svg
+          git checkout -- src-tauri/gen/android
+          cp src-tauri/icons/icon.png public/icon.png
+
+      - name: set up the signing key
+        working-directory: apps/readest-app/src-tauri/gen/android
+        env:
+          KEY_BASE64: ${{ secrets.ANDROID_KEY_BASE64 }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          if [ -n "$KEY_BASE64" ]; then
+            base64 -d <<< "$KEY_BASE64" > "$RUNNER_TEMP/keystore.jks"
+          elif [ -n "$RELEASE_TAG" ]; then
+            echo "::error::Releases must be signed. Add ANDROID_KEY_BASE64, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD (docs/yohaku/04-ci-release.md)."
+            exit 1
+          else
+            echo "::warning::No signing key is set up, so this test build uses a throwaway key: uninstall the previous test build before installing it."
+            KEY_ALIAS=yohaku-ci
+            KEY_PASSWORD=$(openssl rand -hex 16)
+            keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/keystore.jks" -alias "$KEY_ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 3650 -storepass "$KEY_PASSWORD" -keypass "$KEY_PASSWORD" \
+              -dname "CN=Yohaku CI"
+          fi
+          {
+            echo "keyAlias=$KEY_ALIAS"
+            echo "password=$KEY_PASSWORD"
+            echo "storeFile=$RUNNER_TEMP/keystore.jks"
+          } > keystore.properties
+
+      - name: build
+        working-directory: apps/readest-app
+        timeout-minutes: ${{ matrix.variant == 'aab' && 150 || 90 }}
+        env:
+          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
+          # The Play bundle swaps all-files access for an inert permission name.
+          ORG_GRADLE_PROJECT_yohakuStore: ${{ matrix.variant == 'aab' && 'play' || 'github' }}
+        run: pnpm tauri android build ${{ steps.cfg.outputs.args }}
+
+      - name: check and collect the package
+        env:
+          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
+          LABEL: ${{ steps.cfg.outputs.label }}
+        run: |
+          set -euo pipefail
+          out=apps/readest-app/src-tauri/gen/android/app/build
+          mkdir -p dist
+          if [ "${{ matrix.variant }}" = aab ]; then
+            aab=$out/outputs/bundle/universalRelease/app-universal-release.aab
+            manifest=$(find "$out/intermediates" -name AndroidManifest.xml \( -path '*bundle_manifest*' -o -path '*merged_manifest*' \) | grep -i release | head -1)
+            scripts/yohaku/check-android-package.sh aab "$aab" "$manifest"
+            cp "$aab" "dist/Yohaku_${LABEL}_android_googleplay.aab"
+          else
+            apk=$out/outputs/apk/universal/release/app-universal-release.apk
+            scripts/yohaku/check-android-package.sh apk "$apk"
+            cp "$apk" "dist/Yohaku_${LABEL}_android_${{ matrix.variant }}.apk"
+          fi
+          ls -la dist
+
+      - name: upload the test build
+        if: inputs.release_tag == ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Yohaku-android-${{ matrix.variant }}
+          path: dist/*
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: upload to the release
+        if: inputs.release_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: gh release upload "$RELEASE_TAG" dist/* --clobber --repo "$GITHUB_REPOSITORY"
+
+      - name: attest the release package
+        if: inputs.release_tag != ''
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*

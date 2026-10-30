@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [yohaku] Every layer is a vector drawable, so no launcher PNGs are needed
+     on Android 8+ (the minimum supported version). -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+  <background android:drawable="@color/yohaku_icon_background"/>
+  <foreground android:drawable="@drawable/yohaku_icon_foreground"/>
+  <monochrome android:drawable="@drawable/yohaku_icon_monochrome"/>
+</adaptive-icon>

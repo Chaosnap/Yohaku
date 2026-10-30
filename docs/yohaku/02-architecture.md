@@ -70,7 +70,7 @@ Yohaku/
 │   │       ├── ambient/              #   环境声音场景、预设、混音界面
 │   │       ├── memory/               #   声音书签、胶卷、私人场景
 │   │       ├── db/                   #   yohaku_* 数据表迁移
-│   │       └── flags.ts              #   离线开关与功能开关
+│   │       └── build.ts              #   isYohakuBuild()：Yohaku 构建开关（.env.tauri）
 │   ├── public/yohaku/                # 🆕 运行时素材（压缩后的纹理、音效）
 │   └── src-tauri/
 │       ├── src/yohaku/               # 🆕 Rust：音乐扫描等应用级命令
@@ -90,7 +90,7 @@ Yohaku/
 ### 2.2 上游同步规则
 
 - 远程仓库：`origin` = `Chaosnap/Yohaku`，`upstream` = `readest/readest`。导入时保留 Readest 的完整历史（`git merge --allow-unrelated-histories`），以后每次同步都是普通的 `git merge upstream/main`。
-- **少改上游文件**：品牌替换走配置与 i18n 后处理，功能关闭走 `flags.ts`，新功能放在 `yohaku/` 目录。确实需要改动的上游文件，在改动处加 `// [yohaku] 原因` 注释，并登记在 `docs/yohaku/upstream-patches.md`。
+- **少改上游文件**：品牌替换走配置与 i18n 后处理，功能关闭走 `isYohakuBuild()`（`src/yohaku/build.ts`），新功能放在 `yohaku/` 目录。确实需要改动的上游文件，在改动处加 `// [yohaku] 原因` 注释，并登记在 `docs/yohaku/upstream-patches.md`。
 - **节奏**：每月一次。在独立分支上合并上游，CI 全绿且真机冒烟测试通过后再合入 `main`。可选：定时工作流自动尝试合并并开 PR（见 [04 · CI](04-ci-release.md#8-上游同步工作流)）。
 - 子模块（foliate-js、Tauri 分叉等）跟随 Readest 的固定提交；为防止上游仓库变动造成构建中断，可把这些分叉镜像到 `Chaosnap` 账号下。
 

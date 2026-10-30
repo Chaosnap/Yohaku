@@ -1,0 +1,66 @@
+name: Release
+
+# Pushing a tag such as v0.0.1 builds every platform (plus the Google Play
+# bundle) into a draft GitHub release. Review the draft, then publish it.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "Release $TAG already exists; the builds upload into it."
+            exit 0
+          fi
+          prerelease=()
+          case "$TAG" in v0.* | *-*) prerelease=(--prerelease) ;; esac
+          notes=$(printf '%s\n' \
+            'Yohaku 预览版 / preview build.' \
+            '' \
+            '- macOS：未经 Apple 公证。首次打开如被拦截，请到「系统设置 → 隐私与安全性」点击「仍要打开」。' \
+            '- Windows：可能出现 SmartScreen 提示，选择「更多信息 → 仍要运行」。' \
+            '- Android：安装 arm64（大多数手机）或 armv7（较旧的 32 位手机）的 APK；.aab 供 Google Play 使用。' \
+            '- 校验文件完整性：SHA256SUMS.txt。')
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft "${prerelease[@]}" \
+            --title "Yohaku $TAG" --notes "$notes"
+
+  build:
+    needs: create-release
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    uses: ./.github/workflows/build-app.yml
+    with:
+      release_tag: ${{ github.ref_name }}
+      aab: true
+    secrets: inherit
+
+  checksums:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: add SHA256SUMS.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir assets --pattern 'Yohaku_*'
+          (cd assets && sha256sum Yohaku_* > SHA256SUMS.txt && cat SHA256SUMS.txt)
+          gh release upload "$TAG" assets/SHA256SUMS.txt --clobber --repo "$GITHUB_REPOSITORY"
