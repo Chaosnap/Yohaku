@@ -5,6 +5,8 @@
 /local/
 
 # ---- Yohaku：密钥与凭据，任何情况下都不得提交 ----
+# 本地存放签名密钥的目录
+/key/
 *.jks
 *.keystore
 keystore.properties

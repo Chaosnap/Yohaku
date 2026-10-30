@@ -20,7 +20,7 @@
 | `ci.yml` | push 到 `main` / `phase-*`、PR | Yohaku 配置检查（离线、身份、无 Readest 服务）；Biome 格式与 lint、TypeScript 类型检查；构建 Tauri 前端；Vitest 单元测试（两路分片）与 Playwright 浏览器测试；`cargo fmt` / `clippy` / `cargo test` | 15–30 分钟 |
 | `build.yml` | push 到 `main` / `phase-*`（只改文档时跳过）、手动触发 | 调用 `build-app.yml` 构建全部平台的测试包，上传为 Artifacts（保留 14 天） | 60–100 分钟（并行） |
 | `build-app.yml` | 被 `build.yml` 与 `release.yml` 调用 | 实际的构建矩阵与打包、检查、上传 | — |
-| `release.yml` | 推送 `v*` tag | 创建 Draft Release → 构建全部平台与 Google Play AAB 并上传 → 生成 `SHA256SUMS.txt` 与构建来源证明；确认后由你手动发布 | 90–150 分钟（并行） |
+| `release.yml` | 推送 `v*` tag | 创建 Draft Release → 构建全部平台与 Google Play AAB 并上传 → 生成 `SHA256SUMS.txt` 与构建来源证明 → 预览版自动发布为 Pre-release，正式版留作草稿由你检查后发布 | 90–150 分钟（并行） |
 
 - CI 的 Linux 任务固定在 `ubuntu-24.04`：`ubuntu-latest` 自 2026-10-19 起迁移到 Ubuntu 26.04，Playwright 1.60 还无法在上面安装 Chromium。
 - 构建与测试命令经 `scripts/yohaku/run-logged.sh` 运行：失败时把日志末尾写成 annotation，不登录 GitHub 也能在 API 与运行页面上看到错误原因。
@@ -60,8 +60,9 @@ SHA256SUMS.txt                           （仅发布）
 ```
 
 - 测试包的 `<版本>` 是 `package.json` 版本加提交号，例如 `0.0.1-da0fb6f`；发布时是 tag 去掉 `v`，例如 `0.0.1`。
-- 应用版本号由 `apps/readest-app/package.json` 提供，只使用纯数字的 `主.次.修订`（Android `versionCode` 由它换算）。`v0.*` 的 tag 自动标记为 Pre-release。
-- 发布流程：把 `package.json` 改为新版本并推送 → `git tag v0.0.1 && git push origin v0.0.1` → 等待 Draft Release 完成 → 检查后点击发布。
+- 应用版本号由 `apps/readest-app/package.json` 提供，只使用纯数字的 `主.次.修订`（Android `versionCode` 由它换算）。`v0.*` 与带后缀（如 `v1.0.0-rc.1`）的 tag 是预览版，标记为 Pre-release。
+- 发布说明写在 `docs/yohaku/release-notes/<tag>.md`（例如 [`v0.0.1.md`](release-notes/v0.0.1.md)）；没有这个文件时使用通用的安装说明。
+- 发布流程：把 `package.json` 改为新版本、写好发布说明并推送 → `git tag v0.1.0 && git push origin v0.1.0` → 全部平台构建成功后，预览版自动发布为 Pre-release；正式版停在草稿，检查后点击发布。任一平台失败时 Release 保持草稿，修复后把 tag 移到新提交（`git tag -f` 后 `git push -f origin <tag>`）重新运行，产物会覆盖上传到同一个草稿。
 
 ---
 
@@ -84,7 +85,7 @@ SHA256SUMS.txt                           （仅发布）
 
 ### 5.2 生成 Android 签名密钥（只需一次）
 
-在你的 Mac 上执行（系统已有 JDK 自带的 `keytool`）。keystore 请保存在仓库目录**之外**：
+在你的 Mac 上执行（系统已有 JDK 自带的 `keytool`）。keystore 保存在仓库目录之外，或者放在仓库内已被 `.gitignore` 排除的 `key/` 目录（当前的做法）：
 
 ```bash
 keytool -genkeypair -v -storetype PKCS12 -keystore ~/yohaku-release.jks -alias yohaku -keyalg RSA -keysize 4096 -validity 10000

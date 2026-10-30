@@ -50,7 +50,7 @@ flowchart LR
 - [x] **P0-3 品牌替换**：按[架构 §2.3](02-architecture.md#23-品牌替换清单)执行；Android 包名、`MainActivity` 路径、数据目录、深链接、图标（占位）、i18n 品牌后处理器、关于页致谢。
 - [x] **P0-4 去云端化**：按[架构 §7](02-architecture.md#7-readest-裁剪清单)中 P0 项执行；首先删除 `.env` 中的默认密钥；新增 `src/yohaku/build.ts`（`isYohakuBuild()`，由 `.env.tauri` 的 `NEXT_PUBLIC_YOHAKU_BUILD` 打开）；收紧 CSP；关闭更新器；移除受限权限（Google Play 渠道）。
 - [x] **P0-5 CI/CD**：按 [04 · 构建与发布](04-ci-release.md)新建 `ci.yml`、`build.yml`、`release.yml`，删除无关工作流；加入「禁止外联」检查、Android 16 KB 对齐与权限审计、AAB 构建。
-- [ ] **P0-6 密钥**：你在本地生成 Android keystore 并上传到 GitHub Secrets（步骤见 [04 §5](04-ci-release.md#5-签名与密钥管理)）。
+- [x] **P0-6 密钥**：你在本地生成 Android keystore 并上传到 GitHub Secrets（步骤见 [04 §5](04-ci-release.md#5-签名与密钥管理)）。本地副本放在仓库内的 `key/`，该目录已被 `.gitignore` 排除。
 - [ ] **P0-7 首个预发布**：`v0.0.1` 作为 GitHub Pre-release 发布全部平台产物（应用版本号只用纯数字，见 [04 §4](04-ci-release.md#4-产物命名)）。
 
 实际改动逐项登记在 [upstream-patches.md](upstream-patches.md)，其中也列出了暂缓的差异（`readest://` 深链接、数据子目录名等）。
