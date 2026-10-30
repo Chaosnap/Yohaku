@@ -1,0 +1,8 @@
+{
+  "Warm Paper": "暖纸",
+  "Moon White": "月白",
+  "Ink Night": "墨夜",
+  "Comics": "漫画",
+  "Right to Left by Default": "默认从右到左",
+  "For comics that do not set a reading direction. Manga marked right to left in ComicInfo.xml always opens that way.": "适用于没有指定阅读方向的漫画。ComicInfo.xml 中标记为从右到左的漫画总是从右到左打开。"
+}

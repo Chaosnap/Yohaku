@@ -3,6 +3,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import translatableLngs from '../../i18n-langs.json';
 import { initReactI18next } from 'react-i18next';
 import { isYohakuBuild, toYohakuBrand } from '@/yohaku/build';
+import { addYohakuTranslations, YOHAKU_NAMESPACE } from '@/yohaku/i18n';
 
 // 'en' is the source language and not listed in the translatable set.
 const SUPPORTED_LNGS = ['en', ...translatableLngs];
@@ -43,6 +44,8 @@ const initI18n = async () => {
       },
       ns: ['translation'],
       defaultNS: 'translation',
+      // [yohaku] Yohaku's own strings, bundled in the app (src/yohaku/i18n).
+      fallbackNS: YOHAKU_NAMESPACE,
       ...(isBrowser && {
         backend: {
           loadPath: '/locales/{{lng}}/{{ns}}.json',
@@ -61,6 +64,8 @@ const initI18n = async () => {
         useSuspense: false,
       },
     });
+  // [yohaku] Bundled with the app, so they need no request and work offline.
+  addYohakuTranslations(i18n);
 
   i18n.on('languageChanged', (lng) => {
     if (typeof window !== 'undefined') {

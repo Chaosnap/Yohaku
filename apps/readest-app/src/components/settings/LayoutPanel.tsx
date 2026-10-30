@@ -29,6 +29,8 @@ import {
 import NumberInput from './NumberInput';
 import ColorInput from './theme/ColorInput';
 import { Toggle } from '../primitives/toggle';
+import { isYohakuBuild } from '@/yohaku/build';
+import ComicsSettings from '@/yohaku/reader/ComicsSettings';
 
 const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }) => {
   const _ = useTranslation();
@@ -980,6 +982,8 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
           </SettingsRow>
         </BoxedList>
       )}
+      {/* [yohaku] Comics settings, global; shown for comics and in the library settings. */}
+      {isYohakuBuild() && (!bookData || bookData.book?.format === 'CBZ') && <ComicsSettings />}
     </div>
   );
 };

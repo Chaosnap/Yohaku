@@ -1,4 +1,6 @@
 import tinycolor from 'tinycolor2';
+// [yohaku] Relative: the Tailwind plugin (daisyui-themes.ts) loads this file without path aliases.
+import { YOHAKU_THEMES } from '../yohaku/themes';
 
 export type BaseColor = {
   bg: string;
@@ -149,6 +151,12 @@ export const themes = [
       dark: generateDarkPalette({ fg: '#e0e0e0', bg: '#222222', primary: '#77bbee' }),
     },
   },
+  // [yohaku] Yohaku's reading themes: 暖纸, 月白 and 墨夜.
+  ...YOHAKU_THEMES.map(({ name, label, light, dark }) => ({
+    name,
+    label,
+    colors: { light: generateLightPalette(light), dark: generateDarkPalette(dark) },
+  })),
   {
     name: 'gray',
     label: _('Gray'),

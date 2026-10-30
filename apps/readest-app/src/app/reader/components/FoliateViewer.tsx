@@ -115,6 +115,7 @@ import TableViewer from './TableViewer';
 import ExternalLinkConfirm from './ExternalLinkConfirm';
 import { getTTSMiniPlayerClearance } from '../utils/ttsMiniPlayerPosition';
 import { getDrawingDockClearance } from '../utils/drawingDock';
+import { getComicDefaultDirection } from '@/yohaku/reader/comics';
 
 declare global {
   interface Window {
@@ -750,6 +751,9 @@ const FoliateViewer: React.FC<{
           bookDoc.dir = languageDir;
         }
       }
+      // [yohaku] A comic with no direction of its own follows the comics setting.
+      const comicDir = getComicDefaultDirection(bookData?.book?.format, settings);
+      if (comicDir && !bookDoc.dir) bookDoc.dir = comicDir;
 
       if (bookDoc.rendition?.layout === 'pre-paginated' && bookDoc.sections) {
         bookDoc.rendition.spread = viewSettings.spreadMode;

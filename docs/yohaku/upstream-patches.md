@@ -41,6 +41,14 @@
 | `app/library/page.tsx` | 下拉刷新不再跳转登录，只刷新已配置的文件同步与 OPDS 订阅 |
 | `components/metadata/BookDetailModal.tsx`、`BookDetailView.tsx` | 书籍详情：上传、下载与「仅删除云端 / 仅删除本地」只在启用文件同步时出现，否则只有一个「删除」；去掉「分享书籍」 |
 | `app/reader/components/ViewMenu.tsx` | 阅读器菜单去掉「分享书籍」；没有配置任何同步服务时隐藏同步一行 |
+| `i18n/i18n.ts` | 注册 Yohaku 自己的翻译命名空间 `yohaku` 作为 `fallbackNS`（文案在 `src/yohaku/i18n/`，随应用打包，不改动 Readest 的翻译文件，合并上游时不冲突） |
+| `styles/themes.ts` | 在「默认」之后加入「暖纸」「月白」「墨夜」三个阅读主题（配色在 `src/yohaku/themes.ts`；这里用相对路径导入，因为 Tailwind 插件加载这个文件时不解析路径别名） |
+| `types/settings.ts` | `SystemSettings.yohaku`：Yohaku 自己的设置（`src/yohaku/settings.ts`），保存在 Readest 的设置文件中 |
+| `services/settingsService.ts` | 首次启动的全局排版按界面语言（中文、日文、英文）取 Yohaku 的默认值（`src/yohaku/typesetting.ts`） |
+| `services/bookService.ts` | `loadBookConfig` / `saveBookConfig` 在全局设置之上加一层「书籍语言的排版」，读写使用同一基准，因此不写进书籍配置，之后修改全局设置仍对这本书生效 |
+| `libs/document.ts` | 打开 CBZ 时读取 ComicInfo.xml 的 `Manga` 字段：`YesAndRightToLeft` 从右到左，`No` 从左到右（`src/yohaku/reader/comicInfo.ts`） |
+| `app/reader/components/FoliateViewer.tsx` | 没有自身阅读方向的漫画按「漫画默认从右到左」设置打开 |
+| `components/settings/LayoutPanel.tsx` | 漫画与书库设置中显示「漫画」一节（`src/yohaku/reader/ComicsSettings.tsx`） |
 
 ## 原生层
 
@@ -79,4 +87,4 @@
 | Rust 包名与 npm 包名 | 仍为 `Readest`、`@readest/readest-app` | 只是内部名称，保留以减少合并冲突 |
 | 朗读服务与 TTS 媒体会话 | 沿用 Readest 实现 | Phase 2 与音乐播放器统一仲裁 |
 | Sentry 依赖 | 代码保留；未配置 DSN，不会上报 | 之后移除依赖 |
-| 阅读统计中的连续天数 | 仍显示 | Phase 1 隐藏 |
+| 阅读统计中的连续天数 | Readest v0.12.16 只记录阅读统计、没有统计界面；上游之后的版本加入了显示连续天数的 `ReadingStatsDialog` | 合并到包含它的上游版本时隐藏连续天数 |

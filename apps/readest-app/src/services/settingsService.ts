@@ -29,6 +29,7 @@ import {
 import { DEFAULT_AI_SETTINGS } from './ai/constants';
 import { getTargetLang, isCJKEnv } from '@/utils/misc';
 import { safeLoadJSON, safeSaveJSON } from './persistence';
+import { getInterfaceTypesetting } from '@/yohaku/typesetting';
 
 export interface Context {
   fs: FileSystem;
@@ -52,6 +53,8 @@ export function getDefaultViewSettings(ctx: Context): ViewSettings {
     ...(ctx.isMobile ? DEFAULT_MOBILE_VIEW_SETTINGS : {}),
     ...(ctx.isEink ? DEFAULT_EINK_VIEW_SETTINGS : {}),
     ...(isCJKEnv() ? DEFAULT_CJK_VIEW_SETTINGS : {}),
+    // [yohaku] Chinese, Japanese or English typesetting, after the interface language.
+    ...getInterfaceTypesetting(),
     ...{ ...DEFAULT_TRANSLATOR_CONFIG, translateTargetLang: getTargetLang() },
   };
 }

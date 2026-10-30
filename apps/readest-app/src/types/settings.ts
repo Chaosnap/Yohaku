@@ -12,6 +12,7 @@ import type { CustomTTSService } from './customTTS';
 import type { AISettings } from '@/services/ai/types';
 import type { NotebookTab } from '@/store/notebookStore';
 import type { DictionarySettings, ImportedDictionary } from '@/services/dictionaries/types';
+import type { YohakuSettings } from '@/yohaku/settings';
 
 export type ThemeType = 'light' | 'dark' | 'auto';
 export type LibraryViewModeType = 'grid' | 'list';
@@ -611,4 +612,7 @@ export interface SystemSettings {
   globalReadSettings: ReadSettings;
   // Global view settings that apply to all books, and can be overridden by book-specific view settings
   globalViewSettings: ViewSettings;
+
+  // [yohaku] Settings only Yohaku has (src/yohaku/settings.ts).
+  yohaku?: Partial<YohakuSettings>;
 }

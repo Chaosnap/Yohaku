@@ -51,7 +51,7 @@ flowchart LR
 - [x] **P0-4 去云端化**：按[架构 §7](02-architecture.md#7-readest-裁剪清单)中 P0 项执行；首先删除 `.env` 中的默认密钥；新增 `src/yohaku/build.ts`（`isYohakuBuild()`，由 `.env.tauri` 的 `NEXT_PUBLIC_YOHAKU_BUILD` 打开）；收紧 CSP；关闭更新器；移除受限权限（Google Play 渠道）。
 - [x] **P0-5 CI/CD**：按 [04 · 构建与发布](04-ci-release.md)新建 `ci.yml`、`build.yml`、`release.yml`，删除无关工作流；加入「禁止外联」检查、Android 16 KB 对齐与权限审计、AAB 构建。
 - [x] **P0-6 密钥**：你在本地生成 Android keystore 并上传到 GitHub Secrets（步骤见 [04 §5](04-ci-release.md#5-签名与密钥管理)）。本地副本放在仓库内的 `key/`，该目录已被 `.gitignore` 排除。
-- [ ] **P0-7 首个预发布**：`v0.0.1` 作为 GitHub Pre-release 发布全部平台产物（应用版本号只用纯数字，见 [04 §4](04-ci-release.md#4-产物命名)）。
+- [x] **P0-7 首个预发布**：`v0.0.1` 作为 GitHub Pre-release 发布全部平台产物（应用版本号只用纯数字，见 [04 §4](04-ci-release.md#4-产物命名)）。随后的 `v0.0.2` 移除了仍然指向 Readest 账户的云端上传、分享与登录入口。
 
 实际改动逐项登记在 [upstream-patches.md](upstream-patches.md)，其中也列出了暂缓的差异（`readest://` 深链接、数据子目录名等）。
 
@@ -71,10 +71,12 @@ flowchart LR
 
 - [ ] 建立测试书库（见文末「测试素材」），在 CI 中自动下载或生成，不把受限内容提交到仓库。
 - [ ] 格式验证矩阵：每种格式 × 四个平台，覆盖打开、目录、搜索、批注、书签、进度保存、重启恢复。
-- [ ] 新增阅读主题「暖纸」「月白」「墨夜」，以及中文、日文、英文的默认排版参数（字号、行距、段距、页边距、竖排）。
-- [ ] 漫画：依据 ComicInfo `Manga=YesAndRightToLeft` 自动设为从右到左；新增「漫画默认从右到左」全局选项；验证跨页、Webtoon、缩放与拖动在 Android 上的手势。
+- [x] 新增阅读主题「暖纸」「月白」「墨夜」（`src/yohaku/themes.ts`，正文对比度均高于 10:1）。
+- [x] 中文、日文、英文的默认排版参数（`src/yohaku/typesetting.ts`）：首次启动按界面语言设定全局值；打开其他语言的书时按书籍语言叠加一层（行距、段距、首行缩进、两端对齐），只作用于仍是默认值的设置，不写进书籍配置。字号与页边距沿用 Readest 按设备的默认值；竖排沿用书籍自身的排版方向（日文 EPUB 通常自带竖排）。
+- [ ] 漫画：依据 ComicInfo `Manga=YesAndRightToLeft` 自动设为从右到左、`Manga=No` 从左到右（已完成）；「版式 → 漫画 → 默认从右到左」全局选项（已完成）；验证跨页、Webtoon、缩放与拖动在 Android 上的手势（待真机）。
 - [ ] PDF：用 300 MB 以上扫描版 PDF 测试中端手机的内存与翻页延迟，必要时调整 pdf.js 参数。
-- [ ] 隐藏阅读统计中的连续天数（streak）。
+- [x] 隐藏阅读统计中的连续天数（streak）：v0.12.16 没有显示统计的界面，无需改动；上游之后加入的 `ReadingStatsDialog` 在合并时处理（见 [upstream-patches.md](upstream-patches.md)）。
+- [x] Yohaku 文案的翻译：独立的 `yohaku` 命名空间（简中、繁中、日文），不改动 Readest 的翻译文件。
 
 ### 技术验证（Spike，与 Phase 1 并行）
 

@@ -1,0 +1,8 @@
+{
+  "Warm Paper": "生成り",
+  "Moon White": "月白",
+  "Ink Night": "墨夜",
+  "Comics": "マンガ",
+  "Right to Left by Default": "右から左を既定にする",
+  "For comics that do not set a reading direction. Manga marked right to left in ComicInfo.xml always opens that way.": "読む方向が指定されていないマンガに適用されます。ComicInfo.xml で右から左と指定されたマンガは、常に右から左で開きます。"
+}

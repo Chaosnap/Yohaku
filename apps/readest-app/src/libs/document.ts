@@ -6,6 +6,7 @@ import { installPDFImageShrink } from '@/libs/pdfImageShrink';
 import { stripDuplicateMarker } from '@/utils/path';
 import type { WidePagesOptions } from '@/utils/spread';
 import * as epubcfi from 'foliate-js/epubcfi.js';
+import { getComicInfoDirection } from '@/yohaku/reader/comicInfo';
 
 export const CFI = epubcfi;
 
@@ -593,6 +594,9 @@ export class DocumentLoader {
             book = await makeComicBook(loader, this.file);
           }
           format = 'CBZ';
+          // [yohaku] Manga marked right to left in ComicInfo.xml opens that way.
+          const dir = await getComicInfoDirection(loader);
+          if (dir) Object.assign(book, { dir });
         } else if (this.isFBZ()) {
           const entry = entries.find((entry) => entry.filename.endsWith(`.${EXTS.FB2}`));
           const blob = await loader.loadBlob((entry ?? entries[0]!).filename);

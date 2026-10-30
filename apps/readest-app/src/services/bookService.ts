@@ -38,6 +38,7 @@ import { tryNativeParseMobi } from '@/utils/tauriMobiBridge';
 import { tryNativeParsePdf } from '@/utils/tauriPdfBridge';
 import { isPseStreamFileName, openPseStreamBook, parsePseStreamFileName } from './opds/pseStream';
 import { DEFAULT_BOOK_SEARCH_CONFIG, DEFAULT_FIXED_LAYOUT_VIEW_SETTINGS } from './constants';
+import { getBookTypesetting } from '@/yohaku/typesetting';
 import { isContentURI, isValidURL, makeSafeFilename } from '@/utils/misc';
 import { deserializeConfig, serializeConfig, serializeRawConfig } from '@/utils/serializer';
 import { ClosableFile } from '@/utils/file';
@@ -1127,6 +1128,8 @@ export async function loadBookConfig(
   const globalViewSettings = {
     ...settings.globalViewSettings,
     ...(FIXED_LAYOUT_FORMATS.has(book.format) ? DEFAULT_FIXED_LAYOUT_VIEW_SETTINGS : {}),
+    // [yohaku] Typesetting for the book's language; saveBookConfig layers it the same way.
+    ...getBookTypesetting(book, settings.globalViewSettings),
   };
   try {
     let str = '{}';
@@ -1150,6 +1153,8 @@ export async function saveBookConfig(
     const globalViewSettings = {
       ...settings.globalViewSettings,
       ...(FIXED_LAYOUT_FORMATS.has(book.format) ? DEFAULT_FIXED_LAYOUT_VIEW_SETTINGS : {}),
+      // [yohaku] Typesetting for the book's language, as in loadBookConfig.
+      ...getBookTypesetting(book, settings.globalViewSettings),
     };
     serializedConfig = serializeConfig(config, globalViewSettings, DEFAULT_BOOK_SEARCH_CONFIG);
   } else {
