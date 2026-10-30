@@ -26,6 +26,8 @@ import BookItem from './BookItem';
 import GroupItem from './GroupItem';
 import BookContextMenuPopup, { type BookContextMenuItem } from './BookContextMenuPopup';
 import { useOpenBook } from '../hooks/useOpenBook';
+import { isYohakuBuild } from '@/yohaku/build';
+import { filterBookMenuItems } from '@/yohaku/cloud';
 
 // A native popup blocks Tauri's main thread until the menu is dismissed and
 // holds the webview's resources table lock for that whole time, while
@@ -276,10 +278,13 @@ const BookshelfItem: React.FC<BookshelfItemProps> = ({
         },
       },
     };
-    return getBookContextMenuItemIds(book, {
+    const ids = getBookContextMenuItemIds(book, {
       localSend: isTauriAppPlatform() && isLocalSendEnabled(),
       absOffline: isTauriAppPlatform(),
-    }).map((id) => itemOptions[id]);
+    });
+    // [yohaku] No Readest account: no sharing, and transfers need a file-sync backend.
+    const shown = isYohakuBuild() ? filterBookMenuItems(ids, settings) : ids;
+    return shown.map((id) => itemOptions[id]);
   };
 
   const buildGroupMenuItems = (group: BooksGroup): BookContextMenuItem[] => {

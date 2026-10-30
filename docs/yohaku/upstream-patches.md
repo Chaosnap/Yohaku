@@ -33,6 +33,14 @@
 | `helpers/updater.ts` | 不读取 Readest 服务器上的更新说明 |
 | `components/AboutWindow.tsx` | 名称、注明基于 Readest 并保留其版权声明、源码链接指向本仓库；隐藏检查更新与 Readest 的法律、社区链接 |
 | `app/layout.tsx` | 窗口标题使用 Yohaku |
+| `services/sync/cloudSyncProvider.ts` | Yohaku 构建中 Readest Cloud 永远关闭（`isReadestCloudEnabled` 返回 false），依赖它的上传、同步与传输队列随之关闭 |
+| `utils/nav.ts` | `navigateToLogin` 在 Yohaku 构建中不跳转，作为没有账户时的兜底 |
+| `app/library/components/BookItem.tsx` | 书本下的云按钮只在启用了文件同步（WebDAV、S3 等）且书只在服务器上时显示「下载」，不跳转登录（判断函数在 `yohaku/cloud.ts`） |
+| `app/library/components/BookshelfItem.tsx` | 书籍右键菜单去掉「分享书籍」；「上传 / 下载」只在启用文件同步时出现 |
+| `app/library/components/SelectModeActions.tsx` | 选择模式中没有可下载的书时不显示「下载」 |
+| `app/library/page.tsx` | 下拉刷新不再跳转登录，只刷新已配置的文件同步与 OPDS 订阅 |
+| `components/metadata/BookDetailModal.tsx`、`BookDetailView.tsx` | 书籍详情：上传、下载与「仅删除云端 / 仅删除本地」只在启用文件同步时出现，否则只有一个「删除」；去掉「分享书籍」 |
+| `app/reader/components/ViewMenu.tsx` | 阅读器菜单去掉「分享书籍」；没有配置任何同步服务时隐藏同步一行 |
 
 ## 原生层
 

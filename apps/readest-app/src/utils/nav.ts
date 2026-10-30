@@ -5,6 +5,7 @@ import { isPWA, isTauriAppPlatform, isWebAppPlatform } from '@/services/environm
 import { BOOK_IDS_SEPARATOR } from '@/services/constants';
 import { AppService } from '@/types/system';
 import { windowNeedsClientOutline } from '@/utils/window';
+import { isYohakuBuild } from '@/yohaku/build';
 
 // Labels handed out whose windows are not created yet, so two overlapping
 // launches that read the same window list do not pick the same label.
@@ -126,6 +127,8 @@ export const navigateToReader = (
 };
 
 export const navigateToLogin = (router: ReturnType<typeof useRouter>) => {
+  // [yohaku] No accounts: an entry point that still gets here has nothing to sign in to.
+  if (isYohakuBuild()) return;
   const pathname = window.location.pathname;
   const search = window.location.search;
   const currentPath = pathname !== '/auth' ? pathname + search : '/';

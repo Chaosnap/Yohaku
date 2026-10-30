@@ -38,6 +38,7 @@ import BookCover from '@/components/BookCover';
 import BookCoverViewer, { useBookCoverViewer } from '@/components/BookCoverViewer';
 import Dropdown from '../Dropdown';
 import MenuItem from '../MenuItem';
+import { isYohakuBuild } from '@/yohaku/build';
 
 interface BookDetailViewProps {
   book: Book;
@@ -178,7 +179,13 @@ const BookDetailView: React.FC<BookDetailViewProps> = ({
                 )}
               </button>
             )}
-            {onDelete && (
+            {/* [yohaku] Without a cloud copy there is only one way to delete a book. */}
+            {onDelete && isYohakuBuild() && !onDeleteLocalCopy && (
+              <button onClick={onDelete} title={_('Delete')} aria-label={_('Delete')}>
+                <MdOutlineDelete className='fill-red-500' />
+              </button>
+            )}
+            {onDelete && (!isYohakuBuild() || onDeleteLocalCopy) && (
               <Dropdown
                 label={_('Delete Book Options')}
                 className='dropdown-bottom dropdown-center flex justify-center'

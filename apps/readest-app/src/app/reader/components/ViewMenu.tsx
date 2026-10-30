@@ -42,6 +42,7 @@ import { tauriHandleToggleFullScreen } from '@/utils/window';
 import { setCoverSpread } from '@/utils/spread';
 import MenuItem from '@/components/MenuItem';
 import Menu from '@/components/Menu';
+import { isYohakuBuild } from '@/yohaku/build';
 
 interface ViewMenuProps {
   bookKey: string;
@@ -59,7 +60,7 @@ const ViewMenu: React.FC<ViewMenuProps> = ({
   const { user } = useAuth();
   const { envConfig, appService } = useEnv();
   const { getConfig, getBookData } = useBookDataStore();
-  const { setSettingsDialogOpen, setSettingsDialogBookKey } = useSettingsStore();
+  const { settings, setSettingsDialogOpen, setSettingsDialogBookKey } = useSettingsStore();
   const { getView, getViewSettings, getViewState, getProgress, setViewSettings, recreateViewer } =
     useReaderStore();
   const config = getConfig(bookKey)!;
@@ -133,6 +134,9 @@ const ViewMenu: React.FC<ViewMenuProps> = ({
   );
   // Every provider the user actually selected, not just Readest Cloud (#5910).
   const syncStatus = useCloudSyncStatus(nativeLastSyncTime, bookKey);
+  // [yohaku] Without a sync service set up there is nothing to sync or sign in to.
+  const showSync =
+    !isYohakuBuild() || syncStatus.providers.length > 0 || !!settings.kosync?.enabled;
 
   const handleSync = () => {
     // Only Readest Cloud needs an account. With a third-party backend
@@ -545,42 +549,45 @@ const ViewMenu: React.FC<ViewMenuProps> = ({
         </>
       )}
 
-      <hr aria-hidden='true' className='border-base-300 my-1' />
+      {/* [yohaku] No accounts: the sync row only appears once something syncs. */}
+      {showSync && <hr aria-hidden='true' className='border-base-300 my-1' />}
 
-      <MenuItem
-        label={syncStatus.label}
-        description={
-          // Which provider the status belongs to. Only worth saying when a
-          // third-party backend is in play — with Readest Cloud alone the row
-          // means what it always meant.
-          syncStatus.providers.length > 1
-            ? // Several names in full would overrun the row; show a count.
-              // `count` (not a plain var) so i18next applies each locale's
-              // plural rule.
-              _('Synced via {{count}} providers', { count: syncStatus.providers.length })
-            : syncStatus.providers[0] && syncStatus.providers[0].kind !== 'readest'
-              ? _('Synced via {{provider}}', { provider: syncStatus.providers[0].name })
-              : undefined
-        }
-        Icon={syncStatus.needsSignIn || syncStatus.failed ? MdSyncProblem : MdSync}
-        iconClassName={
-          syncStatus.syncing || (user && viewState?.syncing) ? 'animate-reverse-spin' : ''
-        }
-        onClick={handleSync}
-        siblings={
-          <button
-            aria-label={_('Sync Info')}
-            title={_('Sync Info')}
-            className='hover:bg-base-300 text-base-content/70 mx-1 rounded-md px-2'
-            onClick={() => {
-              setIsDropdownOpen?.(false);
-              onShowMetaHashDialog?.();
-            }}
-          >
-            <MdInfoOutline size={16} />
-          </button>
-        }
-      />
+      {showSync && (
+        <MenuItem
+          label={syncStatus.label}
+          description={
+            // Which provider the status belongs to. Only worth saying when a
+            // third-party backend is in play — with Readest Cloud alone the row
+            // means what it always meant.
+            syncStatus.providers.length > 1
+              ? // Several names in full would overrun the row; show a count.
+                // `count` (not a plain var) so i18next applies each locale's
+                // plural rule.
+                _('Synced via {{count}} providers', { count: syncStatus.providers.length })
+              : syncStatus.providers[0] && syncStatus.providers[0].kind !== 'readest'
+                ? _('Synced via {{provider}}', { provider: syncStatus.providers[0].name })
+                : undefined
+          }
+          Icon={syncStatus.needsSignIn || syncStatus.failed ? MdSyncProblem : MdSync}
+          iconClassName={
+            syncStatus.syncing || (user && viewState?.syncing) ? 'animate-reverse-spin' : ''
+          }
+          onClick={handleSync}
+          siblings={
+            <button
+              aria-label={_('Sync Info')}
+              title={_('Sync Info')}
+              className='hover:bg-base-300 text-base-content/70 mx-1 rounded-md px-2'
+              onClick={() => {
+                setIsDropdownOpen?.(false);
+                onShowMetaHashDialog?.();
+              }}
+            >
+              <MdInfoOutline size={16} />
+            </button>
+          }
+        />
+      )}
 
       <hr aria-hidden='true' className='border-base-300 my-1' />
 
@@ -607,9 +614,13 @@ const ViewMenu: React.FC<ViewMenuProps> = ({
         onClick={cycleThemeMode}
       />
       <MenuItem label={_('Settings')} Icon={PiGear} onClick={openSettingsDialog} />
-      <hr aria-hidden='true' className='border-base-300 my-1' />
-
-      <MenuItem label={_('Share Book')} Icon={IoShareOutline} onClick={handleShare} />
+      {/* [yohaku] Sharing mints a link on Readest's server, which Yohaku does not use. */}
+      {!isYohakuBuild() && (
+        <>
+          <hr aria-hidden='true' className='border-base-300 my-1' />
+          <MenuItem label={_('Share Book')} Icon={IoShareOutline} onClick={handleShare} />
+        </>
+      )}
     </Menu>
   );
 };

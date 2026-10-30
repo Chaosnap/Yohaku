@@ -15,6 +15,7 @@ import { LuFolderPlus } from 'react-icons/lu';
 import { useKeyDownActions } from '@/hooks/useKeyDownActions';
 import { useTranslation } from '@/hooks/useTranslation';
 import { isMd5 } from '@/utils/md5';
+import { isYohakuBuild } from '@/yohaku/build';
 
 interface SelectModeActionsProps {
   selectedBooks: string[];
@@ -164,16 +165,19 @@ const SelectModeActions: React.FC<SelectModeActionsProps> = ({
           <MdInfoOutline />
           <div>{_('Details')}</div>
         </button>
-        <button
-          onClick={onDownload}
-          className={clsx(
-            'flex flex-col items-center justify-center gap-1',
-            !canDownload && 'btn-disabled opacity-50',
-          )}
-        >
-          <MdOutlineCloudDownload />
-          <div>{_('Download')}</div>
-        </button>
+        {/* [yohaku] Without a cloud copy to fetch, there is no Download action. */}
+        {(!isYohakuBuild() || canDownload) && (
+          <button
+            onClick={onDownload}
+            className={clsx(
+              'flex flex-col items-center justify-center gap-1',
+              !canDownload && 'btn-disabled opacity-50',
+            )}
+          >
+            <MdOutlineCloudDownload />
+            <div>{_('Download')}</div>
+          </button>
+        )}
         {sendEnabled && (
           <button
             onClick={onSend}

@@ -129,6 +129,7 @@ import DropIndicator from '@/components/DropIndicator';
 import SettingsDialog from '@/components/settings/SettingsDialog';
 import ModalPortal from '@/components/ModalPortal';
 import TransferQueuePanel from './components/TransferQueuePanel';
+import { isYohakuBuild } from '@/yohaku/build';
 
 /** Skip tiny non-book artifacts during folder auto-scan (matches the manual import dialog default). */
 const AUTO_IMPORT_MIN_SIZE_BYTES = 20 * 1024;
@@ -402,10 +403,12 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
   useInboxDrainer();
   const { isDragging } = useDragDropImport();
 
+  // [yohaku] No accounts: pulling refreshes the file-sync backends and OPDS
+  // subscriptions the user set up (pullLibrary skips Readest Cloud).
   usePullToRefresh(
     scrollRef,
     async () => {
-      if (!user) {
+      if (!user && !isYohakuBuild()) {
         navigateToLogin(router);
         return;
       }
@@ -413,7 +416,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       checkOPDSSubscriptions(true);
     },
     async () => {
-      if (!user) {
+      if (!user && !isYohakuBuild()) {
         navigateToLogin(router);
         return;
       }

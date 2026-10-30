@@ -26,6 +26,8 @@ import { INDETERMINATE_PROGRESS } from '@/utils/transfer';
 import { getBookTags } from '../utils/libraryUtils';
 import ReadingProgress from './ReadingProgress';
 import BookCover from '@/components/BookCover';
+import { isYohakuBuild } from '@/yohaku/build';
+import { hasCloudCopies } from '@/yohaku/cloud';
 
 interface BookItemProps {
   book: Book;
@@ -96,6 +98,10 @@ const BookItem: React.FC<BookItemProps> = ({
   // entry is removed once the transfer settles, including at 100%.
   const isTransferring = transferProgress !== null;
   const isIndeterminate = transferProgress === INDETERMINATE_PROGRESS;
+  // [yohaku] No Readest account: the cloud badge only offers to download a book
+  // that a file-sync backend holds, never to upload or to sign in.
+  const showCloudBadge =
+    !isYohakuBuild() || (hasCloudCopies(settings) && !!book.uploadedAt && !book.downloadedAt);
 
   // ABS books track progress in seconds, not pages, so the row shows a
   // duration/remaining-time label instead of ReadingProgress's page percent:
@@ -319,13 +325,14 @@ const BookItem: React.FC<BookItemProps> = ({
                 // would render forever and Upload would always fail.
                 !isFeedBook(book) &&
                 !isAudiobook(book) &&
+                showCloudBadge &&
                 (!book.uploadedAt || (book.uploadedAt && !book.downloadedAt)) && (
                   <button
                     aria-label={!book.uploadedAt ? _('Upload Book') : _('Download Book')}
                     className='show-cloud-button -m-2 p-2'
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={() => {
-                      if (!user) {
+                      if (!user && !isYohakuBuild()) {
                         navigateToLogin(router);
                         return;
                       }

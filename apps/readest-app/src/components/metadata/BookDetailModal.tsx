@@ -6,6 +6,7 @@ import { getBookWithUpdatedMetadata } from '@/utils/book';
 import { BookMetadata } from '@/libs/document';
 import { useEnv } from '@/context/EnvContext';
 import { useAuth } from '@/context/AuthContext';
+import { useSettingsStore } from '@/store/settingsStore';
 import { useThemeStore } from '@/store/themeStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMetadataEdit } from './useMetadataEdit';
@@ -19,6 +20,8 @@ import BookDetailView from './BookDetailView';
 import BookDetailEdit from './BookDetailEdit';
 import SourceSelector from './SourceSelector';
 import Spinner from '../Spinner';
+import { isYohakuBuild } from '@/yohaku/build';
+import { hasCloudCopies } from '@/yohaku/cloud';
 
 interface BookDetailModalProps {
   book: Book;
@@ -65,6 +68,7 @@ const BookDetailModal: React.FC<BookDetailModalProps> = ({
   const _ = useTranslation();
   const { envConfig, appService } = useEnv();
   const { user } = useAuth();
+  const { settings } = useSettingsStore();
   const { safeAreaInsets } = useThemeStore();
   const [activeDeleteAction, setActiveDeleteAction] = useState<DeleteMenuAction | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -243,6 +247,9 @@ const BookDetailModal: React.FC<BookDetailModalProps> = ({
   // it needs a signed-in user and a resolvable on-disk file. `fileSize` is only
   // non-null when getBookFileSize could actually open the local file.
   const shareEnabled = !!user && fileSize !== null;
+  // [yohaku] No Readest account: cloud copies exist only through a file-sync
+  // backend, and there is no sharing.
+  const cloudActions = !isYohakuBuild() || hasCloudCopies(settings);
 
   const currentDeleteConfig = activeDeleteAction ? deleteConfigs[activeDeleteAction] : null;
 
@@ -287,12 +294,14 @@ const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 onEdit={handleBookMetadataUpdate ? handleEditMetadata : undefined}
                 onDelete={handleBookDelete ? handleDelete : undefined}
                 onDeleteCloudBackup={
-                  handleBookDeleteCloudBackup ? handleDeleteCloudBackup : undefined
+                  cloudActions && handleBookDeleteCloudBackup ? handleDeleteCloudBackup : undefined
                 }
-                onDeleteLocalCopy={handleBookDeleteLocalCopy ? handleDeleteLocalCopy : undefined}
-                onDownload={handleBookDownload ? handleRedownload : undefined}
-                onUpload={handleBookUpload ? handleReupload : undefined}
-                onShare={handleShare}
+                onDeleteLocalCopy={
+                  cloudActions && handleBookDeleteLocalCopy ? handleDeleteLocalCopy : undefined
+                }
+                onDownload={cloudActions && handleBookDownload ? handleRedownload : undefined}
+                onUpload={cloudActions && handleBookUpload ? handleReupload : undefined}
+                onShare={isYohakuBuild() ? undefined : handleShare}
                 onExport={handleBookExport}
                 onDownloadOffline={
                   handleBookOfflineDownload && isAbsOfflineCapable(book)

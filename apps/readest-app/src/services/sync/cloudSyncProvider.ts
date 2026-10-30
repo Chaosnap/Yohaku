@@ -2,6 +2,7 @@ import type { SystemSettings } from '@/types/settings';
 import type { UserPlan } from '@/types/quota';
 import { isCloudSyncAllowed } from '@/utils/access';
 import type { FileSyncBackendKind } from '@/services/sync/file/providerRegistry';
+import { isYohakuBuild } from '@/yohaku/build';
 
 /**
  * The cloud sync provider kind for library data (book files, book rows,
@@ -68,7 +69,8 @@ export const hasAnyThirdPartyEnabled = (settings: SystemSettings | null | undefi
  * wins.
  */
 export const isReadestCloudEnabled = (settings: SystemSettings | null | undefined): boolean =>
-  settings?.readestCloud?.enabled ?? !hasAnyThirdPartyEnabled(settings);
+  // [yohaku] There is no Readest account in a Yohaku build, so never Readest Cloud.
+  !isYohakuBuild() && (settings?.readestCloud?.enabled ?? !hasAnyThirdPartyEnabled(settings));
 
 /** Every provider syncing the library on this device, Readest Cloud first. */
 export const getCloudSyncProviders = (
