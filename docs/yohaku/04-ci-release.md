@@ -21,12 +21,15 @@
 | `build.yml` | push 到 `main` / `phase-*`（只改文档时跳过）、手动触发 | 调用 `build-app.yml` 构建全部平台的测试包，上传为 Artifacts（保留 14 天） | 60–100 分钟（并行） |
 | `build-app.yml` | 被 `build.yml` 与 `release.yml` 调用 | 实际的构建矩阵与打包、检查、上传 | — |
 | `release.yml` | 推送 `v*` tag | 创建 Draft Release → 构建全部平台与 Google Play AAB 并上传 → 生成 `SHA256SUMS.txt` 与构建来源证明 → 预览版自动发布为 Pre-release，正式版留作草稿由你检查后发布 | 90–150 分钟（并行） |
+| `upstream-sync.yml` | 每月 1 日、手动触发 | 尝试合并 Readest 最新发布版到 `upstream-sync/<版本>` 分支，用 Issue 报告结果（见 §8） | 5–10 分钟 |
 
 - CI 的 Linux 任务固定在 `ubuntu-24.04`：`ubuntu-latest` 自 2026-10-19 起迁移到 Ubuntu 26.04，Playwright 1.60 还无法在上面安装 Chromium。
 - 构建与测试命令经 `scripts/yohaku/run-logged.sh` 运行：失败时把日志末尾写成 annotation，不登录 GitHub 也能在 API 与运行页面上看到错误原因。
 - 构建时关闭 Next.js 的 CLI 遥测（`NEXT_TELEMETRY_DISABLED=1`）。
 
-计划中（Phase 1 起）：Android 模拟器冒烟测试（改造 Readest 的 `android-e2e.yml`）、每月的上游同步工作流。
+- 测试包构建完成后，`build.yml` 的 `linux-smoke` 任务在 Ubuntu 22.04 与 24.04 上用虚拟显示器分别启动 AppImage 与 deb，截图上传为 Artifacts，结论写成 annotation；它不会让构建失败（Spike S3）。
+
+计划中：Android 模拟器冒烟测试（改造 Readest 的 `android-e2e.yml`）。
 
 ---
 
@@ -140,15 +143,14 @@ base64 -i ~/yohaku-release.jks | pbcopy
 
 ## 8. 上游同步工作流
 
-计划在 Phase 1 加入 `upstream-sync.yml`，每月运行一次（也可手动触发）：
+`upstream-sync.yml` 每月 1 日运行一次（也可在 Actions 页面手动触发）：
 
-1. 检出完整历史，添加 `upstream` 远程仓库并获取 tag；
-2. 新建分支 `upstream-sync/<日期>`，合并 Readest 最新的发布 tag；
-3. 没有冲突时推送分支并开 PR；有冲突时开 Issue 列出冲突文件，并对照 [upstream-patches.md](upstream-patches.md) 人工处理。
+1. 检出完整历史，添加 `upstream` 远程仓库，把 Readest 的 tag 取到 `upstream/` 命名空间下（例如 `upstream/v0.12.17`），不与 Yohaku 自己的 `v0.0.x` 混在一起；
+2. 找到最新的正式发布 tag（不含 `-beta` 等后缀）；`main` 已经包含它时什么也不做；
+3. 新建分支 `upstream-sync/<版本>` 并合并：没有冲突时推送分支，开一个 Issue 说明下一步；有冲突时不推送，Issue 中列出冲突文件；
+4. 同一版本已有打开的 Issue 时不重复创建。
 
-注意：用默认的 `GITHUB_TOKEN` 创建的 PR 不会自动触发 CI，需要在 PR 页面手动重新运行，或者为此配置一个细粒度的 Personal Access Token。另外需要在仓库设置中允许 GitHub Actions 创建 PR。
-
----
+合并的收尾由人完成：对照 [upstream-patches.md](upstream-patches.md) 确认每一处 `[yohaku]` 改动仍在，合并到 `main` 并推送，CI 与测试包在 `main` 上运行，真机检查后再发布。按「直接推送 main」的约定，这里不开 PR，因此也不需要允许 GitHub Actions 创建 PR。
 
 ## 9. 本地与 GitHub 的分工
 

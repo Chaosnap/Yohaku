@@ -151,3 +151,33 @@ jobs:
       - name: unit tests
         working-directory: apps/readest-app/src-tauri
         run: bash ../../../scripts/yohaku/run-logged.sh cargo test -p Readest --lib
+
+  # Spike S4 (docs/yohaku/spikes/S4-desktop-audio.md): a standalone crate,
+  # outside the app's workspace, tested by rendering offline. The cpal output
+  # (for listening on a real device) is linted but not run.
+  spike-audio:
+    name: Spike S4 desktop audio engine
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: spikes/s4-desktop-audio
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          cache-workspaces: spikes/s4-desktop-audio
+
+      - name: install the ALSA headers cpal needs
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev
+
+      - name: format check
+        run: cargo fmt --check
+
+      - name: clippy
+        run: bash ../../scripts/yohaku/run-logged.sh cargo clippy --all-targets --features output -- -D warnings
+
+      - name: offline rendering tests
+        run: bash ../../scripts/yohaku/run-logged.sh cargo test --release -- --nocapture
