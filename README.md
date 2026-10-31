@@ -149,7 +149,7 @@ Every release comes with `SHA256SUMS.txt` and GitHub build provenance attestatio
 
 **[chaosnap.github.io/Yohaku](https://chaosnap.github.io/Yohaku/)** has the full guide, the changelog and the development documents, written in Simplified Chinese (文档使用简体中文):
 
-| | |
+| Section | What's in it |
 |---|---|
 | [指南 · Guide](https://chaosnap.github.io/Yohaku/guide/) | Installing, books and comics, the music library, listening while reading, lyrics, ambient sounds, read-aloud, shortcuts, privacy, FAQ |
 | [更新日志 · Changelog](https://chaosnap.github.io/Yohaku/changelog/) | What changed in every release |

@@ -1,0 +1,14 @@
+{
+  // The site's own TypeScript settings. Without them Vite reads the repository's tsconfig.json,
+  // whose project reference (apps/readest-app) extends a package the site never installs.
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["**/*.ts", ".vitepress/**/*.ts"],
+  "exclude": ["node_modules", ".vitepress/cache", ".vitepress/dist"]
+}
