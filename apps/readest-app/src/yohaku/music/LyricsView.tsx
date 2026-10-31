@@ -1,9 +1,10 @@
 import clsx from 'clsx';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useThemeStore } from '@/store/themeStore';
 import type { MusicTrack } from './library';
-import { activeLine, type LyricLine, type LyricWord } from './lyrics';
+import { activeLine, estimateWords, type LyricLine, type LyricWord } from './lyrics';
 import { useMusicStore } from './store';
 import { useLyrics } from './useLyrics';
 
@@ -19,22 +20,49 @@ const isStill = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
   document.documentElement.getAttribute('data-eink') === 'true';
 
+/**
+ * A soft halo around the words already sung, in a dark theme. Its size never
+ * changes, which Folia found matters: Chromium (the Linux build) caches glyphs
+ * by their shadow, and a halo growing frame by frame fills that cache forever.
+ */
+const GLOW = 'drop-shadow(0 0 0.18em color-mix(in srgb, currentColor 55%, transparent))';
+/** How far a word's halo reaches past it, kept clear of the fill's clip. */
+const REACH = '0.5em';
+
+/** The lyrics breathe while the song plays: a slow rise and settle of a few pixels. */
+const BREATH: Keyframe[] = [
+  { transform: 'translateY(0) scale(1)' },
+  { transform: 'translateY(-4px) scale(1.004)' },
+  { transform: 'translateY(0) scale(1)' },
+  { transform: 'translateY(2px) scale(0.998)' },
+  { transform: 'translateY(0) scale(1)' },
+];
+
 /** Fills the words of the line being sung up to where the singing is. */
-const fillWords = (element: HTMLElement | null | undefined, line: LyricLine, ms: number) => {
-  const words = line.words;
-  if (!element || !words) return;
+const fillWords = (element: HTMLElement | null | undefined, words: LyricWord[], ms: number) => {
+  if (!element) return;
   const fills = element.querySelectorAll<HTMLElement>('[data-fill]');
   words.forEach((word, i) => {
     const fill = fills[i];
     if (!fill) return;
     const end = words[i + 1]?.time ?? word.time + 600;
     const sung = Math.min(1, Math.max(0, (ms - word.time) / Math.max(1, end - word.time)));
-    fill.style.clipPath = `inset(0 ${100 - sung * 100}% 0 0)`;
+    if (sung <= 0) {
+      fill.style.clipPath = 'inset(0 100% 0 0)';
+      return;
+    }
+    const right = sung >= 1 ? `-${REACH}` : `${100 - sung * 100}%`;
+    fill.style.clipPath = `inset(-${REACH} ${right} -${REACH} -${REACH})`;
   });
 };
 
+interface WordsProps {
+  words: LyricWord[];
+  glow: boolean;
+}
+
 /** The words of the line being sung, each filling in as it is sung. */
-const Words: React.FC<{ words: LyricWord[] }> = ({ words }) => (
+const Words: React.FC<WordsProps> = ({ words, glow }) => (
   <>
     {words.map((word, i) => (
       <span key={i} className='relative inline-block whitespace-pre'>
@@ -43,7 +71,7 @@ const Words: React.FC<{ words: LyricWord[] }> = ({ words }) => (
           data-fill
           aria-hidden='true'
           className='absolute inset-0'
-          style={{ clipPath: 'inset(0 100% 0 0)' }}
+          style={{ clipPath: 'inset(0 100% 0 0)', filter: glow ? GLOW : undefined }}
         >
           {word.text}
         </span>
@@ -80,17 +108,21 @@ interface LyricsViewProps {
 /**
  * The song's lyrics, the way Apple Music shows them: the line being sung
  * bright and full size, the others dimmed and blurred by their distance, the
- * whole flowing up line after line; word by word where the lyrics have word
- * times. A line clicked plays from there, and the wheel or a finger scrolls
- * back and forth until the lyrics follow the song again. Lyrics without times
- * are simply listed.
+ * whole flowing up line after line. The line being sung fills in as it is
+ * sung, by its word times or else by estimated ones, with a soft glow in a dark
+ * theme, and the lyrics breathe while the song plays; these two are ideas from
+ * Folia (github.com/chthollyphile/folia-major), written anew here. A line
+ * clicked plays from there, and the wheel or a finger scrolls back and forth
+ * until the lyrics follow the song again. Lyrics without times are listed.
  */
 const LyricsView: React.FC<LyricsViewProps> = ({ track, large, className }) => {
   const _ = useTranslation();
   const { appService } = useEnv();
   const { loading, lyrics } = useLyrics(track);
   const playback = useMusicStore((state) => state.playback);
+  const isDarkMode = useThemeStore((state) => state.isDarkMode);
   const view = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLDivElement>(null);
   const lineElements = useRef<(HTMLButtonElement | null)[]>([]);
   const anchor = useRef({ positionMs: 0, at: 0, playing: false });
   const followTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -101,6 +133,16 @@ const LyricsView: React.FC<LyricsViewProps> = ({ track, large, className }) => {
   const [width, setWidth] = useState(0);
   const [still] = useState(isStill);
   const lines = lyrics?.synced ? lyrics.lines : null;
+  const playing = playback.playing;
+
+  // The line being sung, word by word: by its own word times, or else by estimated ones.
+  const words = useMemo(() => {
+    const line = lines?.[active];
+    if (!line?.text) return null;
+    return line.words ?? estimateWords(line, lines?.[active + 1]?.time);
+  }, [lines, active]);
+  const filling = useRef({ index: active, words });
+  filling.current = { index: active, words };
 
   // Where the song is between the engine's reports, which come once a second.
   useEffect(() => {
@@ -114,10 +156,10 @@ const LyricsView: React.FC<LyricsViewProps> = ({ track, large, className }) => {
     const tick = () => {
       const { positionMs, at, playing } = anchor.current;
       const ms = playing ? positionMs + performance.now() - at : positionMs;
-      const index = activeLine(lines, ms);
-      setActive(index);
-      const line = lines[index];
-      if (line) fillWords(lineElements.current[index], line, ms);
+      setActive(activeLine(lines, ms));
+      // The line on screen, which may be a frame behind the singing.
+      const { index, words } = filling.current;
+      if (words) fillWords(lineElements.current[index], words, ms);
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
@@ -133,6 +175,17 @@ const LyricsView: React.FC<LyricsViewProps> = ({ track, large, className }) => {
   }, []);
 
   useEffect(() => () => clearTimeout(followTimer.current ?? undefined), []);
+
+  useEffect(() => {
+    const element = list.current;
+    if (!element || still || !playing) return;
+    const breath = element.animate(BREATH, {
+      duration: 7000,
+      iterations: Number.POSITIVE_INFINITY,
+      easing: 'ease-in-out',
+    });
+    return () => breath.cancel();
+  }, [still, playing, lines]);
 
   // The line being sung, or the first before the singing starts, at the focus.
   useLayoutEffect(() => {
@@ -211,7 +264,7 @@ const LyricsView: React.FC<LyricsViewProps> = ({ track, large, className }) => {
         </div>
       )}
       {lines && (
-        <div className={clsx('relative px-5', size)}>
+        <div ref={list} className={clsx('relative px-5', size)}>
           {lines.map((line, i) => {
             const current = i === active;
             const distance = Math.abs(i - active);
@@ -240,7 +293,11 @@ const LyricsView: React.FC<LyricsViewProps> = ({ track, large, className }) => {
                 onClick={() => playFrom(line)}
               >
                 {!line.text && <Pause current={current} />}
-                {line.text && current && line.words ? <Words words={line.words} /> : line.text}
+                {line.text && current && words ? (
+                  <Words words={words} glow={isDarkMode && !still} />
+                ) : (
+                  line.text
+                )}
                 {line.translation && (
                   <span className='mt-1 block text-[0.72em] font-semibold opacity-80'>
                     {line.translation}

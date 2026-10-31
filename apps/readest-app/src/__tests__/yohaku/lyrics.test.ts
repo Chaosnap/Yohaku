@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeLine, decodeLyrics, parseLyrics } from '@/yohaku/music/lyrics';
+import { activeLine, decodeLyrics, estimateWords, parseLyrics } from '@/yohaku/music/lyrics';
 
 describe('lyrics', () => {
   it('follow the song by the times of their lines', () => {
@@ -51,6 +51,18 @@ describe('lyrics', () => {
     expect(activeLine(lines, 1000)).toBe(0);
     expect(activeLine(lines, 2999)).toBe(1);
     expect(activeLine(lines, 99_000)).toBe(2);
+  });
+
+  it('without word times fill in by estimated ones, a character or a word at a time', () => {
+    const [first, second] = parseLyrics('[00:01.00]春眠不觉晓\n[00:06.00]Hello world')?.lines ?? [];
+    const chinese = estimateWords(first!, second?.time);
+    expect(chinese.map(({ text }) => text)).toEqual(['春', '眠', '不', '觉', '晓', '']);
+    expect(chinese.map(({ time }) => time)).toEqual([1000, 1600, 2200, 2800, 3400, 4000]);
+    const english = estimateWords(second!, 8000);
+    expect(english.map(({ text }) => text)).toEqual(['Hello ', 'world', '']);
+    expect(english.map(({ time }) => time)).toEqual([6000, 6900, 7800]);
+    const marks = estimateWords({ time: 0, text: '雪，国' });
+    expect(marks.map(({ text }) => text)).toEqual(['雪，', '国', '']);
   });
 
   it('are read as UTF-8 or UTF-16, or else as GBK', () => {

@@ -112,3 +112,61 @@ export const activeLine = (lines: LyricLine[], positionMs: number) => {
   }
   return found;
 };
+
+let segmenter: Intl.Segmenter | null = null;
+try {
+  segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+} catch {}
+
+/** The characters a reader sees: an accented letter or an emoji stays whole. */
+const graphemes = (text: string) => {
+  if (!segmenter) return Array.from(text);
+  return Array.from(segmenter.segment(text), ({ segment }) => segment);
+};
+
+const CJK = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
+const TRAILING = /[\s\p{P}]/u;
+
+/** Each Chinese, Japanese or Korean character, or else each word, with what follows it. */
+const splitUnits = (text: string) => {
+  const units: string[] = [];
+  for (const char of graphemes(text)) {
+    const last = units[units.length - 1];
+    const startsWord = last === undefined || CJK.test(last) || TRAILING.test(last.slice(-1));
+    if (last !== undefined && TRAILING.test(char)) units[units.length - 1] = last + char;
+    else if (CJK.test(char) || startsWord) units.push(char);
+    else units[units.length - 1] = last + char;
+  }
+  return units;
+};
+
+/** One for a character; for a word, one for about every three letters, as syllables go. */
+const weightOf = (unit: string) => {
+  if (CJK.test(unit)) return 1;
+  return Math.max(1, Math.round(unit.trim().length / 3));
+};
+
+/** About how long one character, or one syllable of a word, takes to sing at most. */
+const MAX_UNIT_MS = 600;
+
+/**
+ * Word times for a line whose lyrics give only when it starts, so that it can
+ * fill in as it is sung too: its characters or words share the time until a
+ * little before the next line, by their length, and never fill slower than a
+ * slow singer sings.
+ */
+export const estimateWords = (line: LyricLine, nextTime?: number): LyricWord[] => {
+  const units = splitUnits(line.text);
+  const weights = units.map(weightOf);
+  const total = weights.reduce((sum, weight) => sum + weight, 0);
+  const gap = nextTime === undefined ? Number.POSITIVE_INFINITY : nextTime - line.time;
+  const span = Math.max(0, Math.min(gap * 0.9, total * MAX_UNIT_MS));
+  const words: LyricWord[] = [];
+  let time = line.time;
+  units.forEach((text, i) => {
+    words.push({ time, text });
+    time += (span * (weights[i] ?? 1)) / Math.max(1, total);
+  });
+  words.push({ time, text: '' });
+  return words;
+};
