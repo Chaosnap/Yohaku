@@ -26,12 +26,14 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            echo "Release $TAG already exists; the builds upload into it."
-            exit 0
+          # The tag must be on the commit that sets its version (a preview's
+          # suffix aside): a tag pushed before that commit would build the
+          # previous version under the new name.
+          version=$(jq -r .version apps/readest-app/package.json)
+          if [ "${TAG%%-*}" != "v$version" ]; then
+            echo "::error::$TAG is on a commit whose package.json says $version."
+            exit 1
           fi
-          prerelease=()
-          case "$TAG" in v0.* | *-*) prerelease=(--prerelease) ;; esac
           notes="docs/yohaku/release-notes/$TAG.md"
           if [ ! -f "$notes" ]; then
             notes="$RUNNER_TEMP/notes.md"
@@ -43,6 +45,16 @@ jobs:
               '- Android：安装 arm64（大多数手机）或 armv7（较旧的 32 位手机）的 APK；.aab 供 Google Play 使用。' \
               '- 校验文件完整性：SHA256SUMS.txt。' > "$notes"
           fi
+          if draft=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft 2>/dev/null); then
+            echo "Release $TAG already exists; the builds upload into it."
+            # A tag moved to a new commit: its draft takes that commit's notes.
+            if [ "$draft" = true ]; then
+              gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file "$notes"
+            fi
+            exit 0
+          fi
+          prerelease=()
+          case "$TAG" in v0.* | *-*) prerelease=(--prerelease) ;; esac
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft "${prerelease[@]}" \
             --title "Yohaku $TAG" --notes-file "$notes"
 

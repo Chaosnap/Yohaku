@@ -242,6 +242,7 @@ sequenceDiagram
 - **进程死亡后恢复**：队列与位置每 5 秒及暂停时写入状态文件；实现 `onPlaybackResumption()`，让蓝牙耳机或系统媒体控件的「播放」在进程被回收后也能恢复上次的音乐。
 - **前台时限**：Media3 在暂停超过约 10 分钟后会退出前台状态，系统可以回收服务；这是预期行为，依靠上面的恢复机制衔接。
 - **合规**：Media3 为纯 Java / Kotlin 库，不引入新的原生库，不影响 16 KB 页对齐。
+- **系统文件选择器**：音乐库的「从本地文件导入」「从文件夹导入」分别打开 `ACTION_OPEN_DOCUMENT`（`audio/*`，可多选）与 `ACTION_OPEN_DOCUMENT_TREE`，由 Activity 自己的 `startActivityForResult` 启动，结果经 `MainActivity.onActivityResult` 交回插件，与书库在 native-bridge 中的做法相同；Tauri 插件的 ActivityResult 启动器在这个应用里不会弹出选择器（v2.1.0 修复）。选到的文件与文件夹都保留长期读取权限，供重启后播放与启动时同步。
 
 ### 3.5 媒体会话仲裁（音乐与朗读）
 

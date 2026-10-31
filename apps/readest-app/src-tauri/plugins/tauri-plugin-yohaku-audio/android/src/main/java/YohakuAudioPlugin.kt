@@ -7,14 +7,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.util.Base64
-import androidx.activity.result.ActivityResult
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
-import app.tauri.annotation.ActivityCallback
 import app.tauri.annotation.Command
 import app.tauri.annotation.InvokeArg
 import app.tauri.annotation.TauriPlugin
@@ -85,6 +83,19 @@ class SleepTimerArgs {
  */
 @TauriPlugin
 class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
+    companion object {
+        private const val PICK_FOLDER_REQUEST = 7101
+        private const val PICK_FILES_REQUEST = 7102
+
+        @Volatile
+        private var instance: YohakuAudioPlugin? = null
+
+        /** Every activity result reaches here from MainActivity; the pickers' are answered. */
+        fun deliverActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            instance?.onPickerResult(requestCode, resultCode, data)
+        }
+    }
+
     private val controller: ListenableFuture<MediaController> by lazy {
         val token = SessionToken(
             activity,
@@ -111,21 +122,24 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     private val lyrics by lazy { LyricsReader(activity) }
     private val background = Executors.newSingleThreadExecutor()
 
+    // The pickers are started with the Activity's own startActivityForResult and
+    // answered from MainActivity.onActivityResult, the way the book library's
+    // pickers in the native bridge are: the Tauri ActivityResult launcher never
+    // brought them up in this app on Android.
+    @Volatile
+    private var pendingPick: Invoke? = null
+
+    @Volatile
+    private var pendingRequest = 0
+
+    init {
+        instance = this
+    }
+
     /** A folder to sync the library from; its access is kept across restarts. */
     @Command
     fun pick_folder(invoke: Invoke) {
-        startActivityForResult(invoke, Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), "pickFolderResult")
-    }
-
-    @ActivityCallback
-    fun pickFolderResult(invoke: Invoke, result: ActivityResult) {
-        val ret = JSObject()
-        val uri = result.data?.data
-        if (result.resultCode == Activity.RESULT_OK && uri != null) {
-            keepAccess(uri)
-            ret.put("path", uri.toString())
-        }
-        invoke.resolve(ret)
+        startPicker(invoke, Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), PICK_FOLDER_REQUEST)
     }
 
     /** Audio files to import one by one. */
@@ -136,25 +150,48 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
             type = "audio/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
-        startActivityForResult(invoke, intent, "pickFilesResult")
+        startPicker(invoke, intent, PICK_FILES_REQUEST)
     }
 
-    @ActivityCallback
-    fun pickFilesResult(invoke: Invoke, result: ActivityResult) {
+    private fun startPicker(invoke: Invoke, intent: Intent, request: Int) {
+        // A picker still waiting (opened twice) is answered as cancelled.
+        pendingPick?.resolve(pickResult(pendingRequest, emptyList()))
+        pendingPick = invoke
+        pendingRequest = request
+        try {
+            activity.startActivityForResult(intent, request)
+        } catch (e: Exception) {
+            pendingPick = null
+            invoke.reject("Cannot open the file picker: ${e.message}")
+        }
+    }
+
+    private fun onPickerResult(request: Int, resultCode: Int, data: Intent?) {
+        if (request != PICK_FOLDER_REQUEST && request != PICK_FILES_REQUEST) return
+        val invoke = pendingPick ?: return
+        pendingPick = null
         val uris = mutableListOf<Uri>()
-        val data = result.data
-        if (result.resultCode == Activity.RESULT_OK && data != null) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
             val clip = data.clipData
-            if (clip != null) {
+            if (request == PICK_FILES_REQUEST && clip != null) {
                 for (i in 0 until clip.itemCount) uris.add(clip.getItemAt(i).uri)
             } else {
                 data.data?.let { uris.add(it) }
             }
         }
         uris.forEach { keepAccess(it) }
+        invoke.resolve(pickResult(request, uris))
+    }
+
+    /** `{ path }` for a folder (none when cancelled), `{ paths }` for files. */
+    private fun pickResult(request: Int, uris: List<Uri>): JSObject {
         val ret = JSObject()
-        ret.put("paths", JSONArray(uris.map { it.toString() }))
-        invoke.resolve(ret)
+        if (request == PICK_FOLDER_REQUEST) {
+            uris.firstOrNull()?.let { ret.put("path", it.toString()) }
+        } else {
+            ret.put("paths", JSONArray(uris.map { it.toString() }))
+        }
+        return ret
     }
 
     /** The tracks under folder or file URIs, with tags and covers, read off the main thread. */

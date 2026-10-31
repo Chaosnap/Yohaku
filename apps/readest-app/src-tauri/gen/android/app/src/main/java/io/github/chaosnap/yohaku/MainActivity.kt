@@ -24,6 +24,8 @@ import app.tauri.plugin.JSObject
 import com.readest.native_bridge.KeyDownInterceptor
 import com.readest.native_bridge.NativeBridgePlugin
 import com.readest.native_bridge.SelectionMenuSuppressor
+// [yohaku] The music library's pickers answer here too (see onActivityResult).
+import io.github.chaosnap.yohaku.audio.YohakuAudioPlugin
 
 internal fun shouldCaptureNativeLearnKey(keyCode: Int): Boolean = when (keyCode) {
     KeyEvent.KEYCODE_VOLUME_DOWN,
@@ -326,6 +328,9 @@ class MainActivity : TauriActivity(), KeyDownInterceptor {
         // a process death behind the picker, #1217) is stashed and replayed
         // from load() instead of being dropped.
         NativeBridgePlugin.deliverActivityResult(requestCode, resultCode, data)
+        // [yohaku] The music library's file and folder pickers are started the same
+        // way as the book library's, so their results come back through here as well.
+        YohakuAudioPlugin.deliverActivityResult(requestCode, resultCode, data)
     }
 
     override fun onNewIntent(intent: Intent) {

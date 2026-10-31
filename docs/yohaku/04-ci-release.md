@@ -20,7 +20,7 @@
 | `ci.yml` | push 到 `main` / `phase-*`、PR | Yohaku 配置检查（离线、身份、无 Readest 服务）；Biome 格式与 lint、TypeScript 类型检查；构建 Tauri 前端；Vitest 单元测试（两路分片）与 Playwright 浏览器测试；`cargo fmt` / `clippy` / `cargo test` | 15–30 分钟 |
 | `build.yml` | push 到 `main` / `phase-*`（只改文档或文档网站时跳过）、手动触发 | 调用 `build-app.yml` 构建全部平台的测试包，上传为 Artifacts（保留 14 天） | 60–100 分钟（并行） |
 | `build-app.yml` | 被 `build.yml` 与 `release.yml` 调用 | 实际的构建矩阵与打包、检查、上传 | — |
-| `release.yml` | 推送 `v*` tag | 创建 Draft Release → 构建全部平台与 Google Play AAB 并上传 → 生成 `SHA256SUMS.txt` 与构建来源证明 | 90–150 分钟（并行） |
+| `release.yml` | 推送 `v*` tag | 核对 tag 与 `package.json` 版本 → 创建 Draft Release → 构建全部平台与 Google Play AAB 并上传 → 生成 `SHA256SUMS.txt` 与构建来源证明 | 90–150 分钟（并行） |
 | `publish-release.yml` | `release.yml` 成功完成 | 自动发布这个 Release：预览版为 Pre-release，正式版为最新版本（Latest）；tag 已移到别的提交时跳过（见 §4） | 1 分钟 |
 | `upstream-sync.yml` | 每月 1 日、手动触发 | 尝试合并 Readest 最新发布版到 `upstream-sync/<版本>` 分支，用 Issue 报告结果（见 §8） | 5–10 分钟 |
 | `pages.yml` | push 到 `main` 且改动了 `website/`、`docs/` 或图标；`publish-release.yml` 完成后；手动触发 | 用 VitePress 构建文档网站并发布到 GitHub Pages（<https://chaosnap.github.io/Yohaku/>）：开发文档与发布说明直接读取 `docs/yohaku/`，图标与截图在构建时复制；依赖版本固定在 `website/package.json`，在 CI 上安装 | 2 分钟 |
@@ -67,7 +67,7 @@ SHA256SUMS.txt                           （仅发布）
 - 测试包的 `<版本>` 是 `package.json` 版本加提交号，例如 `0.0.1-da0fb6f`；发布时是 tag 去掉 `v`，例如 `0.0.1`。
 - 应用版本号由 `apps/readest-app/package.json` 提供，只使用纯数字的 `主.次.修订`（Android `versionCode` 由它换算）。`v0.*` 与带后缀（如 `v1.1.0-rc.1`）的 tag 是预览版，标记为 Pre-release；其余 tag（如 `v1.0.0`）是正式版。版本号自 2026-10-31 起在 1.x 上递增。
 - 发布说明写在 `docs/yohaku/release-notes/<tag>.md`（例如 [`v0.0.1.md`](release-notes/v0.0.1.md)）；没有这个文件时使用通用的安装说明。
-- 发布流程：把 `package.json` 改为新版本、写好发布说明并推送 → `git tag v1.1.0 && git push origin v1.1.0` → 全部平台构建成功后由 `publish-release.yml` 自动发布（2026-10-31 起正式版也自动发布，此前正式版停在草稿）。任一平台失败时 Release 保持草稿，修复后把 tag 移到新提交（`git tag -f` 后 `git push -f origin <tag>`）重新运行，产物会覆盖上传到同一个草稿；只有为 tag 当前所指提交构建的那次运行会发布，旧提交的运行即使成功也不会。
+- 发布流程：把 `package.json` 改为新版本、写好发布说明并推送 → `git tag v1.1.0 && git push origin v1.1.0` → 全部平台构建成功后由 `publish-release.yml` 自动发布（2026-10-31 起正式版也自动发布，此前正式版停在草稿）。任一平台失败时 Release 保持草稿，修复后把 tag 移到新提交（`git tag -f` 后 `git push -f origin <tag>`）重新运行，产物会覆盖上传到同一个草稿；只有为 tag 当前所指提交构建的那次运行会发布，旧提交的运行即使成功也不会；草稿的发布说明也换成新提交里的 `release-notes/<tag>.md`。tag 必须打在把 `package.json` 改成该版本的提交上（预览版 tag 的后缀不计），否则 Release 一开始就失败，不建草稿也不构建：2026-10-31 的 `v2.1.0` 曾因提交没有成功、tag 落在上一个提交上，构建了 2.0.0 的代码又在 tag 被删除后找不到它。
 
 ---
 
