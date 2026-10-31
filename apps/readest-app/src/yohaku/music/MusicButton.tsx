@@ -6,16 +6,16 @@ import { useMusicStore } from './store';
 
 /**
  * The reader footer's music button, where Readest has its read-aloud button:
- * it brings the small music player out above the footer, or puts it away.
+ * it turns the footer into the music's controls (FooterMusicBar), and back.
  */
 const MusicButton: React.FC = () => {
   const _ = useTranslation();
-  const open = useMusicStore((state) => state.miniPlayerOpen);
+  const open = useMusicStore((state) => state.readerMusicBar);
   return (
     <Button
       label={_('Music')}
       icon={<IoMusicalNotesOutline className={clsx(open && 'text-blue-500')} />}
-      onClick={() => useMusicStore.getState().setMiniPlayerOpen(!open)}
+      onClick={() => useMusicStore.getState().setReaderMusicBar(!open)}
     />
   );
 };

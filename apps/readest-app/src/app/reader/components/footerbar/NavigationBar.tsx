@@ -13,7 +13,9 @@ import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import Button from '@/components/Button';
 import { Insets } from '@/types/misc';
 import { isYohakuBuild } from '@/yohaku/build';
+import { MobileMusicBar } from '@/yohaku/music/FooterMusicBar';
 import MusicButton from '@/yohaku/music/MusicButton';
+import { useMusicStore } from '@/yohaku/music/store';
 
 interface NavigationBarProps {
   bookKey: string;
@@ -43,6 +45,18 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   const tocIconSize = useResponsiveSize(23);
   const fontIconSize = useResponsiveSize(18);
   const navPadding = isMobile ? `${gridInsets.bottom * 0.33 + 16}px` : '0px';
+  const musicBar = useMusicStore((state) => state.readerMusicBar);
+
+  // [yohaku] The music button turns this bar into the music's controls, and back.
+  if (isYohakuBuild() && musicBar) {
+    return (
+      <MobileMusicBar
+        forceMobileLayout={forceMobileLayout}
+        gridInsets={gridInsets}
+        insetStyle={insetStyle}
+      />
+    );
+  }
 
   return (
     <div

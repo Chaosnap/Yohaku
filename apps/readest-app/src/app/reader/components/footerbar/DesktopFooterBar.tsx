@@ -11,7 +11,9 @@ import { getNavigationIcon } from './utils';
 import Button from '@/components/Button';
 import PageJumpInput from './PageJumpInput';
 import { isYohakuBuild } from '@/yohaku/build';
+import { DesktopMusicBar } from '@/yohaku/music/FooterMusicBar';
 import MusicButton from '@/yohaku/music/MusicButton';
+import { useMusicStore } from '@/yohaku/music/store';
 
 const DesktopFooterBar: React.FC<FooterBarChildProps> = ({
   bookKey,
@@ -27,6 +29,7 @@ const DesktopFooterBar: React.FC<FooterBarChildProps> = ({
   const view = getView(bookKey);
   const viewState = getViewState(bookKey);
   const viewSettings = getViewSettings(bookKey);
+  const musicBar = useMusicStore((state) => state.readerMusicBar);
 
   const [progressValue, setProgressValue] = React.useState(
     progressValid ? progressFraction * 100 : 0,
@@ -56,6 +59,11 @@ const DesktopFooterBar: React.FC<FooterBarChildProps> = ({
     },
     [navigationHandlers],
   );
+
+  // [yohaku] The music button turns this bar into the music's controls, and back.
+  if (isYohakuBuild() && musicBar) {
+    return <DesktopMusicBar forceMobileLayout={forceMobileLayout} gridInsets={gridInsets} />;
+  }
 
   const isMobile = window.innerWidth < 640 || window.innerHeight < 640;
 

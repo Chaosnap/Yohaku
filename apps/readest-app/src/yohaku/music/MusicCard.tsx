@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { convertFileSrc } from '@tauri-apps/api/core';
 import { useEffect, useRef, useState } from 'react';
 import {
   IoClose,
@@ -19,9 +18,12 @@ import FavoriteButton from './FavoriteButton';
 import { formatDuration } from './library';
 import { useMusicStore } from './store';
 
-/** Frosted glass, lit along its top edge. E-ink keeps a plain card. */
+/**
+ * Clear frosted glass in the theme's own colour, lit along its top edge: what is
+ * behind it shows through, blurred. E-ink keeps a plain card.
+ */
 const GLASS = clsx(
-  'not-eink:bg-base-100/60 not-eink:backdrop-blur-2xl not-eink:backdrop-saturate-150',
+  'not-eink:bg-base-100/35 not-eink:backdrop-blur-2xl not-eink:backdrop-saturate-150',
   'not-eink:border not-eink:border-base-content/10',
   'not-eink:shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_20px_44px_-20px_rgb(0_0_0/0.55)]',
   'eink-bordered',
@@ -176,10 +178,11 @@ interface MusicCardProps {
 }
 
 /**
- * What plays, as a floating card of frosted glass tinted by the cover: the
- * cover, which settles back while the song is paused, the song and how long is
- * left, and the controls, with how far the song is as a ring around the play
- * button; then the heart, the volume and stopping.
+ * What plays in the music library, as a floating card of clear frosted glass:
+ * the cover, which settles back while the song is paused, the song and how long
+ * is left, and the controls, with how far the song is as a ring around the play
+ * button; then the heart, the volume and stopping. The reader has no floating
+ * player: its footer turns into the music's controls (FooterMusicBar).
  */
 const MusicCard: React.FC<MusicCardProps> = ({ onExpand }) => {
   const _ = useTranslation();
@@ -196,19 +199,7 @@ const MusicCard: React.FC<MusicCardProps> = ({ onExpand }) => {
   const byline = [artist, left].filter(Boolean).join(' · ');
 
   return (
-    <div className={clsx('relative isolate rounded-[26px]', GLASS)}>
-      {track?.cover && (
-        <div
-          aria-hidden='true'
-          className='eink:hidden absolute inset-0 -z-10 overflow-hidden rounded-[inherit]'
-        >
-          <img
-            src={convertFileSrc(track.cover)}
-            alt=''
-            className='h-full w-full scale-150 object-cover opacity-40 blur-2xl saturate-150'
-          />
-        </div>
-      )}
+    <div className={clsx('relative rounded-[26px]', GLASS)}>
       <div className='text-base-content flex h-[72px] items-center gap-3 pe-2 ps-3'>
         <button
           type='button'

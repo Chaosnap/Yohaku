@@ -38,8 +38,10 @@ interface MusicState {
   playback: PlaybackState;
   /** The ambient sounds playing now, by themselves or beside the music. */
   ambient: AmbientChoice[];
-  /** Whether the small player is out; music that starts playing brings it out. */
+  /** Whether the music library's floating player is out; music that starts brings it out. */
   miniPlayerOpen: boolean;
+  /** Whether the reader's footer shows the music's controls in place of its own. */
+  readerMusicBar: boolean;
   sleepMinutes: number;
   /** When the sleep timer starts fading the music out, while it is set. */
   sleepEndsAt: number | null;
@@ -52,6 +54,8 @@ interface MusicState {
   addFolder: (appService: AppService) => Promise<void>;
   importFiles: (appService: AppService) => Promise<void>;
   sync: (appService: AppService) => Promise<void>;
+  /** Syncing when Yohaku starts: quiet, and a folder that reads as empty keeps its songs. */
+  syncAtStartup: (appService: AppService) => Promise<void>;
   removeFolder: (appService: AppService, folder: string) => Promise<void>;
   removeTrack: (appService: AppService, track: MusicTrack) => Promise<void>;
   play: (appService: AppService, tracks: MusicTrack[], index: number) => Promise<void>;
@@ -66,6 +70,7 @@ interface MusicState {
   /** Pauses the music and puts the small player away. */
   stop: (appService: AppService) => Promise<void>;
   setMiniPlayerOpen: (open: boolean) => void;
+  setReaderMusicBar: (open: boolean) => void;
   refresh: (appService: AppService) => Promise<void>;
   /** Asks the engine which ambient sounds play: another window may have turned them on. */
   loadAmbient: (appService: AppService) => Promise<void>;
@@ -156,6 +161,7 @@ export const useMusicStore = create<MusicState>((set, get) => {
     playback: STOPPED,
     ambient: [],
     miniPlayerOpen: false,
+    readerMusicBar: false,
     sleepMinutes: 0,
     sleepEndsAt: null,
     volume: storedVolume(),
@@ -200,6 +206,30 @@ export const useMusicStore = create<MusicState>((set, get) => {
         const tracks = await scanInto(appService, paths, true);
         await save(appService, { tracks });
       }),
+
+    // Each folder is read by itself: one that comes back empty is most likely a drive
+    // not plugged in yet, so its songs stay until a sync by hand says otherwise.
+    syncAtStartup: async (appService) => {
+      const { folders, files, tracks: known } = get().library;
+      if (folders.length + files.length === 0) return;
+      set({ syncing: true });
+      try {
+        const engine = getAudioEngine(appService);
+        const found: MusicTrack[] = [];
+        for (const folder of folders) {
+          const scanned = toTracks(await engine.scan([folder]), known, Date.now());
+          found.push(
+            ...(scanned.length > 0 ? scanned : known.filter((t) => isUnder(t.uri, folder))),
+          );
+        }
+        if (files.length > 0) found.push(...toTracks(await engine.scan(files), known, Date.now()));
+        await save(appService, { tracks: mergeTracks(found) });
+      } catch (error) {
+        console.warn('The music library could not sync at startup', error);
+      } finally {
+        set({ syncing: false });
+      }
+    },
 
     removeFolder: (appService, folder) =>
       attempt(async () => {
@@ -269,6 +299,7 @@ export const useMusicStore = create<MusicState>((set, get) => {
     },
 
     setMiniPlayerOpen: (open) => set({ miniPlayerOpen: open }),
+    setReaderMusicBar: (open) => set({ readerMusicBar: open }),
 
     refresh: async (appService) => {
       try {
