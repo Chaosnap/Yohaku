@@ -1,60 +1,60 @@
-# 读书与漫画
+# Books and comics
 
-Yohaku 的阅读部分来自 Readest：同一个阅读引擎（foliate-js）、同样细致的排版与批注。Yohaku 在它上面调了默认排版，加了自己的阅读主题，让漫画按它该有的方向翻页。
+Yohaku's reading comes from Readest: the same reading engine (foliate-js), the same careful typesetting and annotations. On top of it Yohaku tunes the default typesetting, adds its own reading themes, and turns comic pages in the direction they were drawn for.
 
-## 书库
+## The library
 
-第一次打开 Yohaku 看到的是书库。点「导入书籍」，选「从本地文件导入」逐本加入，或「从文件夹导入」一次加入整个文件夹；书库最后一格的「+」也能导入。
+The library is the first thing you see. Click "Import Books" and choose "From Local File" to add books one by one, or "From Directory" to add a whole folder at once; the "+" tile at the end of the library imports too.
 
-书库顶部、搜索框左侧是「书籍 / 音乐」切换，一键在书库与[音乐库](./music)之间来回。
+At the top of the library, left of the search box, the Books / Music switch takes you between the library and the [music library](./music) in one click.
 
-![书库：封面网格](/images/desktop-library.jpg)
+![The library: a grid of covers](/images/desktop-library.jpg)
 
-## 格式
+## Formats
 
-| 类型 | 格式 |
+| Kind | Formats |
 |---|---|
-| 电子书 | EPUB、MOBI、AZW3、FB2、TXT |
-| 漫画 | CBZ |
-| 版式文档 | PDF |
+| E-books | EPUB, MOBI, AZW3, FB2, TXT |
+| Comics | CBZ |
+| Fixed layout | PDF |
 
-## 排版与主题
+## Typesetting and themes
 
-- 中文、日文、英文各有一套调好的默认排版：字体、行距、段距与对齐，打开书就是舒服的样子。
-- 横排与竖排都可以：在「设置 → 布局」的「排版模式」里切换，日文小说与竖排的中文书也能读。
-- 单栏与双栏，翻页与滚动（<kbd>Shift</kbd> + <kbd>J</kbd> 切换滚动模式）。
-- 三款 Yohaku 阅读主题，在「设置 → 颜色」里选。每一款都有白天和夜晚两种样子，跟着浅色与深色模式切换：
-  - **暖纸**：灯下未漂白的纸；夜里是同一页纸映着灯光；
-  - **月白**：月光那样淡淡的青白；夜里是有月亮的夜；
-  - **墨夜**：墨黑的夜里纸色的字；白天是一层淡淡的墨色。
+- Chinese, Japanese and English each have their own tuned defaults: fonts, line spacing, paragraph spacing and alignment, so a book looks right the moment it opens.
+- Horizontal or vertical text: switch the writing mode in Settings → Layout, for Japanese novels and vertical Chinese books.
+- One or two columns, pages or scrolling (<kbd>Shift</kbd> + <kbd>J</kbd> toggles scroll mode).
+- Three Yohaku reading themes, chosen in Settings → Color. Each has a day look and a night look, following light and dark mode:
+  - **Warm Paper** (暖纸): unbleached paper under a lamp, and at night the same page in lamplight;
+  - **Moon White** (月白): the pale blue-white of moonlight, and at night a moonlit night;
+  - **Ink Night** (墨夜): paper-coloured words on an ink-black night, and by day a light wash of ink.
 
-## 批注与笔记本
+## Annotations and the notebook
 
-- 选中文字，可以**划线**、加**笔记**、**复制**、**翻译**、查**词典**，或者从这里开始**朗读**。
-- <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>B</kbd> 加书签；书签、划线与笔记都在侧栏里。
-- 按 <kbd>N</kbd> 打开**笔记本**：在桌面上，它是一张浮在书页旁的卡片，读到哪里记到哪里。
+- Select text to **highlight** it, add a **note**, **copy**, **translate** or look it up in the **dictionary**, or start **reading aloud** from there.
+- <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>B</kbd> adds a bookmark; bookmarks, highlights and notes all live in the sidebar.
+- Press <kbd>N</kbd> for the **notebook**. On the desktop it is a card floating beside the page, so you can write as you read.
 
-## 搜索与跳转
+## Search and navigation
 
-- <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>F</kbd> 全文搜索。
-- 侧栏（<kbd>S</kbd>）里有目录、批注与书签，以及 Yohaku 加上的「歌曲」与「歌词」，见[边读边听](./listening)。
-- 键盘就能读完一整本书，见[快捷键](./shortcuts)。
+- <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>F</kbd> searches the whole book.
+- The sidebar (<kbd>S</kbd>) holds the table of contents, annotations and bookmarks, plus Yohaku's Songs and Lyrics tabs; see [Listening while reading](./listening).
+- You can read a whole book from the keyboard; see [Shortcuts](./shortcuts).
 
-## 漫画
+## Comics
 
-- 漫画按 `ComicInfo.xml` 里的阅读方向打开：标着从右到左的日式漫画，翻页方向也是从右到左。
-- 没有写方向的漫画，可以在「设置 → 布局」的「漫画」里打开「默认从右到左」。
-- 读漫画时同样可以把页脚换成音乐控制条。
+- Comics open in the reading direction their `ComicInfo.xml` gives: Japanese manga marked right to left turn pages right to left.
+- For comics that say nothing, turn on "Right to Left by Default" under Comics in Settings → Layout.
+- The footer turns into a music bar while you read comics, too.
 
-## 窗口
+## Windows
 
-在桌面上，每本书默认在自己的窗口里打开，书库留在主窗口。音乐只在主窗口里播放，所以开再多本书也只有一个声音，每个窗口的页脚都能控制它。
+On the desktop each book opens in its own window by default, and the library stays in the main window. Music plays only in the main window, so however many books you open there is only one sound, and every window's footer controls it.
 
-## 同步与书源
+## Sync and catalogs
 
-Yohaku 没有自己的云端，但保留了 Readest 中由你自己配置的同步与书源：
+Yohaku has no cloud of its own, but keeps the sync and catalogs from Readest that you set up yourself:
 
-- KOReader 同步、WebDAV 等，同步阅读进度与书库；
-- OPDS 目录，从你信任的书源下载书籍。
+- KOReader sync, WebDAV and others, for reading progress and your library;
+- OPDS catalogs, for downloading books from sources you trust.
 
-这些功能只在你配置之后才会联网，并且只连接你指定的服务器，见[隐私](./privacy)。
+These only go online once you have set them up, and only to the servers you chose; see [Privacy](./privacy).

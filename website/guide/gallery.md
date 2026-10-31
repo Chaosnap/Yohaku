@@ -1,88 +1,88 @@
-# 截图
+# Gallery
 
-以下都是 Yohaku 的真实截图。截图中的书籍封面与专辑封面版权归各自的权利人所有。
+These are all real screenshots of Yohaku. The book and album covers in them belong to their respective owners.
 
-## 阅读与书库
+## Reading and the library
 
 <figure>
 
-![Yohaku 的阅读界面：左侧是正在播放的歌曲与随歌声流动的歌词，中间是《老人与海》的正文，右侧是笔记本，页脚是音乐控制条](/images/desktop-reading.jpg)
+![Reading The Old Man and the Sea in Yohaku: the song playing and its lyrics in the sidebar, the notebook on the right, and the music bar in the footer](/images/desktop-reading.jpg)
 
-<figcaption>边读《老人与海》边听歌：侧栏是歌词，右边是笔记本，页脚是音乐控制条</figcaption>
+<figcaption>Reading The Old Man and the Sea with music: lyrics in the sidebar, the notebook on the right, the music bar in the footer</figcaption>
 </figure>
 
 <figure>
 
-![阅读《献给阿尔吉侬的花束》：左侧是目录，正文分两栏](/images/desktop-reader.jpg)
+![Reading Flowers for Algernon: the table of contents on the left and the text in two columns](/images/desktop-reader.jpg)
 
-<figcaption>目录在侧，正文分两栏；底部是阅读的页脚</figcaption>
+<figcaption>Contents in the sidebar, the text in two columns, the reading footer below</figcaption>
 </figure>
 
 <figure>
 
-![书库：封面网格](/images/desktop-library.jpg)
+![The library: a grid of covers](/images/desktop-library.jpg)
 
-<figcaption>书库：顶部的「书籍 / 音乐」一键切换</figcaption>
+<figcaption>The library; Books / Music at the top switches between them</figcaption>
 </figure>
 
 <figure>
 
-![书籍详情：出版社、语言、格式、页数等](/images/desktop-book-details.jpg)
+![Book details: publisher, language, format, pages](/images/desktop-book-details.jpg)
 
-<figcaption>书籍详情；最后一格「+」导入新书</figcaption>
+<figcaption>Book details; the last tile, “+”, imports new books</figcaption>
 </figure>
 
-## 音乐库
+## The music library
 
 <figure>
 
-![音乐库的专辑网格](/images/desktop-music-albums.jpg)
+![The music library's album grid](/images/desktop-music-albums.jpg)
 
-<figcaption>专辑、艺术家、歌曲、收藏、文件夹</figcaption>
-</figure>
-
-<figure>
-
-![音乐库底部的磨砂玻璃播放器](/images/desktop-music-player.jpg)
-
-<figcaption>单独听歌时，底部是一张磨砂玻璃播放器</figcaption>
+<figcaption>Albums, artists, songs, favorites and folders</figcaption>
 </figure>
 
 <figure>
 
-![歌曲列表：收藏与详情按钮](/images/desktop-music-songs.jpg)
+![The frosted-glass player at the bottom of the music library](/images/desktop-music-player.jpg)
 
-<figcaption>歌曲列表：心形收藏，ⓘ 查看详情</figcaption>
+<figcaption>Listening on its own: a frosted-glass player at the bottom</figcaption>
 </figure>
 
 <figure>
 
-![专辑详情：艺术家、时长、格式、文件大小](/images/desktop-album-details.jpg)
+![The song list with favorite and details buttons](/images/desktop-music-songs.jpg)
 
-<figcaption>专辑详情</figcaption>
-</figure>
-
-## 边读边听
-
-<figure>
-
-![朗读面板与环境声音场景，页脚是音乐控制条，右下角竖着音量条](/images/desktop-read-aloud.jpg)
-
-<figcaption>右上角的朗读面板与环境声音；页脚换成音乐控制条，音量竖着调</figcaption>
+<figcaption>Songs: the heart for favorites, ⓘ for details</figcaption>
 </figure>
 
 <figure>
 
-![侧栏的歌词，日文原文与中文翻译](/images/desktop-lyrics.jpg)
+![Album details: artist, length, format, file size](/images/desktop-album-details.jpg)
 
-<figcaption>歌词逐行流动，翻译跟在原文下面</figcaption>
+<figcaption>Album details</figcaption>
+</figure>
+
+## Listening while reading
+
+<figure>
+
+![The read-aloud panel with ambient scenes, the music bar in the footer and the vertical volume slider](/images/desktop-read-aloud.jpg)
+
+<figcaption>The read-aloud panel and ambient sounds at the top right; the footer turned music bar, with its vertical volume</figcaption>
 </figure>
 
 <figure>
 
-![侧栏的歌曲：队列、全部、收藏](/images/desktop-sidebar-songs.jpg)
+![Lyrics in the sidebar: Japanese lines with Chinese translations](/images/desktop-lyrics.jpg)
 
-<figcaption>不离开书页就能换歌</figcaption>
+<figcaption>Lyrics flow line by line, translations beneath</figcaption>
+</figure>
+
+<figure>
+
+![Songs in the sidebar: queue, all, favorites](/images/desktop-sidebar-songs.jpg)
+
+<figcaption>Change songs without leaving the page</figcaption>
 </figure>
 
 ## Android
@@ -91,16 +91,16 @@
 
 <figure>
 
-![在 Android 上读漫画，底部是音乐控制条](/images/android-comics.jpg)
+![Reading a comic on Android with the music bar in the footer](/images/android-comics.jpg)
 
-<figcaption>手机上读漫画，页脚同样可以换成音乐控制条</figcaption>
+<figcaption>Comics on a phone; the footer turns into a music bar here too</figcaption>
 </figure>
 
 <figure>
 
-![在 Android 上读漫画，底部是阅读主题：默认、暖纸、月白、墨夜](/images/android-themes.jpg)
+![Reading a comic on Android with the reading themes in the footer: Default, Warm Paper, Moon White, Ink Night](/images/android-themes.jpg)
 
-<figcaption>三款 Yohaku 阅读主题：暖纸、月白、墨夜</figcaption>
+<figcaption>The three Yohaku reading themes: Warm Paper, Moon White and Ink Night</figcaption>
 </figure>
 
 </div>

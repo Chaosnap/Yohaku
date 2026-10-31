@@ -1,67 +1,67 @@
-# 边读边听
+# Listening while reading
 
-打开一本书以后，音乐照常播放。Yohaku 不在书页上浮任何播放器：书是主角，控制音乐的地方都藏在你本来就会用到的页脚和侧栏里。
+Open a book and the music carries on. Yohaku floats no player over the page: the book comes first, and the music's controls live in the footer and the sidebar you already use.
 
-![边读边听：侧栏是歌词，页脚是音乐控制条](/images/desktop-reading.jpg)
+![Listening while reading: lyrics in the sidebar, the music bar in the footer](/images/desktop-reading.jpg)
 
-## 页脚的音乐控制条
+## The music bar in the footer
 
-阅读页脚上有一个 🎵 音乐按钮。点它，整条页脚换成音乐控制条：
+The reading footer has a 🎵 music button. Tap it and the whole footer becomes a music bar:
 
-- 正在播放的歌名与艺术家；
-- 上一首、播放 / 暂停、下一首；
-- 播放进度，可以拖动；
-- 心形收藏；
-- 音量。
+- the title and artist of the song playing;
+- previous, play / pause, next;
+- the progress bar, which you can drag;
+- a heart for favorites;
+- the volume.
 
-再点一下 🎵，换回阅读的页脚。音乐控制条与阅读页脚是同一种样子、同一个位置，只是内容换了。Android 上的页脚也一样。
+Tap 🎵 again for the reading footer. The music bar looks like the reading footer and sits in the same place; only what's in it changes. The footer on Android works the same way.
 
-## 正在播放
+## Now Playing
 
-点控制条上的歌名，打开「正在播放」：
+Tap the song title in the music bar to open Now Playing:
 
-- 封面、歌名、艺术家与专辑；
-- 歌词的入口；
-- **定时关闭**：15、30、45、60 或 90 分钟后停止播放，睡前读书时用得上；
-- [环境声音](./ambient)；
-- 桌面上还会列出音乐的快捷键。
+- the cover, title, artist and album;
+- the way into the lyrics;
+- a **Sleep Timer**: stop playing after 15, 30, 45, 60 or 90 minutes, for reading in bed;
+- [ambient sounds](./ambient);
+- on the desktop, the music shortcuts.
 
-## 竖着的音量条
+## The vertical volume slider
 
-点控制条上的音量按钮，弹出一条竖着的音量滑杆：
+Tap the volume button in the music bar and a vertical slider pops up:
 
-- 上下拖动调节音量，鼠标滚轮也可以；
-- 底下的按钮一键静音；
-- 调好以后移开，它会自己收起来，不用再点一次。
+- drag up and down to change the volume, or use the mouse wheel;
+- the button at the bottom mutes;
+- move away when you're done and it tucks itself away; no second tap needed.
 
-## 侧栏里的歌曲
+## Songs in the sidebar
 
-按 <kbd>S</kbd> 打开侧栏，Yohaku 在目录与批注旁边加了两个标签：**歌曲**与**歌词**。
+Press <kbd>S</kbd> for the sidebar. Next to the table of contents and annotations, Yohaku adds two tabs: **Songs** and **Lyrics**.
 
-**歌曲**里有三页：
+**Songs** has three pages:
 
-| 页 | 内容 |
+| Page | What's on it |
 |---|---|
-| **队列** | 正在播放的歌与接下来要播放的歌 |
-| **全部** | 音乐库里的全部歌曲，点一首就从它开始播放 |
-| **收藏** | 点过心形的歌 |
+| **Queue** | The song playing and the songs coming up |
+| **All** | Every song in the music library; tap one to play from it |
+| **Favorites** | The songs you gave a heart |
 
-队列只显示从当前这首往后的歌；在「全部」或「收藏」里点一首歌，队列就从这首开始，一直到列表末尾。不离开书页就能换歌。
+The queue only shows the songs from the current one on. Tap a song in All or Favorites and the queue runs from that song to the end of the list. You can change songs without leaving the page.
 
-![侧栏的歌曲：队列、全部、收藏](/images/desktop-sidebar-songs.jpg)
+![Songs in the sidebar: queue, all, favorites](/images/desktop-sidebar-songs.jpg)
 
-**歌词**见[歌词](./lyrics)。
+For **Lyrics**, see [Lyrics](./lyrics).
 
-## 不用离开键盘
+## Hands on the keyboard
 
-| 按键 | 作用 |
+| Key | Does |
 |---|---|
-| <kbd>M</kbd> | 播放 / 暂停音乐 |
-| <kbd>.</kbd> | 下一首 |
-| <kbd>,</kbd> | 上一首 |
+| <kbd>M</kbd> | Play / pause music |
+| <kbd>.</kbd> | Next song |
+| <kbd>,</kbd> | Previous song |
 
-全部快捷键见[快捷键](./shortcuts)。
+All the shortcuts are in [Shortcuts](./shortcuts).
 
-## 与环境声音、朗读一起
+## With ambient sounds and read-aloud
 
-音乐、[环境声音](./ambient)与[朗读](./read-aloud)可以同时进行：一边听唱片，一边让窗外下雨；或者把音乐调小，让朗读的声音在前面。音乐与每一种环境声音都有自己的音量。
+Music, [ambient sounds](./ambient) and [read-aloud](./read-aloud) can all play at once: a record with rain outside the window, or the music turned down so the reading voice comes first. Music and every ambient sound have a volume of their own.

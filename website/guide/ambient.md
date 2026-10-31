@@ -1,53 +1,53 @@
-# 环境声音
+# Ambient sounds
 
-窗外的雨、壁炉里的火、夏天午后的蝉。Yohaku 的环境声音可以单独播放，也可以与音乐或朗读叠在一起，给读书的时候铺一层安静的底。
+Rain at the window, a fire in the hearth, cicadas on a summer afternoon. Yohaku's ambient sounds play on their own or underneath music and read-aloud, a quiet layer beneath your reading.
 
-![朗读面板里的环境声音场景](/images/desktop-read-aloud.jpg)
+![Ambient scenes in the read-aloud panel](/images/desktop-read-aloud.jpg)
 
-## 在哪里打开
+## Where to find them
 
-- 阅读时，右上角的**朗读**按钮打开的面板里，下半部分就是环境声音；
-- 点页脚音乐控制条上的歌名，打开「正在播放」，里面同样有环境声音。
+- While reading, the panel behind the **Read Aloud** button at the top right holds the ambient sounds in its lower half;
+- Tap the song title in the footer's music bar to open Now Playing; the ambient sounds are there too.
 
-## 十种声音
+## Ten sounds
 
 <div class="sound-grid">
 
-- 🌧️ 雨声
-- 🏠 檐下雨
-- 🌬️ 风声
-- 🌊 海浪
-- 🔥 壁炉
-- 🌲 森林
-- 🦗 蝉鸣
-- 🌙 夜虫
-- 💧 溪流
-- 💿 黑胶噼啪声
+- 🌧️ Rain
+- 🏠 Rain on the Eaves
+- 🌬️ Wind
+- 🌊 Waves
+- 🔥 Fireplace
+- 🌲 Forest
+- 🦗 Cicadas
+- 🌙 Night Insects
+- 💧 Stream
+- 💿 Vinyl Crackle
 
 </div>
 
-每种声音都能单独打开或关掉，打开后旁边的滑杆调节它自己的音量。
+Each sound turns on and off by itself, and once on, the slider beside it sets its own volume.
 
-它们不是录音，而是 Yohaku 按配方一点一点合成出来的：经过滤波的噪声，加上雨滴、木柴噼啪、虫鸣这样短短的声响，拼成一段首尾相接、听不出接缝的循环。所以它们不需要下载任何文件，不占用你的音乐库，也没有录音版权的问题；每次听到的，都是同一场雨。
+They are not recordings. Yohaku makes them from small recipes, a little at a time: filtered noise plus short sounds such as raindrops, crackling wood and chirping insects, joined into a loop whose seam you cannot hear. So there is nothing to download, nothing in your music library, and no recording to license; every time, it is the same rain.
 
-## 五个场景
+## Five scenes
 
-场景是几种声音调好音量的组合，点一下就能打开：
+A scene is a few sounds at volumes chosen to go together, a tap away:
 
-| 场景 | 声音 |
+| Scene | Sounds |
 |---|---|
-| **雨夜** | 檐下雨 70%，风声 30% |
-| **夏日午后** | 蝉鸣 50%，森林 30% |
-| **黄昏海边** | 海浪 70%，风声 40% |
-| **夜间水族馆** | 溪流 60% |
-| **冬日书房** | 壁炉 60%，风声 35% |
+| **Rainy Night** | Rain on the Eaves 70%, Wind 30% |
+| **Summer Afternoon** | Cicadas 50%, Forest 30% |
+| **Seaside at Dusk** | Waves 70%, Wind 40% |
+| **Night Aquarium** | Stream 60% |
+| **Winter Study** | Fireplace 60%, Wind 35% |
 
-打开场景以后，仍然可以再加一种声音，或者单独调整其中一种的音量。选「关闭」，所有环境声音都会停下。
+With a scene on you can still add another sound, or change the volume of one of its sounds. Choose "Off" and every ambient sound stops.
 
-## 从安静开始
+## Starting from silence
 
-每次打开 Yohaku，环境声音都是关着的。它不会在你没留意的时候自己响起来，想要的时候点一下就好。
+Each time Yohaku opens, the ambient sounds are off. They never start on their own while you aren't looking; when you want them, they are a tap away.
 
-## 与音乐、朗读一起
+## With music and read-aloud
 
-每一种环境声音都有自己的音量，和音乐各调各的：一边听唱片，一边让窗外下雨；或者让朗读在前面，雨声退到很远的地方。
+Every ambient sound has its own volume, separate from the music's: a record with rain outside the window, or read-aloud up front with the rain far away.

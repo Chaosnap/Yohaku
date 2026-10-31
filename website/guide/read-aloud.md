@@ -1,52 +1,52 @@
-# 朗读
+# Read aloud
 
-让 Yohaku 把书读给你听：从当前页开始，一句一句往下读，读到的句子在书页上高亮。
+Let Yohaku read the book to you: from the current page on, sentence after sentence, with each sentence highlighted on the page as it is read.
 
-![右上角的朗读面板](/images/desktop-read-aloud.jpg)
+![The read-aloud panel at the top right](/images/desktop-read-aloud.jpg)
 
-## 开始朗读
+## Starting
 
-阅读时点右上角的**朗读**按钮，打开朗读面板，再点「朗读 · 从当前页开始」。也可以按 <kbd>T</kbd>。
+While reading, click the **Read Aloud** button at the top right to open the read-aloud panel, then click "Read Aloud · From the current page". Or press <kbd>T</kbd>.
 
-朗读时，面板上显示：
+While it reads, the panel shows:
 
-- 这本书的书名与这一章还剩多少时间；
-- 播放 / 暂停、上一句、下一句；
-- 停止朗读；
-- 打开朗读播放器：在这里调**语速**、换**语音**、设**定时关闭**。
+- the book's title and how much of the chapter is left;
+- play / pause, previous sentence, next sentence;
+- stop reading aloud;
+- the read-aloud player, where you set the **speech rate**, change the **voice** and set a **sleep timer**.
 
-面板的下半部分是[环境声音](./ambient)，朗读与雨声可以一起开着。
+The lower half of the panel holds the [ambient sounds](./ambient), so reading aloud and rain can play together.
 
-## 只读一段
+## Reading a passage
 
-选中一段文字，在弹出的菜单里选「朗读」，或者按 <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>R</kbd>，只读选中的这一段。
+Select some text and choose "Read Aloud" in the menu that appears, or press <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>R</kbd>, to read just that passage.
 
-## 语音
+## Voices
 
-默认使用系统自带的语音，完全在你的设备上运行，不联网。
+Yohaku uses the system's voice by default; the read-aloud player switches to any other voice installed on your system.
 
-想要更自然的声音，可以在朗读设置里打开**在线语音**，使用 Microsoft Edge 的在线语音朗读。
+For a more natural voice, turn on **Online Voices** in Settings → TTS to read with Microsoft Edge's online voices.
 
-::: warning 在线语音会把文字发送给微软
-打开在线语音以后，正在朗读的文字会发送给微软的语音服务。这个选项默认关闭，下次开始朗读时生效。
+::: warning Online voices send text to Microsoft
+With online voices on, the text being read is sent to Microsoft's speech service. The option is off by default and takes effect the next time reading aloud starts.
 :::
 
-## 有录音的书
+## Books with recorded narration
 
-带有录音旁白的 EPUB（EPUB 3 媒体覆盖层）会直接播放书里的录音，文字跟着录音高亮。这时上一句、下一句换成后退 15 秒、前进 30 秒。
+An EPUB with recorded narration (EPUB 3 media overlays) plays the book's own recording, with the text highlighted along with it. Previous and next sentence then become back 15 seconds and forward 30 seconds.
 
-## 快捷键
+## Shortcuts
 
-| 按键 | 作用 |
+| Key | Does |
 |---|---|
-| <kbd>T</kbd> | 打开 / 关闭朗读 |
-| <kbd>Space</kbd> | 朗读时：播放 / 暂停 |
-| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>]</kbd> | 下一句 |
-| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>[</kbd> | 上一句 |
-| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>}</kbd> | 下一段 |
-| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>{</kbd> | 上一段 |
-| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>R</kbd> | 朗读选中的文字 |
+| <kbd>T</kbd> | Start / stop reading aloud |
+| <kbd>Space</kbd> | While reading aloud: play / pause |
+| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>]</kbd> | Next sentence |
+| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>[</kbd> | Previous sentence |
+| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>}</kbd> | Next paragraph |
+| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>{</kbd> | Previous paragraph |
+| <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>R</kbd> | Read the selected text |
 
-## 合上书，朗读就停
+## Close the book, and the reading stops
 
-关掉正在朗读的书，朗读也会停下，不会在书库里继续读。音乐则不受影响。
+Close a book that is being read aloud and the reading stops; it does not carry on in the library. Music is not affected.

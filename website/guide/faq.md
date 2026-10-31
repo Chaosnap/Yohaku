@@ -1,79 +1,79 @@
-# 常见问题
+# Questions
 
-## 安装
+## Installing
 
-### macOS 提示「已损坏，无法打开」
+### macOS says the app is damaged
 
-Yohaku 还没有经过 Apple 公证。通常先按[安装](./install#macos)里的步骤，到「系统设置 → 隐私与安全性」点「仍要打开」就可以了。
+Yohaku is not notarized by Apple yet. Usually it is enough to follow [Install](./install#macos) and click "Open Anyway" in System Settings → Privacy & Security.
 
-如果 macOS 直接说应用「已损坏」，而且没有「仍要打开」的选项，那是浏览器下载时加上的隔离标记在作怪。把 Yohaku 拖进「应用程序」以后，在「终端」里运行：
+If macOS says outright that the app is damaged, with no "Open Anyway" button, the quarantine flag the browser added while downloading is to blame. After dragging Yohaku into Applications, run this in Terminal:
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/Yohaku.app
 ```
 
-然后再打开 Yohaku。
+Then open Yohaku again.
 
-### Windows 弹出 SmartScreen 提示
+### Windows shows a SmartScreen warning
 
-安装包还没有代码签名，Windows 不认识它。点「更多信息」，再点「仍要运行」。
+The installers are not code-signed yet, so Windows doesn't recognise them. Click "More info", then "Run anyway".
 
-### Android 上该装 arm64 还是 armv7？
+### Android: arm64 or armv7?
 
-大多数手机装 **arm64**。只有较旧的 32 位手机才需要 **armv7**；arm64 装不上时再换。
+Most phones want **arm64**. Only older 32-bit phones need **armv7**; switch to it if arm64 will not install.
 
-### 能和 Readest 同时安装吗？
+### Can I install it alongside Readest?
 
-能。Yohaku 有自己的应用标识，两者互不影响，书库与设置也各自独立。
+Yes. Yohaku has its own app identifier, so the two don't touch each other, and each keeps its own library and settings.
 
-### 有 iOS 版吗？
+### Is there an iOS version?
 
-没有。Yohaku 支持 Windows、macOS、Linux 与 Android。
+No. Yohaku runs on Windows, macOS, Linux and Android.
 
-### 怎样更新？
+### How do I update?
 
-Yohaku 没有应用内更新。到 [Releases](https://github.com/Chaosnap/Yohaku/releases) 下载新版本，直接覆盖安装即可，书库、音乐库与设置都会保留。
+Yohaku has no in-app updater. Download the new version from [Releases](https://github.com/Chaosnap/Yohaku/releases) and install it over the old one; your library, music library and settings stay.
 
-## 音乐
+## Music
 
-### 我往音乐文件夹里放了新歌，音乐库里没有
+### I added songs to my music folder and they don't show up
 
-同步的文件夹会在每次启动 Yohaku 后自动同步。不想重启的话，点音乐库顶部「+」旁边的同步按钮（立即同步）。
+Synced folders sync every time Yohaku starts. If you don't want to restart, click the sync button (Sync Now) next to "+" at the top of the music library.
 
-### 音乐文件会被复制吗？
+### Are my music files copied?
 
-不会。Yohaku 只记住每首歌在哪里，不复制、不移动、不修改它们。把音乐文件挪了位置，重新同步或重新导入就好。
+No. Yohaku only remembers where each song is; it never copies, moves or modifies them. If you move your music files, sync or import them again.
 
-### 为什么这首歌没有歌词？
+### Why does this song have no lyrics?
 
-Yohaku 只读取歌曲旁边同名的 `.lrc` 文件，或者歌曲标签里内嵌的歌词，不会从网上下载歌词。写法见[歌词](./lyrics)。
+Yohaku reads only an `.lrc` file with the same name beside the song, or lyrics embedded in its tags; it never downloads lyrics. See [Lyrics](./lyrics) for how to write them.
 
-### 歌词是乱码
+### The lyrics are garbled
 
-Yohaku 认得 UTF-8、UTF-16 与 GBK 编码的歌词文件。仍然乱码的话，把 `.lrc` 文件另存为 UTF-8。
+Yohaku understands lyrics files in UTF-8, UTF-16 and GBK. If they are still garbled, save the `.lrc` file as UTF-8.
 
-### 打开一本书，音乐会停吗？
+### Does the music stop when I open a book?
 
-不会。音乐一直播放，控制它的是阅读页脚上的 🎵 按钮，见[边读边听](./listening)。在桌面上，书在自己的窗口里打开，音乐仍然在主窗口里播放，每个窗口都能控制它。
+No. The music keeps playing, and the 🎵 button in the reading footer controls it; see [Listening while reading](./listening). On the desktop a book opens in its own window while the music keeps playing in the main window, and every window can control it.
 
-### 手机锁屏以后还能听吗？
+### Can I listen with my phone locked?
 
-能。Android 上切到后台、锁屏以后音乐继续播放，锁屏、通知栏与蓝牙耳机都能控制。
+Yes. On Android, music keeps playing in the background and with the screen locked, with controls on the lock screen, in the notification and on Bluetooth headphones.
 
-## 其他
+## Everything else
 
-### 环境声音为什么每次都是关着的？
+### Why are the ambient sounds always off?
 
-这是有意的：Yohaku 每次都从安静开始，不会在你没留意的时候自己响起来。
+On purpose: Yohaku always starts from silence, so nothing starts playing while you aren't looking.
 
-### 关掉书以后，朗读为什么停了？
+### Why did read-aloud stop when I closed the book?
 
-朗读跟着书走：合上正在朗读的书，朗读就停下，不会在书库里继续读。音乐不受影响。
+Reading aloud belongs to the book: close the book being read and the reading stops, rather than carrying on in the library. Music is not affected.
 
-### Yohaku 收费吗？
+### Does Yohaku cost anything?
 
-不收费。Yohaku 免费、开源（AGPL-3.0），没有付费墙，也没有账户。
+No. Yohaku is free and open source (AGPL-3.0), with no paywall and no account.
 
-### 遇到问题，或者有想法？
+### Found a problem, or have an idea?
 
-到 GitHub 上[提一个 Issue](https://github.com/Chaosnap/Yohaku/issues)。说明你用的平台、Yohaku 的版本，以及怎样能让问题再出现一次。
+[Open an issue](https://github.com/Chaosnap/Yohaku/issues) on GitHub. Say which platform and which version of Yohaku you use, and how to make the problem happen again.

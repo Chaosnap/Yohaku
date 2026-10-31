@@ -1,5 +1,5 @@
 ---
-title: 更新日志
+title: Changelog
 outline: false
 ---
 
@@ -7,9 +7,13 @@ outline: false
 import { data as releases } from './releases.data.ts'
 </script>
 
-# 更新日志
+# Changelog
 
-Yohaku 每个版本的变化，从新到旧。每一页都来自仓库里的 [`docs/yohaku/release-notes/`](https://github.com/Chaosnap/Yohaku/tree/main/docs/yohaku/release-notes)，安装包在 [GitHub Releases](https://github.com/Chaosnap/Yohaku/releases)。
+What changed in every version of Yohaku, newest first. Each page comes from [`docs/yohaku/release-notes/`](https://github.com/Chaosnap/Yohaku/tree/main/docs/yohaku/release-notes) in the repository, and the installers are on [GitHub Releases](https://github.com/Chaosnap/Yohaku/releases).
+
+::: info Written in Chinese
+Yohaku's release notes are written in Simplified Chinese, and these pages show them as they are. Your browser can translate them.
+:::
 
 <div class="releases">
   <a v-for="release in releases" :key="release.version" class="release" :href="release.version">

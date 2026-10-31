@@ -1,25 +1,25 @@
-# 歌词
+# Lyrics
 
-侧栏的**歌词**标签显示正在播放的歌的歌词。歌词随歌声逐行流动：唱到的那一行亮起来、轻轻呼吸，字一个一个填上颜色；翻译跟在原文下面。点任意一行，歌就从那一句开始唱。
+The **Lyrics** tab in the sidebar shows the lyrics of the song playing. They flow with the singing, line by line: the line being sung lights up and gently breathes, and its characters fill with colour one by one, with translations beneath the original lines. Tap any line and the song plays from there.
 
-![侧栏的歌词，日文原文与中文翻译](/images/desktop-lyrics.jpg)
+![Lyrics in the sidebar: Japanese lines with Chinese translations](/images/desktop-lyrics.jpg)
 
-## 歌词从哪里来
+## Where lyrics come from
 
-Yohaku 按这个顺序找歌词：
+Yohaku looks in this order:
 
-1. 歌曲旁边**同名的 `.lrc` 文件**，例如 `窗外的雨.flac` 旁边的 `窗外的雨.lrc`；
-2. 歌曲标签里**内嵌的歌词**。
+1. **an `.lrc` file with the same name** beside the song, such as `Rain Outside.lrc` next to `Rain Outside.flac`;
+2. **lyrics embedded** in the song's tags.
 
-两处都没有时，歌词页会提示你放一个同名的 `.lrc` 文件，或者把歌词写进标签。
+When there are neither, the Lyrics tab suggests putting an `.lrc` file with the same name beside the song, or adding lyrics to its tags.
 
-## LRC 的写法
+## Writing LRC
 
-LRC 是带时间的纯文本歌词，每行前面写上这一行开始的时间：
+LRC is plain text with timed lines: each line starts with the time it begins.
 
 ```text
-[ti:窗外的雨]
-[ar:某位歌手]
+[ti:Rain Outside]
+[ar:Some Singer]
 [offset:0]
 
 [00:12.40]雨落在窗台上
@@ -28,25 +28,25 @@ LRC 是带时间的纯文本歌词，每行前面写上这一行开始的时间�
 [00:18.10]The page still rests on yesterday
 ```
 
-- `[mm:ss.xx]` 是这一行开始的时间。
-- **和上一行时间相同的一行，是上一行的翻译**，显示在原文下面。很多中文、日文歌词文件都是这样写翻译的。
-- `[offset:+200]` 让整首歌词提前 200 毫秒出现，`-200` 则推后 200 毫秒，用来校正不同步的歌词。
-- `[ti:]`、`[ar:]`、`[al:]` 这样的信息行不会显示出来。
+- `[mm:ss.xx]` is when the line begins.
+- **A line with the same time as the line before is its translation**, and shows beneath the original. Many Chinese and Japanese lyrics files carry translations this way.
+- `[offset:+200]` shows the whole lyrics 200 ms earlier, and `-200` 200 ms later, to fix lyrics that run out of step.
+- Information lines such as `[ti:]`, `[ar:]` and `[al:]` are not shown.
 
-### 逐字时间
+### Word timing
 
-增强格式的 LRC 在每个字或词前面也写上时间，填色就会精确地跟着歌声走：
+The enhanced form of LRC also times each word or character, and the colour then follows the singing exactly:
 
 ```text
 [00:12.40]<00:12.40>雨<00:12.90>落在<00:13.60>窗台<00:14.30>上
 ```
 
-没有逐字时间的歌词，Yohaku 会按这一行持续的时间估算每个字唱到的时刻，让颜色均匀地填过去。
+For lyrics without word timing, Yohaku estimates when each character is sung from how long the line lasts, so the colour still fills evenly.
 
-### 没有时间的歌词
+### Lyrics without times
 
-内嵌在标签里的歌词常常没有时间。它们会完整地显示出来，只是不随歌声滚动。
+Lyrics embedded in tags often have no times. They are shown in full; they just don't scroll with the singing.
 
-## 编码
+## Encodings
 
-`.lrc` 文件可以是 UTF-8、带 BOM 的 UTF-16，或者许多旧中文歌词文件用的 GBK（GB18030）编码，Yohaku 会自己认出来。如果仍然出现乱码，把文件另存为 UTF-8 即可。
+`.lrc` files can be UTF-8, UTF-16 with a BOM, or GBK (GB18030), which many older Chinese lyrics files use; Yohaku works out which. If you still see garbled text, save the file as UTF-8.

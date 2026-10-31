@@ -13,7 +13,7 @@
   <a href="https://github.com/Chaosnap/Yohaku/releases/latest"><img src="https://img.shields.io/github/v/release/Chaosnap/Yohaku?style=flat-square&label=release&color=d2543c" alt="Latest release"></a>
   <img src="https://img.shields.io/badge/platform-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux%20%C2%B7%20Android-2c365c?style=flat-square" alt="Platforms: Windows, macOS, Linux, Android">
   <a href="PRIVACY.md"><img src="https://img.shields.io/badge/offline-no%20account%20%C2%B7%20no%20telemetry-3e6b5c?style=flat-square" alt="Offline: no account, no telemetry"></a>
-  <a href="https://chaosnap.github.io/Yohaku/"><img src="https://img.shields.io/badge/docs-%E4%B8%AD%E6%96%87-9c7a54?style=flat-square" alt="Documentation in Chinese"></a>
+  <a href="https://chaosnap.github.io/Yohaku/"><img src="https://img.shields.io/badge/docs-English%20%C2%B7%20%E4%B8%AD%E6%96%87-9c7a54?style=flat-square" alt="Documentation in English and Chinese"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-5b6478?style=flat-square" alt="License: AGPL-3.0"></a>
   <img src="https://img.shields.io/badge/built%20with-Tauri%202-24c8db?style=flat-square&logo=tauri&logoColor=white" alt="Built with Tauri 2">
 </p>
@@ -143,17 +143,17 @@ Get the build for your platform from [Releases](https://github.com/Chaosnap/Yoha
 | 🐧 Linux | `…_linux_amd64.AppImage`, `…_linux_amd64.deb` | x86_64 |
 | 🤖 Android | `…_android_arm64.apk` (most phones), `…_android_armv7.apk` (older 32-bit phones) | Android 8.0 or later |
 
-Every release comes with `SHA256SUMS.txt` and GitHub build provenance attestations. Step-by-step instructions, in Chinese: [安装](https://chaosnap.github.io/Yohaku/guide/install).
+Every release comes with `SHA256SUMS.txt` and GitHub build provenance attestations. Step-by-step instructions: [Install](https://chaosnap.github.io/Yohaku/guide/install) · [安装](https://chaosnap.github.io/Yohaku/zh/guide/install).
 
 ## 📚 Documentation
 
-**[chaosnap.github.io/Yohaku](https://chaosnap.github.io/Yohaku/)** has the full guide, the changelog and the development documents, written in Simplified Chinese (文档使用简体中文):
+**[chaosnap.github.io/Yohaku](https://chaosnap.github.io/Yohaku/)** has the full guide in English and Chinese (中文在 [/zh/](https://chaosnap.github.io/Yohaku/zh/)), the changelog and the development documents, which are written in Chinese:
 
 | Section | What's in it |
 |---|---|
-| [指南 · Guide](https://chaosnap.github.io/Yohaku/guide/) | Installing, books and comics, the music library, listening while reading, lyrics, ambient sounds, read-aloud, shortcuts, privacy, FAQ |
-| [更新日志 · Changelog](https://chaosnap.github.io/Yohaku/changelog/) | What changed in every release |
-| [开发文档 · Development](https://chaosnap.github.io/Yohaku/dev/) | Product vision, feasibility study, architecture, roadmap, CI and releases, every change made to Readest |
+| [Guide](https://chaosnap.github.io/Yohaku/guide/) · [指南](https://chaosnap.github.io/Yohaku/zh/guide/) | Installing, books and comics, the music library, listening while reading, lyrics, ambient sounds, read-aloud, shortcuts, privacy, FAQ |
+| [Changelog](https://chaosnap.github.io/Yohaku/changelog/) · [更新日志](https://chaosnap.github.io/Yohaku/zh/changelog/) | What changed in every release |
+| [Development](https://chaosnap.github.io/Yohaku/dev/) · [开发文档](https://chaosnap.github.io/Yohaku/zh/dev/) | Product vision, feasibility study, architecture, roadmap, CI and releases, every change made to Readest |
 
 The site is built from [`website/`](website/) and the documents in [`docs/yohaku/`](docs/yohaku/).
 
@@ -163,7 +163,7 @@ The site is built from [`website/`](website/) and the documents in [`docs/yohaku
 
 ## 🛠️ How it's built
 
-- Only code and assets live here: **everything is compiled, tested, packaged and released on GitHub Actions**, so no installer comes from anyone's own computer. See [云端构建](https://chaosnap.github.io/Yohaku/guide/building).
+- Only code and assets live here: **everything is compiled, tested, packaged and released on GitHub Actions**, so no installer comes from anyone's own computer. See [Built in the cloud](https://chaosnap.github.io/Yohaku/guide/building).
 - `references/` (not committed) holds read-only clones of upstream and reference projects; `local/` (not committed) holds raw assets and drafts.
 - Signing keys live only in GitHub Secrets and offline backups, never in the repository.
 - The icon's source is [`assets-src/icon/yohaku-icon.svg`](assets-src/icon/yohaku-icon.svg), from which every platform's icons are generated; the screenshots are in [`docs/screenshots/`](docs/screenshots/).

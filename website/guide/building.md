@@ -1,41 +1,41 @@
-# 云端构建
+# Built in the cloud
 
-Yohaku 的每一个安装包都是在 GitHub Actions 上构建的：格式检查、测试、打包、签名与发布全部在云端完成，没有一个安装包来自某个人的电脑。这样任何人都能看到一个版本是怎样构建出来的，也能验证下载的文件确实来自这里。
+Every Yohaku installer is built on GitHub Actions: format checks, tests, packaging, signing and releases all happen in the cloud, and no installer comes from anyone's own computer. So anyone can see how a version was built, and check that a downloaded file really came from here.
 
-## 工作流
+## Workflows
 
-| 工作流 | 什么时候运行 | 做什么 |
+| Workflow | When it runs | What it does |
 |---|---|---|
-| **CI** | 每次推送到 `main` | 检查 Yohaku 的配置（离线、没有 Readest 的服务密钥）、格式与类型检查、构建应用前端、单元测试 |
-| **Build** | 推送到 `main` 且改动了代码 | 构建全部平台的测试包，保留 14 天 |
-| **Release** | 推送 `v*` 标签 | 构建全部平台的正式安装包，生成 `SHA256SUMS.txt` 与构建来源证明 |
-| **Publish release** | Release 成功以后 | 自动发布这个版本：`v0.*` 与带后缀的版本是预览版，其余是最新版本 |
-| **Pages** | 网站或文档有改动时 | 构建并发布这个网站 |
-| **Upstream sync** | 每月 1 日 | 尝试合并 Readest 的最新发布版，用 Issue 报告结果 |
+| **CI** | Every push to `main` | Checks Yohaku's configuration (offline, none of Readest's service keys), formatting and types, builds the app's frontend, runs the unit tests |
+| **Build** | Pushes to `main` that change code | Builds test packages for every platform, kept for 14 days |
+| **Release** | Pushing a `v*` tag | Builds the release installers for every platform, with `SHA256SUMS.txt` and build provenance attestations |
+| **Publish release** | After Release succeeds | Publishes the release: `v0.*` and suffixed versions as pre-releases, the rest as the latest version |
+| **Pages** | When the site or the documents change | Builds and publishes this site |
+| **Upstream sync** | On the 1st of every month | Tries to merge Readest's latest release and reports the result in an issue |
 
-## 构建矩阵
+## Build matrix
 
-| 平台 | 产物 |
+| Platform | Packages |
 |---|---|
-| Windows x64 | NSIS 安装包、便携版 exe |
-| macOS（Apple 芯片与 Intel 通用） | DMG（ad-hoc 签名，未经公证） |
-| Linux x64 | AppImage、deb |
+| Windows x64 | NSIS installer, portable exe |
+| macOS (Apple silicon and Intel) | DMG (ad-hoc signed, not notarized) |
+| Linux x64 | AppImage, deb |
 | Android arm64 / armv7 | APK |
 
-正式安装包使用固定的 Android 签名密钥，所以新版本可以直接覆盖安装旧版本。密钥只保存在 GitHub Secrets 与离线备份里，从不进入仓库。
+Release builds are signed with a fixed Android key, so a new version installs straight over the old one. The key lives only in GitHub Secrets and offline backups, never in the repository.
 
-## 检查
+## Checks
 
-每次构建都会自动检查：
+Every build checks automatically that:
 
-- 应用构建里没有 Readest 的服务密钥或遥测地址，Yohaku 的离线开关已经打开；
-- Android 安装包的目标版本不低于 Android 16（API 36），原生库按 16 KB 页对齐，没有请求不需要的权限；
-- Linux 的 AppImage 带齐了运行所需的库；测试包还会在 Ubuntu 22.04 与 24.04 上实际启动一次。
+- the app contains none of Readest's service keys or telemetry addresses, and Yohaku's offline switch is on;
+- the Android packages target Android 16 (API 36) or later, their native libraries are aligned to 16 KB pages, and they ask for no permissions they don't need;
+- the Linux AppImage carries every library it needs to run; test builds are also started once on Ubuntu 22.04 and 24.04.
 
-## 验证下载的文件
+## Verifying downloads
 
-每个正式版本都附有 `SHA256SUMS.txt` 与 GitHub 的构建来源证明，验证方法见[安装](./install#校验下载的文件)。
+Every release comes with `SHA256SUMS.txt` and GitHub build provenance attestations; see [Install](./install#verifying-downloads) for how to check them.
 
-## 更多细节
+## More detail
 
-工作流、签名与密钥管理、产物命名与上游同步的完整说明，见开发文档里的[构建、测试与发布](/dev/04-ci-release)。这个网站本身也由 GitHub Actions 构建（`.github/workflows/pages.yml`），源文件在仓库的 `website/` 目录。
+The full story of the workflows, signing and keys, package names and upstream syncing is in the development document [Builds, tests and releases](/dev/04-ci-release) (in Chinese). This site is built by GitHub Actions too (`.github/workflows/pages.yml`), from the `website/` folder of the repository.

@@ -1,66 +1,66 @@
-# 音乐库
+# The music library
 
-书库顶部、搜索框左侧的「书籍 / 音乐」切换，把书库换成音乐库。这里放的是你自己收藏的音乐：Yohaku 不卖歌，也不连接任何流媒体。
+The Books / Music switch at the top of the library, left of the search box, turns the library into the music library. It holds the music you collected yourself: Yohaku sells no songs and connects to no streaming service.
 
-![音乐库的专辑网格](/images/desktop-music-albums.jpg)
+![The music library's album grid](/images/desktop-music-albums.jpg)
 
-## 导入音乐
+## Importing music
 
-点音乐库里的「+」，或者空音乐库中间的「导入音乐」，会出现两个选项：
+Click "+" in the music library, or "Import Music" in the middle of an empty one, and choose:
 
-- **从文件夹导入**：选一个音乐文件夹，Yohaku 会把里面所有的歌（包括子文件夹）加进音乐库。这个文件夹会出现在「文件夹」里的「同步的文件夹」中，**之后每次启动 Yohaku 都会自动同步**：新放进去的歌会出现，删掉的歌会消失。想马上同步，点音乐库顶部「+」旁边的同步按钮（立即同步）。
-- **从本地文件导入**：逐首选择要加入的歌，它们放在「导入的文件」里。
+- **From Directory**: pick a music folder and Yohaku adds every song in it, subfolders included. The folder appears under Synced Folders on the Folders page, and **Yohaku syncs it every time it starts**: songs you add to the folder appear, songs you delete disappear. To sync right away, click the sync button (Sync Now) next to "+" at the top of the music library.
+- **From Local File**: choose songs one by one; they appear under Imported Files.
 
-::: tip 音乐文件只被引用
-Yohaku 只记住每首歌在哪里，不会复制、移动或修改你的音乐文件，也不会改写它们的标签。音乐库本身只是 Yohaku 数据目录里的一个小文件。
+::: tip Your music is only referenced
+Yohaku remembers where each song is. It never copies, moves or modifies your music files, and never rewrites their tags. The music library itself is one small file in Yohaku's data folder.
 :::
 
-在 Android 上，导入时打开的是系统的文件选择器，选好文件夹后 Yohaku 会记住它的访问权限，下次启动照样能同步。
+On Android, importing opens the system file picker. Once you pick a folder, Yohaku keeps its permission to read it, so the folder still syncs after a restart.
 
-## 格式与标签
+## Formats and tags
 
-Yohaku 读取常见格式的标签与内嵌封面：
+Yohaku reads tags and embedded covers from the common formats:
 
-FLAC、MP3、AAC / M4A、ALAC、Ogg Vorbis、Opus、WAV、AIFF 等。
+FLAC, MP3, AAC / M4A, ALAC, Ogg Vorbis, Opus, WAV, AIFF and more.
 
-标题、艺术家、专辑、曲目号与碟号、年份、流派都来自歌曲本身的标签；没有标签的歌按文件名显示。专辑封面来自内嵌封面。
+Title, artist, album, track and disc numbers, year and genre all come from the songs' own tags; songs without tags show their file names. Album covers come from the embedded artwork.
 
-## 浏览
+## Browsing
 
-音乐库按五种方式排列，顶部的搜索框可以搜歌名、艺术家与专辑：
+The music library has five pages, and the search box at the top finds songs by title, artist and album:
 
-| 页 | 内容 |
+| Page | What's on it |
 |---|---|
-| **专辑** | 封面网格；点开一张专辑，按碟号与曲目号排列 |
-| **艺术家** | 每位艺术家的专辑与歌曲 |
-| **歌曲** | 全部歌曲的列表 |
-| **收藏** | 点过心形的歌 |
-| **文件夹** | 同步的文件夹与导入的文件 |
+| **Albums** | A grid of covers; open an album to see it in disc and track order |
+| **Artists** | Each artist's albums and songs |
+| **Songs** | Every song in a list |
+| **Favorites** | The songs you gave a heart |
+| **Folders** | Synced folders and imported files |
 
-歌曲列表里的心形是**收藏**，ⓘ 是**歌曲详情**：年份、流派、时长、格式、比特率、采样率、文件大小与文件位置。专辑也有**专辑详情**。
+In the song list, the heart adds a **favorite** and ⓘ opens **Song Details**: year, genre, length, format, bitrate, sample rate, file size and location. Albums have **Album Details** too.
 
 <figure>
 
-![歌曲列表：收藏与详情按钮](/images/desktop-music-songs.jpg)
+![The song list with favorite and details buttons](/images/desktop-music-songs.jpg)
 
-<figcaption>歌曲列表：心形收藏，ⓘ 查看详情</figcaption>
+<figcaption>Songs: the heart for favorites, ⓘ for details</figcaption>
 </figure>
 
-## 播放与队列
+## Playing and the queue
 
-- 在**专辑**里点一首歌，队列就是这张专辑，从这首开始，按曲目顺序往下。
-- 在**歌曲**或**收藏**这样的整张列表里点一首歌，队列从这首歌开始，一直到列表末尾。
-- 单独听歌时，音乐库底部浮着一张磨砂玻璃播放器：封面、歌名、播放控制与进度。
+- Choose a song in an **album** and the queue is that album, from that song on, in track order.
+- Choose a song in a whole list such as **Songs** or **Favorites** and the queue runs from that song to the end of the list.
+- When you listen on your own, a frosted-glass player floats at the bottom of the music library: cover, title, controls and progress.
 
-![音乐库底部的磨砂玻璃播放器](/images/desktop-music-player.jpg)
+![The frosted-glass player at the bottom of the music library](/images/desktop-music-player.jpg)
 
-打开一本书以后，音乐不会停。书页上不浮任何播放器，控制它的是页脚，见[边读边听](./listening)。
+Open a book and the music keeps playing. No player floats over the page; the footer controls it, see [Listening while reading](./listening).
 
-## 在 Android 上
+## On Android
 
-- 切到后台、锁屏以后音乐继续播放。
-- 锁屏、通知栏与蓝牙耳机上的按钮都能控制播放。
+- Music keeps playing in the background and with the screen locked.
+- The lock screen, the notification and Bluetooth headphones all control playback.
 
-## 在桌面上
+## On the desktop
 
-桌面上每本书默认在自己的窗口里打开，音乐只在主窗口里播放：开再多本书也只有一个声音，每个窗口的页脚都能控制它。
+On the desktop each book opens in its own window by default, and music plays only in the main window: however many books you open there is only one sound, and every window's footer controls it.

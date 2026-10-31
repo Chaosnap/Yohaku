@@ -1,42 +1,42 @@
-# 安装
+# Install
 
-在 [GitHub Releases](https://github.com/Chaosnap/Yohaku/releases/latest) 下载对应平台的安装包。Yohaku 免费，没有账户，装好就能用。
+Download the build for your platform from [GitHub Releases](https://github.com/Chaosnap/Yohaku/releases/latest). Yohaku is free and has no account: install it and start reading.
 
-| 平台 | 文件 | 说明 |
+| Platform | File | Notes |
 |---|---|---|
-| 🪟 Windows | `Yohaku_<版本>_windows_x64-setup.exe`（安装版）<br>`Yohaku_<版本>_windows_x64-portable.exe`（便携版） | Windows 10 / 11，x64 |
-| 🍎 macOS | `Yohaku_<版本>_macos_universal.dmg` | Apple 芯片与 Intel 通用 |
-| 🐧 Linux | `Yohaku_<版本>_linux_amd64.AppImage`<br>`Yohaku_<版本>_linux_amd64.deb` | x86_64 |
-| 🤖 Android | `Yohaku_<版本>_android_arm64.apk`（大多数手机）<br>`Yohaku_<版本>_android_armv7.apk`（较旧的 32 位手机） | Android 8.0 及以上 |
+| 🪟 Windows | `Yohaku_<version>_windows_x64-setup.exe` (installer)<br>`Yohaku_<version>_windows_x64-portable.exe` (portable) | Windows 10 / 11, x64 |
+| 🍎 macOS | `Yohaku_<version>_macos_universal.dmg` | Apple silicon and Intel |
+| 🐧 Linux | `Yohaku_<version>_linux_amd64.AppImage`<br>`Yohaku_<version>_linux_amd64.deb` | x86_64 |
+| 🤖 Android | `Yohaku_<version>_android_arm64.apk` (most phones)<br>`Yohaku_<version>_android_armv7.apk` (older 32-bit phones) | Android 8.0 or later |
 
 ## Windows
 
-**安装版**会把 Yohaku 装进系统，出现在开始菜单里；**便携版**是单独一个 `.exe`，放在哪里都能直接运行，适合放进 U 盘或不想安装的电脑。
+The **installer** puts Yohaku into the system and the Start menu. The **portable** build is a single `.exe` that runs from wherever you put it, such as a USB stick or a computer you would rather not install things on.
 
-安装包还没有代码签名，第一次运行时可能看到 SmartScreen 的蓝色提示：点「更多信息」，再点「仍要运行」。
+The installers are not code-signed yet, so the first run may bring up a blue SmartScreen warning: click "More info", then "Run anyway".
 
 ## macOS
 
-打开 `.dmg`，把 Yohaku 拖进「应用程序」。
+Open the `.dmg` and drag Yohaku into Applications.
 
-Yohaku 还没有经过 Apple 公证，第一次打开时 macOS 会拦下它：
+Yohaku is not notarized by Apple yet, so macOS stops it the first time:
 
-1. 先双击打开一次，看到提示后关掉；
-2. 打开「系统设置 → 隐私与安全性」，在页面下方找到关于 Yohaku 的提示，点「仍要打开」；
-3. 再确认一次，之后就能像其他应用一样打开了。
+1. Double-click Yohaku once, and close the warning that appears;
+2. Open System Settings → Privacy & Security, find the message about Yohaku near the bottom, and click "Open Anyway";
+3. Confirm once more. From then on Yohaku opens like any other app.
 
-如果提示的是「已损坏，无法打开」，见[常见问题](./faq#macos-提示已损坏无法打开)。
+If macOS says the app is damaged and cannot be opened, see [Questions](./faq#macos-says-the-app-is-damaged).
 
 ## Linux
 
-**AppImage** 不需要安装，加上执行权限就能运行：
+The **AppImage** needs no installing; make it executable and run it:
 
 ```bash
 chmod +x Yohaku_*_linux_amd64.AppImage
 ./Yohaku_*_linux_amd64.AppImage
 ```
 
-**deb** 适合 Debian、Ubuntu 及其衍生发行版：
+The **deb** is for Debian, Ubuntu and their relatives:
 
 ```bash
 sudo apt install ./Yohaku_*_linux_amd64.deb
@@ -44,30 +44,30 @@ sudo apt install ./Yohaku_*_linux_amd64.deb
 
 ## Android
 
-大多数手机选 **arm64**；只有较旧的 32 位手机才需要 **armv7**。拿不准时先装 arm64，装不上再换 armv7。
+Most phones want **arm64**; only older 32-bit phones need **armv7**. If you are not sure, try arm64 first and switch to armv7 if it will not install.
 
-用浏览器或文件管理器打开下载的 `.apk`。第一次安装时，Android 会请你允许这个应用「安装未知应用」，允许后继续即可。
+Open the downloaded `.apk` from your browser or file manager. The first time, Android asks you to allow that app to "install unknown apps"; allow it and carry on.
 
-Yohaku 与 Readest 是两个不同的应用，可以同时装在一台手机上。
+Yohaku and Readest are separate apps and can live on the same phone.
 
-## 更新
+## Updating
 
-Yohaku 没有应用内更新，也不会在后台检查新版本（它启动时不访问网络）。有新版本时，到 [Releases](https://github.com/Chaosnap/Yohaku/releases) 下载，直接覆盖安装即可，书库、音乐库与设置都会保留。每个版本的变化见[更新日志](/changelog/)。
+Yohaku has no in-app updater and never checks for new versions in the background (it does not go online when it starts). When a new version is out, download it from [Releases](https://github.com/Chaosnap/Yohaku/releases) and install it over the old one; your library, music library and settings stay. What changed in each version is in the [changelog](/changelog/).
 
-## 校验下载的文件
+## Verifying downloads
 
-每次发布都附有 `SHA256SUMS.txt`，可以确认文件在下载途中没有损坏或被替换：
+Every release comes with `SHA256SUMS.txt`, which shows that a file was not damaged or swapped on the way to you:
 
 ```bash
 sha256sum --ignore-missing -c SHA256SUMS.txt
 ```
 
-macOS 上用 `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`。
+On macOS, use `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`.
 
-每个文件还带有 GitHub 的构建来源证明，说明它确实是由这个仓库的 GitHub Actions 构建出来的。装有 [GitHub CLI](https://cli.github.com/) 时可以这样验证：
+Every file also carries a GitHub build provenance attestation, which shows that it really was built by this repository's GitHub Actions. With the [GitHub CLI](https://cli.github.com/) installed:
 
 ```bash
 gh attestation verify Yohaku_*_linux_amd64.AppImage --repo Chaosnap/Yohaku
 ```
 
-Yohaku 的每一个安装包都是在 GitHub Actions 上构建的，见[云端构建](./building)。
+Every Yohaku installer is built on GitHub Actions; see [Built in the cloud](./building).

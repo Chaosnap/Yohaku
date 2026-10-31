@@ -1,30 +1,32 @@
-# 隐私
+# Privacy
 
-**Yohaku 不收集任何数据。**
+**Yohaku collects no data.**
 
-- 没有账户，没有云端服务，没有统计、遥测或崩溃上报。
-- 你的书籍、阅读进度、批注、音乐库与所有设置都只保存在你自己的设备上。
-- Yohaku 不会修改你的原始书籍与音乐文件。音乐文件只被引用，连标签都不会改写。
+- No account, no cloud services, no analytics, telemetry or crash reporting.
+- Your books, reading progress, annotations, music library and every setting stay on your own device.
+- Yohaku never modifies your original books and music. Music files are only referenced; not even their tags are rewritten.
 
-## 什么时候会联网
+## When Yohaku goes online
 
-启动 Yohaku、在书库里整理、读书、听音乐、播放环境声音，都不会访问网络。Yohaku 没有应用内更新，也不会在后台检查新版本。
+Starting Yohaku, sorting your library, reading, listening to music and playing ambient sounds never touch the network. Yohaku has no in-app updater and never checks for new versions in the background.
 
-只有当你主动使用下面这些功能时，Yohaku 才会联网，并且只连接你指定的服务器或设备：
+Yohaku goes online only when you use one of these features yourself, and then only to the servers or devices that feature needs:
 
-| 功能 | 连接到 |
+| Feature | Connects to |
 |---|---|
-| OPDS 书源 | 你添加的书源 |
-| KOReader 同步、WebDAV 等 | 你配置的同步服务器 |
-| 局域网传书 | 同一网络里你选择的设备 |
-| 在线语音朗读 | 微软的语音服务（朗读的文字会发送给微软，默认关闭） |
+| OPDS catalogs | The catalogs you added |
+| KOReader sync, WebDAV and others | The sync servers you set up |
+| Nearby book transfer | The device you chose on the same network |
+| Online voices for read-aloud | Microsoft's speech service (the text being read is sent to Microsoft; off by default) |
+| Dictionary | Wiktionary and Wikipedia, the two default online dictionaries, only when you look a word up; you can turn them off in the dictionary settings and use local dictionaries only |
+| Translation | The translation service you chose: Google, Azure or Yandex, only when you tap "Translate" |
 
-不想联网的话，不使用这些功能即可；Yohaku 的其余部分完全离线。
+If you would rather stay offline, simply don't use these features; the rest of Yohaku is entirely offline.
 
-## 与 Readest 的不同
+## How it differs from Readest
 
-Yohaku 基于 Readest 改造。Readest 的账户与云同步、付费功能、统计与遥测在 Yohaku 中都已去掉；每一个应用构建在 CI 上都会经过检查，确保其中没有 Readest 的服务密钥或遥测地址，见[云端构建](./building)。
+Yohaku is built on Readest. Readest's accounts and cloud sync, paid features, analytics and telemetry are all gone from Yohaku, and every app build is checked in CI to make sure none of Readest's service keys or telemetry addresses are in it; see [Built in the cloud](./building).
 
-## 开源
+## Open source
 
-Yohaku 以 AGPL-3.0 开源，上面的每一句话都可以在[源代码](https://github.com/Chaosnap/Yohaku)里核对。仓库根目录的 [PRIVACY.md](https://github.com/Chaosnap/Yohaku/blob/main/PRIVACY.md) 是同一份说明的中英文版本。
+Yohaku is open source under the AGPL-3.0, so every sentence on this page can be checked against the [source code](https://github.com/Chaosnap/Yohaku). [PRIVACY.md](https://github.com/Chaosnap/Yohaku/blob/main/PRIVACY.md) at the root of the repository says the same in Chinese and English.
