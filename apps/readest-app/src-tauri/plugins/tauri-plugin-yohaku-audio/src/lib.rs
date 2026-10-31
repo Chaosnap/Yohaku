@@ -19,7 +19,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
     #[cfg(desktop)]
     let builder = builder.invoke_handler(tauri::generate_handler![
         desktop::scan_music,
-        desktop::allow_files
+        desktop::allow_files,
+        desktop::read_lyrics
     ]);
     builder
         .setup(|_app, _api| {

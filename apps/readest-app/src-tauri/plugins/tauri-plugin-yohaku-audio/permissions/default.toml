@@ -15,4 +15,6 @@ permissions = [
   "allow-apply-ambient",
   "allow-set-sleep-timer",
   "allow-get-state",
+  "allow-set-volume",
+  "allow-read-lyrics",
 ]

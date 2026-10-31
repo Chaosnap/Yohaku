@@ -99,4 +99,6 @@ export const remoteEngine: AudioEngine = {
   getAmbient: () => callMain<AmbientSource[]>('getAmbient'),
   setSleepTimer: (afterMs, fadeMs) => callMain<void>('setSleepTimer', afterMs, fadeMs),
   getState: () => callMain<PlaybackState>('getState'),
+  setVolume: (volume) => callMain<void>('setVolume', volume),
+  readLyrics: (uri) => callMain<string | null>('readLyrics', uri),
 };

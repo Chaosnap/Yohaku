@@ -5,6 +5,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { useTranslation } from '@/hooks/useTranslation';
 import Cover from './Cover';
+import FavoriteButton from './FavoriteButton';
 import { formatDuration, type MusicTrack } from './library';
 import { useMusicStore } from './store';
 
@@ -39,7 +40,7 @@ const SongList: React.FC<SongListProps> = ({ tracks, numbered, onShowDetails, on
           <button
             className={clsx(
               'hover:bg-base-300/50 flex w-full items-center gap-3',
-              'rounded-lg py-1.5 pe-10 ps-2 text-start',
+              'rounded-lg py-1.5 pe-[4.5rem] ps-2 text-start',
               track.id === currentId && 'text-primary font-medium',
             )}
             onClick={() => play(index)}
@@ -61,14 +62,17 @@ const SongList: React.FC<SongListProps> = ({ tracks, numbered, onShowDetails, on
               </span>
             )}
           </button>
-          <button
-            className='text-base-content/50 hover:text-base-content absolute end-2 top-1/2 -translate-y-1/2 p-1'
-            aria-label={_('Show Details')}
-            title={_('Show Details')}
-            onClick={() => onShowDetails(track)}
-          >
-            <LiaInfoCircleSolid size={iconSize16} />
-          </button>
+          <div className='text-base-content/50 absolute end-2 top-1/2 flex -translate-y-1/2 items-center'>
+            <FavoriteButton track={track} size={iconSize16} className='hover:text-base-content' />
+            <button
+              className='hover:text-base-content p-1'
+              aria-label={_('Show Details')}
+              title={_('Show Details')}
+              onClick={() => onShowDetails(track)}
+            >
+              <LiaInfoCircleSolid size={iconSize16} />
+            </button>
+          </div>
         </li>
       ))}
       {onAdd && (

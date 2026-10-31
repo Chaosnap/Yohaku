@@ -8,6 +8,7 @@ import {
   EMPTY_LIBRARY,
   isUnder,
   mergeTracks,
+  toggleFavorite,
   toTracks,
   type MusicLibrary,
   type MusicTrack,
@@ -17,6 +18,17 @@ const LIBRARY_DIR = 'yohaku';
 const LIBRARY_FILE = `${LIBRARY_DIR}/music-library.json`;
 const SLEEP_FADE_MS = 30_000;
 const STOPPED: PlaybackState = { playing: false, index: 0, positionMs: 0, durationMs: 0 };
+/** The music's volume on this device. */
+const VOLUME_KEY = 'yohakuMusicVolume';
+
+const storedVolume = () => {
+  try {
+    const volume = Number(localStorage.getItem(VOLUME_KEY) ?? 1);
+    return Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : 1;
+  } catch {
+    return 1;
+  }
+};
 
 interface MusicState {
   library: MusicLibrary;
@@ -31,6 +43,8 @@ interface MusicState {
   sleepMinutes: number;
   /** When the sleep timer starts fading the music out, while it is set. */
   sleepEndsAt: number | null;
+  /** The music's volume, 0 to 1. */
+  volume: number;
   /** Reads the library once. */
   load: (appService: AppService) => Promise<void>;
   /** Reads the library again: another window may have changed it, or what plays. */
@@ -41,6 +55,10 @@ interface MusicState {
   removeFolder: (appService: AppService, folder: string) => Promise<void>;
   removeTrack: (appService: AppService, track: MusicTrack) => Promise<void>;
   play: (appService: AppService, tracks: MusicTrack[], index: number) => Promise<void>;
+  /** Plays another song of the queue. */
+  skipTo: (appService: AppService, index: number) => Promise<void>;
+  toggleFavorite: (appService: AppService, track: MusicTrack) => Promise<void>;
+  setVolume: (appService: AppService, volume: number) => Promise<void>;
   toggle: (appService: AppService) => Promise<void>;
   next: (appService: AppService) => Promise<void>;
   previous: (appService: AppService) => Promise<void>;
@@ -61,7 +79,15 @@ interface MusicState {
  * toast.
  */
 export const useMusicStore = create<MusicState>((set, get) => {
-  const save = async (appService: AppService, library: MusicLibrary) => {
+  const readFile = async (appService: AppService): Promise<MusicLibrary | null> => {
+    if (!(await appService.exists(LIBRARY_FILE, 'Data'))) return null;
+    const text = (await appService.readFile(LIBRARY_FILE, 'Data', 'text')) as string;
+    return { ...EMPTY_LIBRARY, ...JSON.parse(text) };
+  };
+
+  /** Writes changes over the library as it is on disk: another window may have changed it. */
+  const save = async (appService: AppService, changes: Partial<MusicLibrary>) => {
+    const library = { ...((await readFile(appService)) ?? get().library), ...changes };
     set({ library });
     await appService.createDir(LIBRARY_DIR, 'Data', true);
     await appService.writeFile(LIBRARY_FILE, 'Data', JSON.stringify(library));
@@ -101,9 +127,8 @@ export const useMusicStore = create<MusicState>((set, get) => {
 
   const readLibrary = (appService: AppService) =>
     attempt(async () => {
-      if (!(await appService.exists(LIBRARY_FILE, 'Data'))) return;
-      const text = (await appService.readFile(LIBRARY_FILE, 'Data', 'text')) as string;
-      const library: MusicLibrary = { ...EMPTY_LIBRARY, ...JSON.parse(text) };
+      const library = await readFile(appService);
+      if (!library) return;
       const byId = new Map(library.tracks.map((track) => [track.id, track]));
       const queue = library.queue.flatMap((id) => byId.get(id) ?? []);
       set({ library, queue });
@@ -133,11 +158,14 @@ export const useMusicStore = create<MusicState>((set, get) => {
     miniPlayerOpen: false,
     sleepMinutes: 0,
     sleepEndsAt: null,
+    volume: storedVolume(),
 
     load: (appService) => {
       loading ??= (async () => {
         await readLibrary(appService);
         set({ loaded: true });
+        // The volume set last time on this device.
+        await attempt(() => getAudioEngine(appService).setVolume(get().volume));
       })();
       return loading;
     },
@@ -149,9 +177,8 @@ export const useMusicStore = create<MusicState>((set, get) => {
         const folder = await getAudioEngine(appService).pickFolder();
         if (!folder) return;
         const tracks = await scanInto(appService, [folder]);
-        const { library } = get();
-        const folders = [...new Set([...library.folders, folder])];
-        await save(appService, { ...library, folders, tracks });
+        const folders = [...new Set([...get().library.folders, folder])];
+        await save(appService, { folders, tracks });
       }),
 
     importFiles: (appService) =>
@@ -159,9 +186,8 @@ export const useMusicStore = create<MusicState>((set, get) => {
         const paths = await getAudioEngine(appService).pickFiles();
         if (paths.length === 0) return;
         const tracks = await scanInto(appService, paths);
-        const { library } = get();
-        const files = [...new Set([...library.files, ...paths])];
-        await save(appService, { ...library, files, tracks });
+        const files = [...new Set([...get().library.files, ...paths])];
+        await save(appService, { files, tracks });
       }),
 
     // Reads every synced folder and imported file again: new files appear,
@@ -172,7 +198,7 @@ export const useMusicStore = create<MusicState>((set, get) => {
         const paths = [...library.folders, ...library.files];
         if (paths.length === 0) return;
         const tracks = await scanInto(appService, paths, true);
-        await save(appService, { ...get().library, tracks });
+        await save(appService, { tracks });
       }),
 
     removeFolder: (appService, folder) =>
@@ -182,7 +208,7 @@ export const useMusicStore = create<MusicState>((set, get) => {
         const tracks = library.tracks.filter(
           (track) => !isUnder(track.uri, folder) || library.files.includes(track.uri),
         );
-        await save(appService, { ...library, folders, tracks });
+        await save(appService, { folders, tracks });
       }),
 
     removeTrack: (appService, track) =>
@@ -190,7 +216,7 @@ export const useMusicStore = create<MusicState>((set, get) => {
         const { library } = get();
         const files = library.files.filter((path) => path !== track.uri);
         const tracks = library.tracks.filter(({ id }) => id !== track.id);
-        await save(appService, { ...library, files, tracks });
+        await save(appService, { files, tracks });
       }),
 
     play: (appService, tracks, index) =>
@@ -198,8 +224,24 @@ export const useMusicStore = create<MusicState>((set, get) => {
         await engine.setQueue(tracks, index);
         await engine.play();
         set({ queue: tracks });
-        const queue = tracks.map(({ id }) => id);
-        await save(appService, { ...get().library, queue });
+        await save(appService, { queue: tracks.map(({ id }) => id) });
+      }),
+
+    skipTo: (appService, index) => control(appService, (engine) => engine.skipTo(index)),
+
+    toggleFavorite: (appService, track) =>
+      attempt(async () => {
+        const latest = (await readFile(appService)) ?? get().library;
+        await save(appService, { favorites: toggleFavorite(latest.favorites, track.id) });
+      }),
+
+    setVolume: (appService, volume) =>
+      attempt(async () => {
+        set({ volume });
+        try {
+          localStorage.setItem(VOLUME_KEY, String(volume));
+        } catch {}
+        await getAudioEngine(appService).setVolume(volume);
       }),
 
     toggle: (appService) =>

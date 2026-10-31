@@ -10,6 +10,8 @@ import { eventDispatcher } from '@/utils/event';
 import TTSMiniPlayer from './TTSMiniPlayer';
 import TTSPlayerSheet from './TTSPlayerSheet';
 import { useMiniPlayerAutoHide } from './useMiniPlayerAutoHide';
+import { isYohakuBuild } from '@/yohaku/build';
+import { usePublishReadAloud } from '@/yohaku/reader/readAloud';
 
 interface TTSControlProps {
   bookKey: string;
@@ -83,6 +85,28 @@ const TTSControl: React.FC<TTSControlProps> = ({ bookKey, gridInsets }) => {
     eventDispatcher.dispatch('tts-stop', { bookKey });
   };
 
+  // [yohaku] No floating player: the read-aloud panel in the header shows these.
+  usePublishReadAloud(
+    bookKey,
+    isYohakuBuild() && tts.showIndicator
+      ? {
+          isPlaying: tts.isPlaying,
+          buffering,
+          isEink,
+          hasTimeline,
+          audioTransport,
+          timeoutTimestamp: tts.timeoutTimestamp,
+          chapterRemainingSec: tts.chapterRemainingSec,
+          onTogglePlay: tts.handleTogglePlay,
+          onBackward: tts.handleBackward,
+          onForward: tts.handleForward,
+          onStop: handleStop,
+          onExpand: handleExpand,
+          onGetPlaybackInfo: tts.handleGetPlaybackInfo,
+        }
+      : null,
+  );
+
   return (
     <>
       {shouldMountBackButton && (
@@ -111,7 +135,7 @@ const TTSControl: React.FC<TTSControlProps> = ({ bookKey, gridInsets }) => {
       {/* One surface at a time: the sheet replaces the mini player while open.
           Mounts on showIndicator alone so the card appears the moment the
           session starts, before the TTS clients finish initializing. */}
-      {miniPlayerMounted && (
+      {miniPlayerMounted && !isYohakuBuild() && (
         <TTSMiniPlayer
           bookKey={bookKey}
           isPlaying={tts.isPlaying}

@@ -71,5 +71,18 @@
   "Bitrate": "ビットレート",
   "Sample Rate": "サンプルレート",
   "Location": "場所",
-  "Remove from Library": "ライブラリから外す"
+  "Remove from Library": "ライブラリから外す",
+  "Favorites": "お気に入り",
+  "Add to Favorites": "お気に入りに追加",
+  "Remove from Favorites": "お気に入りから削除",
+  "Tap the heart beside a song to keep it here.": "曲の横のハートをタップすると、ここに入ります。",
+  "Queue": "キュー",
+  "Lyrics": "歌詞",
+  "No Lyrics": "歌詞がありません",
+  "Put a .lrc file with the same name beside the song, or add lyrics to its tags.": "曲と同じ名前の .lrc ファイルを曲の横に置くか、曲のタグに歌詞を入れてください。",
+  "Nothing is queued. Choose a song from All.": "キューは空です。「すべて」から曲を選んでください。",
+  "No songs yet. Add music in the music library.": "まだ曲がありません。音楽ライブラリで追加してください。",
+  "Volume": "音量",
+  "Mute": "ミュート",
+  "Unmute": "ミュート解除"
 }

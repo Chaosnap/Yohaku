@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fileName } from '@/yohaku/audio/engine';
 import {
+  EMPTY_LIBRARY,
+  favoriteTracks,
   formatDuration,
   groupAlbums,
   groupArtists,
@@ -8,6 +10,7 @@ import {
   mergeTracks,
   searchTracks,
   sortSongs,
+  toggleFavorite,
   toTracks,
   trackId,
   type MusicTrack,
@@ -123,5 +126,15 @@ describe('music shortcuts', () => {
     const others = Object.entries(shortcuts).filter(([action]) => !action.startsWith('onMusic'));
     const taken = others.flatMap(([, entry]) => entry.keys);
     for (const key of ['m', '.', ',']) expect(taken).not.toContain(key);
+  });
+});
+
+describe('favorite songs', () => {
+  it('come first when added, go again, and only while in the library', () => {
+    const [a, b] = [track('/m/a.flac'), track('/m/b.flac')];
+    const favorites = toggleFavorite(toggleFavorite([], a.id), b.id);
+    expect(favorites).toEqual([b.id, a.id]);
+    expect(toggleFavorite(favorites, a.id)).toEqual([b.id]);
+    expect(favoriteTracks({ ...EMPTY_LIBRARY, tracks: [a], favorites })).toEqual([a]);
   });
 });

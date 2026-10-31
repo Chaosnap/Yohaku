@@ -1,4 +1,5 @@
 import type { ViewSettings } from '@/types/book';
+import { isYohakuBuild } from '@/yohaku/build';
 import { footerInfoVisible } from './footerBand';
 
 // Card height of the TTS mini player (h-14). See getTTSMiniPlayerClearance for
@@ -51,5 +52,7 @@ export const getTTSMiniPlayerClearance = (
   safeAreaBottom: number,
 ): number => {
   if (viewSettings.ttsPlayerStyle !== 'minimal') return 0;
+  // [yohaku] Yohaku shows no read-aloud card over the text: it is in the header.
+  if (isYohakuBuild()) return 0;
   return getTTSMiniPlayerBottomOffset(viewSettings) + TTS_MINI_PLAYER_HEIGHT + safeAreaBottom;
 };

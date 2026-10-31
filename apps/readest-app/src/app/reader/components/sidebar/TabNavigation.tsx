@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React from 'react';
-import { MdBookmarkBorder } from 'react-icons/md';
+import { MdBookmarkBorder, MdQueueMusic } from 'react-icons/md';
 import { IoIosList } from 'react-icons/io';
 import { PiNotePencil } from 'react-icons/pi';
 import { LuMessageSquare } from 'react-icons/lu';
@@ -10,6 +10,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useThemeStore } from '@/store/themeStore';
 import { isForcedMobileLayout } from '../../utils/mobileLayout';
+import { isYohakuBuild } from '@/yohaku/build';
 
 const TabNavigation: React.FC<{
   activeTab: string;
@@ -23,12 +24,21 @@ const TabNavigation: React.FC<{
 
   const forceMobileLayout = isForcedMobileLayout(appService?.isMobile, isIPhoneDuo);
   const isMobile = forceMobileLayout || window.innerWidth < 640 || window.innerHeight < 640;
-  const tabs = ['toc', 'annotations', 'bookmarks', ...(aiEnabled ? ['history'] : [])];
+  const tabs = [
+    'toc',
+    // [yohaku] Songs to change to while reading (src/yohaku/music/SidebarMusic.tsx).
+    ...(isYohakuBuild() ? ['songs'] : []),
+    'annotations',
+    'bookmarks',
+    ...(aiEnabled ? ['history'] : []),
+  ];
 
   const getTabLabel = (tab: string) => {
     switch (tab) {
       case 'toc':
         return _('TOC');
+      case 'songs':
+        return _('Songs');
       case 'annotations':
         return _('Annotate');
       case 'bookmarks':
@@ -72,6 +82,8 @@ const TabNavigation: React.FC<{
           <div className={clsx('flex h-6 items-center p-0', isMobile ? 'm-0.5' : 'm-0')}>
             {tab === 'toc' ? (
               <IoIosList className='mx-auto' />
+            ) : tab === 'songs' ? (
+              <MdQueueMusic className='mx-auto' />
             ) : tab === 'annotations' ? (
               <PiNotePencil className='mx-auto' />
             ) : tab === 'bookmarks' ? (

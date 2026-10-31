@@ -73,6 +73,10 @@ export interface AudioEngine {
    */
   setSleepTimer(afterMs: number, fadeMs: number): Promise<void>;
   getState(): Promise<PlaybackState>;
+  /** The music's volume, 0 to 1; the ambient sounds keep their own. */
+  setVolume(volume: number): Promise<void>;
+  /** The song's lyrics: a `.lrc` file of the same name beside it, or its lyrics tag. */
+  readLyrics(uri: string): Promise<string | null>;
 }
 
 /** A readable name for a path or content URI: its last segment, decoded. */

@@ -15,6 +15,8 @@ export interface MusicLibrary {
   folders: string[];
   files: string[];
   tracks: MusicTrack[];
+  /** The favorite songs, as track ids, the last one added first. */
+  favorites: string[];
   /** The last queue, as track ids, so a restarted app shows what is playing. */
   queue: string[];
 }
@@ -24,8 +26,19 @@ export const EMPTY_LIBRARY: MusicLibrary = {
   folders: [],
   files: [],
   tracks: [],
+  favorites: [],
   queue: [],
 };
+
+/** The favorite songs, the last one added first; songs gone from the library are left out. */
+export const favoriteTracks = (library: MusicLibrary) => {
+  const byId = new Map(library.tracks.map((track) => [track.id, track]));
+  return library.favorites.flatMap((id) => byId.get(id) ?? []);
+};
+
+/** The favorites with the song added first, or taken out when it is there. */
+export const toggleFavorite = (favorites: string[], id: string) =>
+  favorites.includes(id) ? favorites.filter((other) => other !== id) : [id, ...favorites];
 
 export interface Album {
   key: string;

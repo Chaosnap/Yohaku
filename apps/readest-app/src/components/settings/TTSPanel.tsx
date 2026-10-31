@@ -223,17 +223,20 @@ const TTSPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }
       )}
 
       <BoxedList title={_('Media Info')} data-setting-id='settings.tts.mediaMetadata'>
-        <SettingsRow label={_('Player Style')} data-setting-id='settings.tts.playerStyle'>
-          <SettingsSelect
-            value={ttsPlayerStyle}
-            onChange={handlePlayerStyleChange}
-            ariaLabel={_('Player Style')}
-            options={[
-              { value: 'full', label: _('Full') },
-              { value: 'minimal', label: _('Minimal') },
-            ]}
-          />
-        </SettingsRow>
+        {/* [yohaku] No floating read-aloud player to style: it is in the reader's header. */}
+        {!isYohakuBuild() && (
+          <SettingsRow label={_('Player Style')} data-setting-id='settings.tts.playerStyle'>
+            <SettingsSelect
+              value={ttsPlayerStyle}
+              onChange={handlePlayerStyleChange}
+              ariaLabel={_('Player Style')}
+              options={[
+                { value: 'full', label: _('Full') },
+                { value: 'minimal', label: _('Minimal') },
+              ]}
+            />
+          </SettingsRow>
+        )}
         <SettingsRow label={_('Update Frequency')}>
           <SettingsSelect
             value={ttsMediaMetadata}

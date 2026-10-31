@@ -173,3 +173,23 @@ pub fn allow_files<R: Runtime>(app: AppHandle<R>, paths: Vec<String>) -> Result<
     }
     Ok(())
 }
+
+/// The song's lyrics as bytes: a `.lrc` file of the same name beside it, in
+/// whatever encoding it was saved in (the WebView works it out), or else the
+/// lyrics in its tags. Empty when it has none.
+#[tauri::command]
+pub async fn read_lyrics(path: String) -> tauri::ipc::Response {
+    let path = Path::new(&path);
+    let file = ["lrc", "LRC"]
+        .iter()
+        .find_map(|extension| std::fs::read(path.with_extension(extension)).ok());
+    let lyrics = file.or_else(|| {
+        let tagged = lofty::read_from_path(path).ok()?;
+        tagged
+            .tags()
+            .iter()
+            .find_map(|tag| tag.get_string(&ItemKey::Lyrics))
+            .map(|text| text.as_bytes().to_vec())
+    });
+    tauri::ipc::Response::new(lyrics.unwrap_or_default())
+}

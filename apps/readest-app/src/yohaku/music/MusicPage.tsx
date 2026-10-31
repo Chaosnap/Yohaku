@@ -18,6 +18,7 @@ import PlayerSheet from './PlayerSheet';
 import SongList from './SongList';
 import Sources from './Sources';
 import {
+  favoriteTracks,
   groupAlbums,
   groupArtists,
   searchTracks,
@@ -28,7 +29,7 @@ import {
 import { useMusicStore } from './store';
 import { usePlayback } from './usePlayback';
 
-type Tab = 'albums' | 'artists' | 'songs' | 'folders';
+type Tab = 'albums' | 'artists' | 'songs' | 'favorites' | 'folders';
 
 /** The first visit: the two ways to bring music in. */
 const EmptyLibrary: React.FC = () => {
@@ -94,6 +95,7 @@ export default function MusicPage() {
   const albums = useMemo(() => groupAlbums(tracks), [tracks]);
   const artists = useMemo(() => groupArtists(tracks), [tracks]);
   const songs = useMemo(() => sortSongs(tracks), [tracks]);
+  const favorites = useMemo(() => searchTracks(favoriteTracks(library), query), [library, query]);
 
   // The library shows what played last, ready to go on.
   useEffect(() => {
@@ -114,6 +116,7 @@ export default function MusicPage() {
     { id: 'albums', label: _('Albums') },
     { id: 'artists', label: _('Artists') },
     { id: 'songs', label: _('Songs') },
+    { id: 'favorites', label: _('Favorites') },
     { id: 'folders', label: _('Folders') },
   ];
   const showTab = (id: Tab) => {
@@ -191,6 +194,14 @@ export default function MusicPage() {
             )}
             {current === 'songs' && (
               <SongList tracks={songs} onShowDetails={setTrackDetails} onAdd={addSongs} />
+            )}
+            {current === 'favorites' && (
+              <SongList tracks={favorites} onShowDetails={setTrackDetails} />
+            )}
+            {current === 'favorites' && favorites.length === 0 && tracks.length > 0 && (
+              <p className='text-base-content/60 py-10 text-center text-sm'>
+                {_('Tap the heart beside a song to keep it here.')}
+              </p>
             )}
             {current === 'folders' && <Sources />}
             {current !== 'folders' && tracks.length === 0 && (

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
+import android.util.Base64
 import androidx.activity.result.ActivityResult
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
@@ -61,6 +62,16 @@ class AmbientArgs {
 }
 
 @InvokeArg
+class VolumeArgs {
+    var volume: Float = 1f
+}
+
+@InvokeArg
+class LyricsArgs {
+    var uri: String = ""
+}
+
+@InvokeArg
 class SleepTimerArgs {
     // 0 cancels the timer.
     var afterMs: Long = 0
@@ -97,6 +108,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     private val scanner by lazy { MusicScanner(activity) }
+    private val lyrics by lazy { LyricsReader(activity) }
     private val background = Executors.newSingleThreadExecutor()
 
     /** A folder to sync the library from; its access is kept across restarts. */
@@ -280,6 +292,36 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
             val command = SessionCommand(YohakuPlaybackService.SET_SLEEP_TIMER, Bundle.EMPTY)
             controller.sendCustomCommand(command, extras)
             invoke.resolve()
+        }
+    }
+
+    @Command
+    fun set_volume(invoke: Invoke) {
+        val args = invoke.parseArgs(VolumeArgs::class.java)
+        withController(invoke) { controller ->
+            controller.volume = args.volume.coerceIn(0f, 1f)
+            invoke.resolve()
+        }
+    }
+
+    /** A song's lyrics: a `.lrc` file's bytes (it may not be UTF-8), or the lyrics tag's text. */
+    @Command
+    fun read_lyrics(invoke: Invoke) {
+        val args = invoke.parseArgs(LyricsArgs::class.java)
+        background.execute {
+            val ret = JSObject()
+            try {
+                val uri = Uri.parse(args.uri)
+                val file = lyrics.file(uri)
+                if (file != null) {
+                    ret.put("data", Base64.encodeToString(file, Base64.NO_WRAP))
+                } else {
+                    lyrics.tags(uri)?.let { ret.put("text", it) }
+                }
+            } catch (e: Exception) {
+                // No lyrics, then.
+            }
+            invoke.resolve(ret)
         }
     }
 

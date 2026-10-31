@@ -1,5 +1,6 @@
 import { convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
+import { decodeLyrics } from '@/yohaku/music/lyrics';
 import type { AmbientSource, AudioEngine, QueueItem, TrackInfo } from './engine';
 
 const AUDIO_EXTENSIONS = ['flac', 'mp3', 'm4a', 'aac', 'ogg', 'opus', 'wav', 'aif', 'aiff'];
@@ -120,6 +121,15 @@ class WebEngine implements AudioEngine {
     this.sleepTimer = null;
     if (afterMs <= 0) return;
     this.sleepTimer = setTimeout(() => this.fadeOut(fadeMs), afterMs);
+  }
+
+  async setVolume(volume: number) {
+    this.music.volume = Math.min(1, Math.max(0, volume));
+  }
+
+  async readLyrics(uri: string) {
+    const data = await invoke<ArrayBuffer>('plugin:yohaku-audio|read_lyrics', { path: uri });
+    return data.byteLength > 0 ? decodeLyrics(new Uint8Array(data)) : null;
   }
 
   async getState() {

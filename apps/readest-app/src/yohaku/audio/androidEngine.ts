@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { decodeLyrics } from '@/yohaku/music/lyrics';
 import type { AmbientSource, AudioEngine, PlaybackState, TrackInfo } from './engine';
 
 const call = <T = void>(command: string, args?: Record<string, unknown>) =>
@@ -42,5 +43,12 @@ export const androidEngine: AudioEngine = {
     const state = await call<PlaybackState>('get_state');
     // Media3 reports an unknown duration as a huge negative number.
     return { ...state, durationMs: Math.max(0, state.durationMs) };
+  },
+  setVolume: (volume) => call('set_volume', { volume }),
+  readLyrics: async (uri) => {
+    // A lyrics file comes as its bytes, which may not be UTF-8; a lyrics tag as text.
+    const { data, text } = await call<{ data?: string; text?: string }>('read_lyrics', { uri });
+    if (data) return decodeLyrics(Uint8Array.from(atob(data), (char) => char.charCodeAt(0)));
+    return text || null;
   },
 };

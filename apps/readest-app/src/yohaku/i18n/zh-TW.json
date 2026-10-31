@@ -71,5 +71,18 @@
   "Bitrate": "位元率",
   "Sample Rate": "取樣率",
   "Location": "位置",
-  "Remove from Library": "從音樂庫移除"
+  "Remove from Library": "從音樂庫移除",
+  "Favorites": "收藏",
+  "Add to Favorites": "加入收藏",
+  "Remove from Favorites": "取消收藏",
+  "Tap the heart beside a song to keep it here.": "點歌曲旁的心形圖示，它就會收藏在這裡。",
+  "Queue": "佇列",
+  "Lyrics": "歌詞",
+  "No Lyrics": "暫無歌詞",
+  "Put a .lrc file with the same name beside the song, or add lyrics to its tags.": "在歌曲旁放一個同名的 .lrc 檔案，或在歌曲的標籤中加入歌詞。",
+  "Nothing is queued. Choose a song from All.": "播放佇列是空的，請從「全部」中選一首歌。",
+  "No songs yet. Add music in the music library.": "還沒有歌曲，請在音樂庫中加入。",
+  "Volume": "音量",
+  "Mute": "靜音",
+  "Unmute": "取消靜音"
 }

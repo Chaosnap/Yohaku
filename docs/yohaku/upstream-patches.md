@@ -53,7 +53,11 @@
 | `services/tts/TTSController.ts` | 不初始化 Readest Voice（Readest 的服务器）；Edge 在线语音只在用户开启后初始化与列出（开关保存在 localStorage，与 Readest 的朗读偏好相同，见 `src/yohaku/onlineVoices.ts`；不读取设置 store，因为 `services/constants` 导入了这个文件） |
 | `components/settings/TTSPanel.tsx` | 「语音」中加入「在线语音」开关（`src/yohaku/reader/OnlineVoicesRow.tsx`） |
 | `app/library/components/LibraryHeader.tsx` | 搜索框左侧加入「书籍 / 音乐」切换（`src/yohaku/LibrarySwitcher.tsx`），进入音乐库 |
-| `app/reader/components/HeaderBar.tsx` | 右上角加入朗读按钮（`src/yohaku/reader/ReadAloudToggler.tsx`）：开始或停止朗读、环境声场景与朗读快捷键提示；v1.0.0 时这里是音乐按钮，v1.5.0 起音乐移到页脚 |
+| `app/reader/components/HeaderBar.tsx` | 右上角加入朗读按钮（`src/yohaku/reader/ReadAloudToggler.tsx`）：开始或停止朗读；朗读时面板里是朗读的控制（书名、章节与剩余时间、上一句 / 播放 / 下一句、停止、打开完整播放器）；环境声场景与朗读快捷键提示；v1.0.0 时这里是音乐按钮，v1.5.0 起音乐移到页脚 |
+| `app/reader/components/tts/TTSControl.tsx` | Yohaku 构建中不显示浮在页面上的朗读小播放器（`TTSMiniPlayer`），而是把它的状态与操作交给右上角的朗读面板（`src/yohaku/reader/readAloud.ts`）；完整的朗读播放器与「回到朗读位置」照旧 |
+| `app/reader/utils/ttsMiniPlayerPosition.ts` | Yohaku 构建中「精简」样式的朗读小播放器不再在正文底部预留空白（它不会出现） |
+| `components/settings/TTSPanel.tsx` | Yohaku 构建中隐藏「播放器样式」（没有浮动的朗读播放器可选） |
+| `app/reader/components/sidebar/TabNavigation.tsx`、`Content.tsx` | 侧栏目录按钮右边加入「歌曲」标签（`src/yohaku/music/SidebarMusic.tsx`）：正在播放的歌曲，以及队列、全部、收藏、歌词四个视图 |
 | `app/reader/components/footerbar/FooterBar.tsx` | 挂载音乐小播放器（`src/yohaku/music/ReaderMusicBar.tsx`），样式与位置同 Readest 的朗读小播放器（`TTSMiniPlayer`），随工具栏出现和隐去；两者同时出现时音乐在上 |
 | `app/reader/components/footerbar/DesktopFooterBar.tsx`、`NavigationBar.tsx` | 页脚的「朗读」按钮换成「音乐」按钮（`src/yohaku/music/MusicButton.tsx`），打开或收起音乐小播放器；朗读从右上角的朗读按钮开始 |
 | `app/reader/components/notebook/Notebook.tsx` | 桌面上笔记本是浮在页面旁的卡片：四周留出 8px、圆角、细边框，固定时带轻微阴影；手机上仍是底部面板 |

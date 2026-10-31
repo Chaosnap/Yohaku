@@ -1,11 +1,15 @@
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useEnv } from '@/context/EnvContext';
+import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { useTranslation } from '@/hooks/useTranslation';
 import { loadShortcuts, type ShortcutAction } from '@/helpers/shortcuts';
 import Dialog from '@/components/Dialog';
 import AmbientPanel from '@/yohaku/ambient/AmbientPanel';
 import Cover from './Cover';
 import { SeekBar, Transport } from './Controls';
+import FavoriteButton from './FavoriteButton';
+import LyricsView from './LyricsView';
 import { formatDuration } from './library';
 import { useMusicStore } from './store';
 
@@ -78,11 +82,13 @@ interface PlayerSheetProps {
   onClose: () => void;
 }
 
-/** The player: the cover, where the song is, the sleep timer and the ambient sounds. */
+/** The player: the cover or the lyrics, where the song is, a sleep timer, the ambient sounds. */
 const PlayerSheet: React.FC<PlayerSheetProps> = ({ showShortcuts, onClose }) => {
   const _ = useTranslation();
   const { appService } = useEnv();
   const track = useMusicStore((state) => state.queue[state.playback.index]);
+  const iconSize20 = useResponsiveSize(20);
+  const [showLyrics, setShowLyrics] = useState(false);
   const details = [track?.artist, track?.album].filter(Boolean).join(' · ');
 
   return (
@@ -94,14 +100,32 @@ const PlayerSheet: React.FC<PlayerSheetProps> = ({ showShortcuts, onClose }) => 
       boxClassName='sm:w-[440px]! sm:max-w-[440px]! sm:h-auto! sm:max-h-[90%]'
     >
       <div className='flex flex-col items-center gap-5 px-2 pb-6'>
-        <Cover
-          path={track?.cover}
-          title={track?.title ?? ''}
-          className='not-eink:shadow-xl eink-bordered w-56 rounded-xl sm:w-64'
-        />
+        {showLyrics ? (
+          <LyricsView track={track} large className='h-72 w-full sm:h-80' />
+        ) : (
+          <Cover
+            path={track?.cover}
+            title={track?.title ?? ''}
+            className='not-eink:shadow-xl eink-bordered w-56 rounded-xl sm:w-64'
+          />
+        )}
         <div className='w-full min-w-0 text-center'>
           <p className='truncate text-lg font-semibold'>{track?.title ?? _('Not Playing')}</p>
           <p className='text-base-content/60 truncate text-sm'>{details}</p>
+        </div>
+        <div className='flex items-center gap-2'>
+          <FavoriteButton track={track} size={iconSize20} className='hover:bg-base-300/60 p-2' />
+          <button
+            type='button'
+            aria-pressed={showLyrics}
+            className={clsx(
+              'eink-bordered rounded-full px-3 py-1 text-xs',
+              showLyrics ? 'bg-base-content text-base-100' : 'bg-base-300/60 hover:bg-base-300',
+            )}
+            onClick={() => setShowLyrics(!showLyrics)}
+          >
+            {_('Lyrics')}
+          </button>
         </div>
         <SeekBar />
         <Transport large />

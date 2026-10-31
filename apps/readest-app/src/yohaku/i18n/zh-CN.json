@@ -71,5 +71,18 @@
   "Bitrate": "比特率",
   "Sample Rate": "采样率",
   "Location": "位置",
-  "Remove from Library": "从音乐库移除"
+  "Remove from Library": "从音乐库移除",
+  "Favorites": "收藏",
+  "Add to Favorites": "加入收藏",
+  "Remove from Favorites": "取消收藏",
+  "Tap the heart beside a song to keep it here.": "点歌曲旁的心形图标，它就会收藏在这里。",
+  "Queue": "队列",
+  "Lyrics": "歌词",
+  "No Lyrics": "暂无歌词",
+  "Put a .lrc file with the same name beside the song, or add lyrics to its tags.": "在歌曲旁放一个同名的 .lrc 文件，或在歌曲的标签中加入歌词。",
+  "Nothing is queued. Choose a song from All.": "播放队列是空的，请从「全部」中选一首歌。",
+  "No songs yet. Add music in the music library.": "还没有歌曲，请在音乐库中添加。",
+  "Volume": "音量",
+  "Mute": "静音",
+  "Unmute": "取消静音"
 }
