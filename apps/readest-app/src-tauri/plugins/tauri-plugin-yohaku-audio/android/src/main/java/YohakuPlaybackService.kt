@@ -17,11 +17,14 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Plays the music queue, and up to a few looping ambient layers beside it, in
- * a foreground media service, so that playback outlives the WebView and the
+ * Plays the music queue, and up to a few looping ambient sounds, in a
+ * foreground media service, so that playback outlives the WebView and the
  * Activity (Spike S1, now the music player's Android engine). Media3 provides the notification, the lock screen
  * and Bluetooth buttons. The music player owns audio focus and pauses when
- * headphones are unplugged; the ambient layers follow whatever it does.
+ * headphones are unplugged. The ambient sounds play by themselves, beside the
+ * music, reading aloud or nothing, and also stop when headphones are
+ * unplugged. Media3 keeps the service in the foreground only while the music
+ * plays, so ambient sounds alone can stop once Yohaku is in the background.
  */
 class YohakuPlaybackService : MediaSessionService() {
     companion object {
@@ -53,11 +56,6 @@ class YohakuPlaybackService : MediaSessionService() {
             .setHandleAudioBecomingNoisy(true)
             .setWakeMode(C.WAKE_MODE_LOCAL)
             .build()
-        music.addListener(object : Player.Listener {
-            override fun onEvents(player: Player, events: Player.Events) {
-                syncAmbient()
-            }
-        })
         session = MediaSession.Builder(this, music).setCallback(SessionCallback()).build()
     }
 
@@ -65,8 +63,7 @@ class YohakuPlaybackService : MediaSessionService() {
 
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
-        ambient.forEach { (player, _) -> player.release() }
-        ambient.clear()
+        stopAmbient()
         session?.run {
             player.release()
             release()
@@ -75,15 +72,10 @@ class YohakuPlaybackService : MediaSessionService() {
         super.onDestroy()
     }
 
-    /**
-     * The ambient layers play while the music plays: a pause, unplugged
-     * headphones, a call (transient focus loss suppresses playback) or another
-     * player taking focus stops them too.
-     */
-    private fun syncAmbient() {
-        val playing = music.playWhenReady &&
-            music.playbackSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE
-        ambient.forEach { (player, _) -> player.playWhenReady = playing }
+    private fun stopAmbient() {
+        ambient.forEach { (player, _) -> player.release() }
+        ambient.clear()
+        ambientUris = listOf()
     }
 
     private fun applyAmbient(uris: Array<String>, volumes: FloatArray) {
@@ -92,27 +84,36 @@ class YohakuPlaybackService : MediaSessionService() {
             ambient.forEachIndexed { index, (player, _) ->
                 val volume = volumes.getOrElse(index) { 1f }
                 player.volume = volume
+                // Back on after headphones were unplugged.
+                player.playWhenReady = true
                 ambient[index] = player to volume
             }
             return
         }
+        stopAmbient()
         ambientUris = uris.toList()
-        ambient.forEach { (player, _) -> player.release() }
-        ambient.clear()
         uris.forEachIndexed { index, uri ->
-            // Only the music player asks for audio focus.
-            val player = ExoPlayer.Builder(this).setAudioAttributes(attributes, false).build()
+            // Only the music player asks for audio focus: the ambient sounds mix
+            // with whatever else plays.
+            val player = ExoPlayer.Builder(this)
+                .setAudioAttributes(attributes, false)
+                .setHandleAudioBecomingNoisy(true)
+                .setWakeMode(C.WAKE_MODE_LOCAL)
+                .build()
             val volume = volumes.getOrElse(index) { 1f }
             player.setMediaItem(MediaItem.fromUri(uri))
             player.repeatMode = Player.REPEAT_MODE_ONE
             player.volume = volume
             player.prepare()
+            player.playWhenReady = true
             ambient.add(player to volume)
         }
-        syncAmbient()
     }
 
-    /** After [afterMs], fades music and ambience out over [fadeMs], then pauses. */
+    /**
+     * After [afterMs], fades music and ambience out over [fadeMs], then pauses
+     * the music and stops the ambient sounds.
+     */
     private fun setSleepTimer(afterMs: Long, fadeMs: Long) {
         sleepFade?.let { handler.removeCallbacks(it) }
         sleepFade = null
@@ -133,7 +134,7 @@ class YohakuPlaybackService : MediaSessionService() {
                 }
                 music.pause()
                 music.volume = musicVolume
-                ambient.forEach { (player, volume) -> player.volume = volume }
+                stopAmbient()
                 sleepFade = null
             }
         }

@@ -4,7 +4,7 @@ import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEnv } from '@/context/EnvContext';
 import { isYohakuBuild } from '@/yohaku/build';
-import type { AudioEngine, PlaybackState, TrackInfo } from './engine';
+import type { AmbientSource, AudioEngine, PlaybackState, TrackInfo } from './engine';
 import { getWebEngine } from './webEngine';
 
 /**
@@ -96,6 +96,7 @@ export const remoteEngine: AudioEngine = {
   skipTo: (index) => callMain<void>('skipTo', index),
   seekTo: (positionMs) => callMain<void>('seekTo', positionMs),
   setAmbient: (layers) => callMain<void>('setAmbient', layers),
+  getAmbient: () => callMain<AmbientSource[]>('getAmbient'),
   setSleepTimer: (afterMs, fadeMs) => callMain<void>('setSleepTimer', afterMs, fadeMs),
   getState: () => callMain<PlaybackState>('getState'),
 };

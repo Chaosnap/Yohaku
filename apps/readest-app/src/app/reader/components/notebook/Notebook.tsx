@@ -28,6 +28,7 @@ import AIAssistant from './AIAssistant';
 import NotebookHeader from './Header';
 import NotebookEditor from './NotebookEditor';
 import NotebookTabNavigation from './NotebookTabNavigation';
+import { isYohakuBuild } from '@/yohaku/build';
 
 const MIN_NOTEBOOK_WIDTH = 0.15;
 const MAX_NOTEBOOK_WIDTH = 0.45;
@@ -181,6 +182,7 @@ const Notebook: React.FC = () => {
   const viewSettings = getViewSettings(sideBarBookKey);
   if (!bookData?.bookDoc) return null;
   const languageDir = getBookDirFromLanguage(bookData.bookDoc.metadata.language);
+  const isCard = isYohakuBuild() && !isMobile;
 
   return isNotebookVisible ? (
     <>
@@ -194,9 +196,16 @@ const Notebook: React.FC = () => {
         ref={notebookRef}
         className={clsx(
           'notebook-container right-0 flex min-w-60 select-none flex-col',
-          'full-height font-sans text-base font-normal transition-[padding-top] duration-300 sm:text-sm',
+          'font-sans text-base font-normal transition-[padding-top] duration-300 sm:text-sm',
+          // [yohaku] On a computer the notebook is a card floating beside the page.
+          isCard
+            ? 'eink-bordered border-base-300 m-2 h-[calc(100dvh-1rem)] rounded-2xl border [&_.bottom-tab]:rounded-b-2xl'
+            : 'full-height',
           viewSettings?.isEink ? 'bg-base-100' : 'bg-base-200',
-          appService?.hasRoundedWindow && 'rounded-window-top-right rounded-window-bottom-right',
+          !isCard &&
+            appService?.hasRoundedWindow &&
+            'rounded-window-top-right rounded-window-bottom-right',
+          isCard && isNotebookPinned && 'not-eink:shadow-md',
           isNotebookPinned ? 'z-20' : 'z-[45] shadow-2xl',
           !isNotebookPinned && viewSettings?.isEink && 'border-base-content border-s',
         )}

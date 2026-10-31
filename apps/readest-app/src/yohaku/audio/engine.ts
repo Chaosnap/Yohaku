@@ -17,6 +17,15 @@ export interface TrackInfo {
   durationMs: number;
   /** A cached cover image (a file path), when the file has one. */
   cover?: string;
+  /** Read since 1.5; a library synced before has none until it is synced again. */
+  year?: number;
+  genre?: string;
+  /** Kilobits per second. */
+  bitrate?: number;
+  /** Hz. */
+  sampleRate?: number;
+  /** Bytes. */
+  size?: number;
 }
 
 export interface QueueItem {
@@ -54,8 +63,14 @@ export interface AudioEngine {
   previous(): Promise<void>;
   skipTo(index: number): Promise<void>;
   seekTo(positionMs: number): Promise<void>;
+  /** Loops these sounds by themselves, beside the music or reading aloud; none stops them. */
   setAmbient(layers: AmbientSource[]): Promise<void>;
-  /** Fades everything out after `afterMs` over `fadeMs`, then pauses; 0 cancels. */
+  /** The ambient sounds looping now. */
+  getAmbient(): Promise<AmbientSource[]>;
+  /**
+   * Fades the music and the ambient sounds out after `afterMs` over `fadeMs`,
+   * then pauses the music and stops the ambient sounds; 0 cancels.
+   */
   setSleepTimer(afterMs: number, fadeMs: number): Promise<void>;
   getState(): Promise<PlaybackState>;
 }

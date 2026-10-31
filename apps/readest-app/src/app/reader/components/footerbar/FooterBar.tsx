@@ -18,6 +18,8 @@ import MobileFooterBar from './MobileFooterBar';
 import DesktopFooterBar from './DesktopFooterBar';
 import { getFooterBarPosition } from './position';
 import TTSControl from '../tts/TTSControl';
+import { isYohakuBuild } from '@/yohaku/build';
+import ReaderMusicBar from '@/yohaku/music/ReaderMusicBar';
 
 const FooterBar: React.FC<FooterBarProps> = ({
   bookKey,
@@ -270,6 +272,8 @@ const FooterBar: React.FC<FooterBarProps> = ({
       )}
 
       <TTSControl bookKey={bookKey} gridInsets={gridInsets} />
+      {/* [yohaku] The music player, brought out by the footer's music button. */}
+      {isYohakuBuild() && <ReaderMusicBar bookKey={bookKey} gridInsets={gridInsets} />}
       <RSVPControl bookKey={bookKey} gridInsets={gridInsets} />
     </>
   );

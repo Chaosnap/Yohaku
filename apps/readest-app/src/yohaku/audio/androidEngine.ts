@@ -1,8 +1,12 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { AudioEngine, PlaybackState, TrackInfo } from './engine';
+import type { AmbientSource, AudioEngine, PlaybackState, TrackInfo } from './engine';
 
 const call = <T = void>(command: string, args?: Record<string, unknown>) =>
   invoke<T>(`plugin:yohaku-audio|${command}`, args);
+
+/** The ambient sounds asked for last: the service does not report them. */
+let ambient: AmbientSource[] = [];
+let sleepEnd: ReturnType<typeof setTimeout> | undefined;
 
 /** Android: YohakuPlaybackService and the system's file pickers (tauri-plugin-yohaku-audio). */
 export const androidEngine: AudioEngine = {
@@ -23,8 +27,17 @@ export const androidEngine: AudioEngine = {
   previous: () => call('previous'),
   skipTo: (index) => call('skip_to', { index }),
   seekTo: (positionMs) => call('seek_to', { positionMs }),
-  setAmbient: (layers) => call('apply_ambient', { layers }),
-  setSleepTimer: (afterMs, fadeMs) => call('set_sleep_timer', { afterMs, fadeMs }),
+  setAmbient: (layers) => {
+    ambient = layers;
+    return call('apply_ambient', { layers });
+  },
+  getAmbient: async () => ambient,
+  setSleepTimer: (afterMs, fadeMs) => {
+    // When the timer runs out the service stops the ambient sounds too.
+    clearTimeout(sleepEnd);
+    if (afterMs > 0) sleepEnd = setTimeout(() => (ambient = []), afterMs + fadeMs);
+    return call('set_sleep_timer', { afterMs, fadeMs });
+  },
   getState: async () => {
     const state = await call<PlaybackState>('get_state');
     // Media3 reports an unknown duration as a huge negative number.

@@ -14,7 +14,7 @@
 |---|---|---|
 | `apps/readest-app/.env` | 删除 Readest 的 PostHog、Supabase、Stripe 默认密钥；Supabase 指向 `https://supabase.invalid` | 不连接 Readest 的服务；客户端仍需一个 URL 才能构造 |
 | `apps/readest-app/.env.tauri` | `DBUS_ID`；新增 `NEXT_PUBLIC_YOHAKU_BUILD`、`NEXT_PUBLIC_SELF_HOSTED`（解锁全部高级功能，无付费墙）、`NEXT_PUBLIC_DISABLE_UPDATER`；`NEXT_PUBLIC_API_BASE_URL` / `NEXT_PUBLIC_NODE_BASE_URL` 指向 `https://readest.invalid` | 离线、无账户、无更新源；不设置时 Readest 的 Web API 回落到 `web.readest.com`，在线元数据检索、Readest Voice 等调用会连到 Readest，指向永不解析的 `.invalid` 域名后这些调用立即失败 |
-| `apps/readest-app/package.json` | 版本号（当前 `1.0.0`） | Yohaku 独立版本号 |
+| `apps/readest-app/package.json` | 版本号（当前 `1.5.0`） | Yohaku 独立版本号 |
 | `apps/readest-app/src-tauri/tauri.conf.json` | 产品名、可执行文件名、应用标识；CSP 去掉 Sentry、PostHog、Supabase、Stripe、readest.com 与远程字体主机；发布者、版权与描述；macOS ad-hoc 签名；不生成更新包；深链接只保留 `readest`；更新地址改为 Yohaku 的 Releases | 品牌与离线 |
 | `.gitignore` | 合并上游与 Yohaku 的规则 | `references/`、`local/` 与签名文件不入库 |
 | `.github/` | 删除上游全部工作流、资助链接、Issue 模板与 Dependabot；新增 `ci.yml`、`build.yml`、`build-app.yml`、`release.yml` | Yohaku 自己的构建与发布 |
@@ -53,7 +53,10 @@
 | `services/tts/TTSController.ts` | 不初始化 Readest Voice（Readest 的服务器）；Edge 在线语音只在用户开启后初始化与列出（开关保存在 localStorage，与 Readest 的朗读偏好相同，见 `src/yohaku/onlineVoices.ts`；不读取设置 store，因为 `services/constants` 导入了这个文件） |
 | `components/settings/TTSPanel.tsx` | 「语音」中加入「在线语音」开关（`src/yohaku/reader/OnlineVoicesRow.tsx`） |
 | `app/library/components/LibraryHeader.tsx` | 搜索框左侧加入「书籍 / 音乐」切换（`src/yohaku/LibrarySwitcher.tsx`），进入音乐库 |
-| `app/reader/components/HeaderBar.tsx` | 右上角加入音乐按钮（`src/yohaku/music/MusicToggler.tsx`）：正在播放的歌曲、播放控制、环境声场景与快捷键提示 |
+| `app/reader/components/HeaderBar.tsx` | 右上角加入朗读按钮（`src/yohaku/reader/ReadAloudToggler.tsx`）：开始或停止朗读、环境声场景与朗读快捷键提示；v1.0.0 时这里是音乐按钮，v1.5.0 起音乐移到页脚 |
+| `app/reader/components/footerbar/FooterBar.tsx` | 挂载音乐小播放器（`src/yohaku/music/ReaderMusicBar.tsx`），样式与位置同 Readest 的朗读小播放器（`TTSMiniPlayer`），随工具栏出现和隐去；两者同时出现时音乐在上 |
+| `app/reader/components/footerbar/DesktopFooterBar.tsx`、`NavigationBar.tsx` | 页脚的「朗读」按钮换成「音乐」按钮（`src/yohaku/music/MusicButton.tsx`），打开或收起音乐小播放器；朗读从右上角的朗读按钮开始 |
+| `app/reader/components/notebook/Notebook.tsx` | 桌面上笔记本是浮在页面旁的卡片：四周留出 8px、圆角、细边框，固定时带轻微阴影；手机上仍是底部面板 |
 | `app/reader/components/ReaderContent.tsx` | 注册音乐快捷键（`src/yohaku/music/useMusicShortcuts.ts`） |
 | `components/Providers.tsx` | 挂载 `useAudioHost()`（`src/yohaku/audio/windows.ts`）：桌面上音乐只在主窗口（书库）播放，书在独立窗口中打开时，那个窗口的音乐按钮与快捷键经 Tauri 事件把指令交给主窗口 |
 | `helpers/shortcuts.ts` | 新增「播放 / 暂停音乐」（M）、「下一首」（.）、「上一首」（,）；Yohaku 构建的快捷键列表多一个「音乐」分组 |

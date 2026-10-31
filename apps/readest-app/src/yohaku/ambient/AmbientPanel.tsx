@@ -1,51 +1,54 @@
 import clsx from 'clsx';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useSettingsStore } from '@/store/settingsStore';
 import { useMusicStore } from '@/yohaku/music/store';
-import { getYohakuSettings } from '@/yohaku/settings';
 import { AMBIENT_SCENES, AMBIENT_SOUNDS, type AmbientChoice } from './sounds';
 import type { AmbientSoundId } from './synth';
 
 const DEFAULT_VOLUME = 0.5;
-/** A volume is applied and saved once the slider rests for a moment. */
+/** A volume is applied once the slider rests for a moment. */
 const VOLUME_DELAY_MS = 150;
 
 function chipClass(active: boolean) {
   return clsx(
-    'eink-bordered rounded-full px-3 py-1 text-xs',
+    'eink-bordered inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs',
     active ? 'bg-base-content text-base-100' : 'bg-base-300/60 hover:bg-base-300',
   );
 }
 
 interface AmbientPanelProps {
-  /** Only the scenes, for the reader's music menu. */
+  /** Only the scenes, for the reader's read-aloud menu. */
   scenesOnly?: boolean;
 }
 
 /**
  * Yohaku's ambient sounds, all made by the app itself. A scene turns on
  * several at once; each sound can also be turned on and mixed by itself.
- * They play along with the music.
+ * They play by themselves, beside the music, reading aloud or nothing, and
+ * start silent each time Yohaku opens.
  */
 const AmbientPanel: React.FC<AmbientPanelProps> = ({ scenesOnly }) => {
   const _ = useTranslation();
-  const { envConfig, appService } = useEnv();
-  const { settings } = useSettingsStore();
-  const [layers, setLayers] = useState(() => getYohakuSettings(settings).ambientLayers);
+  const { appService } = useEnv();
+  const layers = useMusicStore((state) => state.ambient);
   // A sound is made the first time it is turned on, which takes a moment.
   const [making, setMaking] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Another window may have turned sounds on since.
+  useEffect(() => {
+    if (appService) useMusicStore.getState().loadAmbient(appService);
+  }, [appService]);
+
   const apply = (next: AmbientChoice[], delay = 0) => {
     const adding = next.some(({ id }) => !layers.some((layer) => layer.id === id));
-    setLayers(next);
+    useMusicStore.setState({ ambient: next });
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
       if (!appService) return;
       setMaking(adding);
-      await useMusicStore.getState().setAmbient(appService, envConfig, next);
+      await useMusicStore.getState().setAmbient(appService, next);
       setMaking(false);
     }, delay);
   };
@@ -73,19 +76,20 @@ const AmbientPanel: React.FC<AmbientPanelProps> = ({ scenesOnly }) => {
         {making && <span className='loading loading-spinner loading-xs' />}
       </div>
       <p className='text-base-content/50 mt-1 text-xs'>
-        {_('Made by Yohaku. They play along with the music.')}
+        {_('Made by Yohaku. They play by themselves, or beside music or reading aloud.')}
       </p>
       <div className='mt-2 flex flex-wrap gap-1.5'>
-        {AMBIENT_SCENES.map((scene) => {
-          const active = isActive(scene.layers);
+        {AMBIENT_SCENES.map(({ label, icon: Icon, layers: scene }) => {
+          const active = isActive(scene);
           return (
             <button
-              key={scene.label}
+              key={label}
               aria-pressed={active}
               className={chipClass(active)}
-              onClick={() => apply(active ? [] : scene.layers)}
+              onClick={() => apply(active ? [] : scene)}
             >
-              {_(scene.label)}
+              <Icon aria-hidden className='size-3.5 shrink-0' />
+              {_(label)}
             </button>
           );
         })}
@@ -97,7 +101,7 @@ const AmbientPanel: React.FC<AmbientPanelProps> = ({ scenesOnly }) => {
       </div>
       {!scenesOnly && (
         <ul className='mt-3 flex flex-col'>
-          {AMBIENT_SOUNDS.map(({ id, label }) => {
+          {AMBIENT_SOUNDS.map(({ id, label, icon: Icon }) => {
             const volume = volumeOf(id);
             return (
               <li key={id} className='flex items-center gap-3 py-1.5'>
@@ -108,7 +112,10 @@ const AmbientPanel: React.FC<AmbientPanelProps> = ({ scenesOnly }) => {
                   aria-label={_(label)}
                   onChange={() => toggleSound(id)}
                 />
-                <span className='w-28 shrink-0 truncate text-sm'>{_(label)}</span>
+                <span className='flex w-32 shrink-0 items-center gap-1.5 text-sm'>
+                  <Icon aria-hidden className='text-base-content/70 size-4 shrink-0' />
+                  <span className='truncate'>{_(label)}</span>
+                </span>
                 <input
                   type='range'
                   className='range range-xs flex-1'

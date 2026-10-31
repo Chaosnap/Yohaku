@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { loadShortcuts, type ShortcutAction } from '@/helpers/shortcuts';
 import Dialog from '@/components/Dialog';
 import AmbientPanel from '@/yohaku/ambient/AmbientPanel';
 import Cover from './Cover';
@@ -48,12 +49,37 @@ const SleepTimer: React.FC = () => {
   );
 };
 
+/** The reader's music shortcuts. */
+const ShortcutHints: React.FC = () => {
+  const _ = useTranslation();
+  const shortcuts = loadShortcuts();
+  const keyOf = (action: ShortcutAction) => shortcuts[action].keys[0]?.toUpperCase() ?? '';
+  const hints = [
+    { key: keyOf('onMusicPlayPause'), label: _('Play / Pause') },
+    { key: keyOf('onMusicPrevious'), label: _('Previous Track') },
+    { key: keyOf('onMusicNext'), label: _('Next Track') },
+  ];
+
+  return (
+    <div className='text-base-content/60 flex w-full justify-between gap-2 text-xs'>
+      {hints.map(({ key, label }) => (
+        <span key={label} className='flex items-center gap-1'>
+          <kbd className='kbd kbd-xs'>{key}</kbd>
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+};
+
 interface PlayerSheetProps {
+  /** In the reader, where the music shortcuts work. */
+  showShortcuts?: boolean;
   onClose: () => void;
 }
 
 /** The player: the cover, where the song is, the sleep timer and the ambient sounds. */
-const PlayerSheet: React.FC<PlayerSheetProps> = ({ onClose }) => {
+const PlayerSheet: React.FC<PlayerSheetProps> = ({ showShortcuts, onClose }) => {
   const _ = useTranslation();
   const { appService } = useEnv();
   const track = useMusicStore((state) => state.queue[state.playback.index]);
@@ -81,6 +107,7 @@ const PlayerSheet: React.FC<PlayerSheetProps> = ({ onClose }) => {
         <Transport large />
         <SleepTimer />
         <AmbientPanel />
+        {showShortcuts && <ShortcutHints />}
       </div>
     </Dialog>
   );

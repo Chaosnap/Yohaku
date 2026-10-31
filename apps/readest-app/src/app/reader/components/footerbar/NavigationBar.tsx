@@ -12,6 +12,8 @@ import { useSidebarStore } from '@/store/sidebarStore';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import Button from '@/components/Button';
 import { Insets } from '@/types/misc';
+import { isYohakuBuild } from '@/yohaku/build';
+import MusicButton from '@/yohaku/music/MusicButton';
 
 interface NavigationBarProps {
   bookKey: string;
@@ -80,11 +82,16 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         }
         onClick={() => onSetActionTab('font')}
       />
-      <Button
-        label={_('Speak')}
-        icon={<TTSIcon className={viewState?.ttsEnabled ? 'text-blue-500' : ''} />}
-        onClick={() => onSetActionTab('tts')}
-      />
+      {/* [yohaku] Music here; read aloud is in the header (src/yohaku/reader/ReadAloudToggler.tsx). */}
+      {isYohakuBuild() ? (
+        <MusicButton />
+      ) : (
+        <Button
+          label={_('Speak')}
+          icon={<TTSIcon className={viewState?.ttsEnabled ? 'text-blue-500' : ''} />}
+          onClick={() => onSetActionTab('tts')}
+        />
+      )}
     </div>
   );
 };

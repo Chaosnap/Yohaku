@@ -1,28 +1,25 @@
 import type { EnvConfigType } from '@/services/environment';
 import type { SystemSettings } from '@/types/settings';
 import { useSettingsStore } from '@/store/settingsStore';
-import type { AmbientChoice } from '@/yohaku/ambient/sounds';
-import { AMBIENT_SOUND_IDS } from '@/yohaku/ambient/synth';
 
-/** Settings only Yohaku has, kept in Readest's settings file under `yohaku`. */
+/**
+ * Settings only Yohaku has, kept in Readest's settings file under `yohaku`.
+ * Until 1.5 the ambient sounds were saved here too (`ambientLayers`); they
+ * now play by themselves and start silent, so that key is no longer read.
+ */
 export interface YohakuSettings {
   /** Comics that set no reading direction of their own open right to left. */
   comicsRightToLeft: boolean;
-  /** The ambient sounds playing beside the music, with their volumes. */
-  ambientLayers: AmbientChoice[];
 }
 
 export const DEFAULT_YOHAKU_SETTINGS: YohakuSettings = {
   comicsRightToLeft: false,
-  ambientLayers: [],
 };
 
-export const getYohakuSettings = (settings: SystemSettings | null | undefined): YohakuSettings => {
-  const yohaku = { ...DEFAULT_YOHAKU_SETTINGS, ...settings?.yohaku };
-  // Before 1.0 the ambient sounds were the user's own files; only Yohaku's own sounds remain.
-  const ambientLayers = yohaku.ambientLayers.filter(({ id }) => AMBIENT_SOUND_IDS.includes(id));
-  return { ...yohaku, ambientLayers };
-};
+export const getYohakuSettings = (settings: SystemSettings | null | undefined): YohakuSettings => ({
+  ...DEFAULT_YOHAKU_SETTINGS,
+  ...settings?.yohaku,
+});
 
 export const saveYohakuSettings = async (
   envConfig: EnvConfigType,

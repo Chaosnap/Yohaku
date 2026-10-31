@@ -26,6 +26,14 @@ pub struct TrackInfo {
     disc_no: u32,
     duration_ms: u64,
     cover: Option<String>,
+    year: Option<u32>,
+    genre: Option<String>,
+    /// Kilobits per second.
+    bitrate: Option<u32>,
+    /// Hz.
+    sample_rate: Option<u32>,
+    /// Bytes.
+    size: Option<u64>,
 }
 
 fn is_audio(path: &Path) -> bool {
@@ -78,11 +86,19 @@ fn read_track(path: &Path, covers: &Path) -> TrackInfo {
         disc_no: 0,
         duration_ms: 0,
         cover: None,
+        year: None,
+        genre: None,
+        bitrate: None,
+        sample_rate: None,
+        size: std::fs::metadata(path).ok().map(|metadata| metadata.len()),
     };
     let Ok(tagged) = lofty::read_from_path(path) else {
         return info;
     };
-    info.duration_ms = tagged.properties().duration().as_millis() as u64;
+    let properties = tagged.properties();
+    info.duration_ms = properties.duration().as_millis() as u64;
+    info.bitrate = properties.audio_bitrate().or(properties.overall_bitrate());
+    info.sample_rate = properties.sample_rate();
     let Some(tag) = tagged.primary_tag().or_else(|| tagged.first_tag()) else {
         return info;
     };
@@ -99,6 +115,8 @@ fn read_track(path: &Path, covers: &Path) -> TrackInfo {
         .unwrap_or_default();
     info.track_no = tag.track().unwrap_or(0);
     info.disc_no = tag.disk().unwrap_or(0);
+    info.year = tag.year();
+    info.genre = tag.genre().map(|genre| genre.into_owned());
     if let Some(picture) = tag.pictures().first() {
         // One file per album cover; a track without an album has its own.
         let key = if info.album.is_empty() {

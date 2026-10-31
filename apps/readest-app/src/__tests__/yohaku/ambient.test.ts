@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { AMBIENT_SCENES, AMBIENT_SOUNDS } from '@/yohaku/ambient/sounds';
+import { AMBIENT_SCENES, AMBIENT_SOUNDS, ambientIdOf } from '@/yohaku/ambient/sounds';
 import { AMBIENT_SOUND_IDS, SAMPLE_RATE, encodeWav, renderAmbient } from '@/yohaku/ambient/synth';
 
 const LOOP = 30 * SAMPLE_RATE;
@@ -19,6 +19,20 @@ describe('ambient sounds', () => {
     for (const { layers } of AMBIENT_SCENES) {
       for (const { id } of layers) expect(AMBIENT_SOUND_IDS).toContain(id);
     }
+  });
+
+  it('each have a symbol shown before the name', () => {
+    for (const { icon } of [...AMBIENT_SOUNDS, ...AMBIENT_SCENES]) {
+      expect(icon).toBeTypeOf('function');
+    }
+  });
+
+  it('are known again from their loop files, wherever the cache is', () => {
+    expect(ambientIdOf('/Users/yuki/Library/Caches/yohaku-ambient/eaves-1.wav')).toBe('eaves');
+    expect(ambientIdOf('C:\\Users\\yuki\\AppData\\yohaku-ambient\\rain-3.wav')).toBe('rain');
+    expect(ambientIdOf('/data/user/0/app/cache/yohaku-ambient/vinyl-12.wav')).toBe('vinyl');
+    expect(ambientIdOf('/Music/thunder-1.wav')).toBeUndefined();
+    expect(ambientIdOf('/Music/Rain.ogg')).toBeUndefined();
   });
 
   it.each(AMBIENT_SOUND_IDS)('render %s as an even, seamless 30 second loop', (id) => {

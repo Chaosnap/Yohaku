@@ -1,5 +1,8 @@
 import clsx from 'clsx';
+import { LiaInfoCircleSolid } from 'react-icons/lia';
+import { PiPlus } from 'react-icons/pi';
 import { useEnv } from '@/context/EnvContext';
+import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { useTranslation } from '@/hooks/useTranslation';
 import Cover from './Cover';
 import { formatDuration, type MusicTrack } from './library';
@@ -9,12 +12,16 @@ interface SongListProps {
   tracks: MusicTrack[];
   /** An album's songs show their track number in place of the cover and album. */
   numbered?: boolean;
+  onShowDetails: (track: MusicTrack) => void;
+  /** A last row that imports songs. */
+  onAdd?: () => void;
 }
 
 /** Songs; choosing one plays the list from there. */
-const SongList: React.FC<SongListProps> = ({ tracks, numbered }) => {
+const SongList: React.FC<SongListProps> = ({ tracks, numbered, onShowDetails, onAdd }) => {
   const _ = useTranslation();
   const { appService } = useEnv();
+  const iconSize16 = useResponsiveSize(16);
   const currentId = useMusicStore((state) => state.queue[state.playback.index]?.id);
 
   const play = (index: number) => {
@@ -28,11 +35,11 @@ const SongList: React.FC<SongListProps> = ({ tracks, numbered }) => {
   return (
     <ul className='flex flex-col'>
       {tracks.map((track, index) => (
-        <li key={track.id}>
+        <li key={track.id} className='relative'>
           <button
             className={clsx(
               'hover:bg-base-300/50 flex w-full items-center gap-3',
-              'rounded-lg px-2 py-1.5 text-start',
+              'rounded-lg py-1.5 pe-10 ps-2 text-start',
               track.id === currentId && 'text-primary font-medium',
             )}
             onClick={() => play(index)}
@@ -54,8 +61,29 @@ const SongList: React.FC<SongListProps> = ({ tracks, numbered }) => {
               </span>
             )}
           </button>
+          <button
+            className='text-base-content/50 hover:text-base-content absolute end-2 top-1/2 -translate-y-1/2 p-1'
+            aria-label={_('Show Details')}
+            title={_('Show Details')}
+            onClick={() => onShowDetails(track)}
+          >
+            <LiaInfoCircleSolid size={iconSize16} />
+          </button>
         </li>
       ))}
+      {onAdd && (
+        <li>
+          <button
+            className='hover:bg-base-300/50 text-base-content/70 flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-start'
+            onClick={onAdd}
+          >
+            <span className='eink-bordered bg-base-100/50 flex aspect-square w-10 shrink-0 items-center justify-center rounded'>
+              <PiPlus aria-hidden className='size-5' />
+            </span>
+            <span className='text-sm'>{_('Import Files')}</span>
+          </button>
+        </li>
+      )}
     </ul>
   );
 };

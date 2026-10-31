@@ -10,6 +10,8 @@ import type { FooterBarChildProps } from './types';
 import { getNavigationIcon } from './utils';
 import Button from '@/components/Button';
 import PageJumpInput from './PageJumpInput';
+import { isYohakuBuild } from '@/yohaku/build';
+import MusicButton from '@/yohaku/music/MusicButton';
 
 const DesktopFooterBar: React.FC<FooterBarChildProps> = ({
   bookKey,
@@ -110,11 +112,16 @@ const DesktopFooterBar: React.FC<FooterBarChildProps> = ({
         value={progressValue}
         onChange={(e) => handleProgressChange(parseInt(e.target.value, 10))}
       />
-      <Button
-        icon={<FaHeadphones className={viewState?.ttsEnabled ? 'text-blue-500' : ''} />}
-        onClick={onSpeakText!}
-        label={_('Speak')}
-      />
+      {/* [yohaku] Music here; read aloud is in the header (src/yohaku/reader/ReadAloudToggler.tsx). */}
+      {isYohakuBuild() ? (
+        <MusicButton />
+      ) : (
+        <Button
+          icon={<FaHeadphones className={viewState?.ttsEnabled ? 'text-blue-500' : ''} />}
+          onClick={onSpeakText!}
+          label={_('Speak')}
+        />
+      )}
       {!viewSettings?.showPaginationButtons && (
         <Button
           icon={getNavigationIcon(viewSettings?.rtl, <RiArrowRightSLine />, <RiArrowLeftSLine />)}

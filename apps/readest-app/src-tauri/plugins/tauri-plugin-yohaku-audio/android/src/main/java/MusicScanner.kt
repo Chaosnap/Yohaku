@@ -3,6 +3,7 @@ package io.github.chaosnap.yohaku.audio
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import org.json.JSONArray
@@ -65,6 +66,7 @@ class MusicScanner(private val context: Context) {
         val track = JSONObject()
         track.put("uri", uri.toString())
         track.put("title", displayName(uri))
+        size(uri)?.let { track.put("size", it) }
         val retriever = MediaMetadataRetriever()
         try {
             retriever.setDataSource(context, uri)
@@ -86,6 +88,17 @@ class MusicScanner(private val context: Context) {
             )
             val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
             track.put("durationMs", duration?.toLongOrNull() ?: 0L)
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)
+                ?.toIntOrNull()?.takeIf { it > 0 }?.let { track.put("year", it) }
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
+                ?.takeIf { it.isNotBlank() }?.let { track.put("genre", it) }
+            // Bits per second; the library keeps kilobits.
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+                ?.toIntOrNull()?.let { track.put("bitrate", it / 1000) }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
+                    ?.toIntOrNull()?.let { track.put("sampleRate", it) }
+            }
             retriever.embeddedPicture?.let { picture ->
                 val key = if (album.isEmpty()) uri.toString() else "$artist\u0000$album"
                 track.put("cover", saveCover(picture, key))
@@ -99,6 +112,13 @@ class MusicScanner(private val context: Context) {
             }
         }
         return track
+    }
+
+    private fun size(uri: Uri): Long? = try {
+        context.contentResolver.query(uri, arrayOf(OpenableColumns.SIZE), null, null, null)
+            ?.use { cursor -> if (cursor.moveToFirst() && !cursor.isNull(0)) cursor.getLong(0) else null }
+    } catch (e: Exception) {
+        null
     }
 
     /** "3/12" (track 3 of 12) → 3. */

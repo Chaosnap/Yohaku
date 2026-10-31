@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { SystemSettings } from '@/types/settings';
 import { fileName } from '@/yohaku/audio/engine';
 import {
   formatDuration,
   groupAlbums,
+  groupArtists,
   isUnder,
   mergeTracks,
   searchTracks,
@@ -12,7 +12,6 @@ import {
   trackId,
   type MusicTrack,
 } from '@/yohaku/music/library';
-import { getYohakuSettings } from '@/yohaku/settings';
 
 const ANDROID_URI =
   'content://com.android.externalstorage.documents/document/primary%3AMusic%2FRain.ogg';
@@ -37,20 +36,6 @@ describe('music file names', () => {
     expect(fileName('C:\\Music\\Gymnopédie.mp3')).toBe('Gymnopédie.mp3');
     expect(fileName(ANDROID_URI)).toBe('Rain.ogg');
     expect(fileName(ANDROID_FOLDER)).toBe('Music');
-  });
-});
-
-describe('music settings', () => {
-  it('start with no ambient sounds', () => {
-    expect(getYohakuSettings({} as SystemSettings).ambientLayers).toEqual([]);
-  });
-
-  it('drop the ambient files of earlier versions, which are not Yohaku sounds', () => {
-    const earlier = { uri: '/Music/rain.ogg', name: 'rain.ogg', volume: 0.6 };
-    const rain = { id: 'rain', volume: 0.7 };
-    const yohaku = { ambientLayers: [earlier, rain] };
-    const settings = { yohaku } as unknown as SystemSettings;
-    expect(getYohakuSettings(settings).ambientLayers).toEqual([rain]);
   });
 });
 
@@ -85,6 +70,22 @@ describe('the music library', () => {
     expect(albums.map(({ title }) => title)).toEqual(['Préludes', 'Piano']);
     expect(albums[1]!.tracks.map(({ uri }) => uri)).toEqual(['/m/1.flac', '/m/3.flac']);
     expect(albums[1]!.cover).toBe('/c.jpg');
+  });
+
+  it('groups songs by artist, with their albums, and songs with no artist last', () => {
+    const songs = [
+      track('/m/1.flac', { title: 'Gnossienne', artist: 'Satie', album: 'Piano', cover: '/p.jpg' }),
+      track('/m/2.flac', { title: 'Untitled' }),
+      track('/m/3.flac', { title: 'Arabesque', artist: 'Debussy' }),
+      track('/m/4.flac', { title: 'Gymnopédie', artist: 'Satie', album: 'Piano' }),
+    ];
+    const artists = groupArtists(songs);
+    expect(artists.map(({ name }) => name)).toEqual(['Debussy', 'Satie', '']);
+    const [debussy, satie] = artists;
+    expect(debussy!.albums).toEqual([]);
+    expect(satie!.albums.map(({ title }) => title)).toEqual(['Piano']);
+    expect(satie!.cover).toBe('/p.jpg');
+    expect(satie!.tracks.map(({ title }) => title)).toEqual(['Gnossienne', 'Gymnopédie']);
   });
 
   it('sorts songs by title and finds them by any of their tags', () => {

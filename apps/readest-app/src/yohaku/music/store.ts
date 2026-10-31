@@ -1,10 +1,8 @@
 import { create } from 'zustand';
-import type { EnvConfigType } from '@/services/environment';
 import type { AppService } from '@/types/system';
 import { getAudioEngine } from '@/yohaku/audio';
 import type { AmbientSource, AudioEngine, PlaybackState } from '@/yohaku/audio/engine';
-import { ambientFile, type AmbientChoice } from '@/yohaku/ambient/sounds';
-import { saveYohakuSettings } from '@/yohaku/settings';
+import { ambientFile, ambientIdOf, type AmbientChoice } from '@/yohaku/ambient/sounds';
 import { eventDispatcher } from '@/utils/event';
 import {
   EMPTY_LIBRARY,
@@ -26,11 +24,15 @@ interface MusicState {
   syncing: boolean;
   queue: MusicTrack[];
   playback: PlaybackState;
+  /** The ambient sounds playing now, by themselves or beside the music. */
+  ambient: AmbientChoice[];
+  /** Whether the small player is out; music that starts playing brings it out. */
+  miniPlayerOpen: boolean;
   sleepMinutes: number;
   /** When the sleep timer starts fading the music out, while it is set. */
   sleepEndsAt: number | null;
-  /** Reads the library once, and readies the ambient sounds chosen last time. */
-  load: (appService: AppService, ambient: AmbientChoice[]) => Promise<void>;
+  /** Reads the library once. */
+  load: (appService: AppService) => Promise<void>;
   /** Reads the library again: another window may have changed it, or what plays. */
   reload: (appService: AppService) => Promise<void>;
   addFolder: (appService: AppService) => Promise<void>;
@@ -43,18 +45,20 @@ interface MusicState {
   next: (appService: AppService) => Promise<void>;
   previous: (appService: AppService) => Promise<void>;
   seek: (appService: AppService, positionMs: number) => Promise<void>;
+  /** Pauses the music and puts the small player away. */
+  stop: (appService: AppService) => Promise<void>;
+  setMiniPlayerOpen: (open: boolean) => void;
   refresh: (appService: AppService) => Promise<void>;
-  setAmbient: (
-    appService: AppService,
-    envConfig: EnvConfigType,
-    layers: AmbientChoice[],
-  ) => Promise<void>;
+  /** Asks the engine which ambient sounds play: another window may have turned them on. */
+  loadAmbient: (appService: AppService) => Promise<void>;
+  setAmbient: (appService: AppService, layers: AmbientChoice[]) => Promise<void>;
   setSleepTimer: (appService: AppService, minutes: number) => Promise<void>;
 }
 
 /**
- * The music library and what plays, shared by the music library page and the
- * reader's music button. An action that fails says why in a toast.
+ * The music library, what plays and the ambient sounds, shared by the music
+ * library page and the reader's players. An action that fails says why in a
+ * toast.
  */
 export const useMusicStore = create<MusicState>((set, get) => {
   const save = async (appService: AppService, library: MusicLibrary) => {
@@ -71,12 +75,19 @@ export const useMusicStore = create<MusicState>((set, get) => {
     }
   };
 
+  /** Takes the engine's state; music that starts playing brings the small player out. */
+  const take = (playback: PlaybackState) =>
+    set((state) => ({
+      playback,
+      miniPlayerOpen: state.miniPlayerOpen || (playback.playing && !state.playback.playing),
+    }));
+
   /** Runs an engine action, then takes the engine's state. */
   const control = (appService: AppService, action: (engine: AudioEngine) => Promise<void>) =>
     attempt(async () => {
       const engine = getAudioEngine(appService);
       await action(engine);
-      set({ playback: await engine.getState() });
+      take(await engine.getState());
     });
 
   const applyAmbient = async (appService: AppService, layers: AmbientChoice[]) => {
@@ -118,14 +129,15 @@ export const useMusicStore = create<MusicState>((set, get) => {
     syncing: false,
     queue: [],
     playback: STOPPED,
+    ambient: [],
+    miniPlayerOpen: false,
     sleepMinutes: 0,
     sleepEndsAt: null,
 
-    load: (appService, ambient) => {
+    load: (appService) => {
       loading ??= (async () => {
         await readLibrary(appService);
         set({ loaded: true });
-        if (ambient.length > 0) await attempt(() => applyAmbient(appService, ambient));
       })();
       return loading;
     },
@@ -209,16 +221,33 @@ export const useMusicStore = create<MusicState>((set, get) => {
     previous: (appService) => control(appService, (engine) => engine.previous()),
     seek: (appService, positionMs) => control(appService, (engine) => engine.seekTo(positionMs)),
 
+    stop: async (appService) => {
+      set({ miniPlayerOpen: false });
+      await control(appService, (engine) => engine.pause());
+    },
+
+    setMiniPlayerOpen: (open) => set({ miniPlayerOpen: open }),
+
     refresh: async (appService) => {
       try {
-        set({ playback: await getAudioEngine(appService).getState() });
+        take(await getAudioEngine(appService).getState());
       } catch {}
     },
 
-    setAmbient: (appService, envConfig, layers) =>
+    loadAmbient: (appService) =>
       attempt(async () => {
+        const sources = await getAudioEngine(appService).getAmbient();
+        const ambient = sources.flatMap(({ uri, volume }) => {
+          const id = ambientIdOf(uri);
+          return id ? [{ id, volume }] : [];
+        });
+        set({ ambient });
+      }),
+
+    setAmbient: (appService, layers) =>
+      attempt(async () => {
+        set({ ambient: layers });
         await applyAmbient(appService, layers);
-        await saveYohakuSettings(envConfig, { ambientLayers: layers });
       }),
 
     setSleepTimer: (appService, minutes) =>

@@ -11,23 +11,17 @@ const FADE_STEP_MS = 50;
  */
 class WebEngine implements AudioEngine {
   private music = new Audio();
-  private ambient: { audio: HTMLAudioElement; volume: number }[] = [];
+  private ambient: { uri: string; audio: HTMLAudioElement; volume: number }[] = [];
   private queue: QueueItem[] = [];
-  private ambientUris: string[] = [];
   private index = 0;
   private sleepTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.music.addEventListener('ended', () => {
-      if (this.index + 1 < this.queue.length) {
-        this.load(this.index + 1);
-        void this.play();
-      } else {
-        this.syncAmbient();
-      }
+      if (this.index + 1 >= this.queue.length) return;
+      this.load(this.index + 1);
+      void this.play();
     });
-    this.music.addEventListener('play', () => this.syncAmbient());
-    this.music.addEventListener('pause', () => this.syncAmbient());
     if ('mediaSession' in navigator) {
       navigator.mediaSession.setActionHandler('play', () => void this.play());
       navigator.mediaSession.setActionHandler('pause', () => void this.pause());
@@ -96,23 +90,29 @@ class WebEngine implements AudioEngine {
   async setAmbient(layers: AmbientSource[]) {
     const uris = layers.map(({ uri }) => uri);
     // The same sounds: only their volumes change, without restarting them.
-    if (uris.join('\n') === this.ambientUris.join('\n')) {
+    if (uris.join('\n') === this.ambient.map(({ uri }) => uri).join('\n')) {
       layers.forEach(({ volume }, i) => {
-        this.ambient[i]!.volume = volume;
-        this.ambient[i]!.audio.volume = volume;
+        const layer = this.ambient[i];
+        if (!layer) return;
+        layer.volume = volume;
+        layer.audio.volume = volume;
       });
       return;
     }
-    this.ambientUris = uris;
     await this.allow(uris);
-    this.ambient.forEach(({ audio }) => audio.pause());
+    this.stopAmbient();
+    // They play by themselves, whether or not the music does.
     this.ambient = layers.map(({ uri, volume }) => {
       const audio = new Audio(convertFileSrc(uri));
       audio.loop = true;
       audio.volume = volume;
-      return { audio, volume };
+      void audio.play().catch(() => {});
+      return { uri, audio, volume };
     });
-    this.syncAmbient();
+  }
+
+  async getAmbient() {
+    return this.ambient.map(({ uri, volume }) => ({ uri, volume }));
   }
 
   async setSleepTimer(afterMs: number, fadeMs: number) {
@@ -146,13 +146,9 @@ class WebEngine implements AudioEngine {
     }
   }
 
-  /** The ambient layers play while the music plays. */
-  private syncAmbient() {
-    const playing = !this.music.paused;
-    for (const { audio } of this.ambient) {
-      if (playing) void audio.play().catch(() => {});
-      else audio.pause();
-    }
+  private stopAmbient() {
+    this.ambient.forEach(({ audio }) => audio.pause());
+    this.ambient = [];
   }
 
   private fadeOut(fadeMs: number) {
@@ -168,7 +164,7 @@ class WebEngine implements AudioEngine {
       clearInterval(timer);
       this.music.pause();
       this.music.volume = musicVolume;
-      this.ambient.forEach(({ audio, volume }) => (audio.volume = volume));
+      this.stopAmbient();
       this.sleepTimer = null;
     }, FADE_STEP_MS);
   }

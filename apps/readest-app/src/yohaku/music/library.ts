@@ -95,6 +95,34 @@ export const groupAlbums = (tracks: MusicTrack[]): Album[] => {
 export const sortSongs = (tracks: MusicTrack[]) =>
   [...tracks].sort((a, b) => a.title.localeCompare(b.title) || a.artist.localeCompare(b.artist));
 
+export interface Artist {
+  /** The artist's name as tagged; empty for songs with no artist. */
+  name: string;
+  cover?: string;
+  albums: Album[];
+  tracks: MusicTrack[];
+}
+
+/** Artists by name, each with their albums and songs; songs with no artist come last. */
+export const groupArtists = (tracks: MusicTrack[]): Artist[] => {
+  const byName = new Map<string, MusicTrack[]>();
+  for (const track of tracks) {
+    // Android leaves out the tags of a file it cannot read.
+    const name = track.artist ?? '';
+    const songs = byName.get(name);
+    if (songs) songs.push(track);
+    else byName.set(name, [track]);
+  }
+  const artists = [...byName].map(([name, songs]) => {
+    const albums = groupAlbums(songs);
+    const cover = albums.find((album) => album.cover)?.cover ?? songs.find((s) => s.cover)?.cover;
+    return { name, cover, albums, tracks: sortSongs(songs) };
+  });
+  return artists.sort(
+    (a, b) => Number(a.name === '') - Number(b.name === '') || a.name.localeCompare(b.name),
+  );
+};
+
 export const searchTracks = (tracks: MusicTrack[], query: string) => {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (words.length === 0) return tracks;
