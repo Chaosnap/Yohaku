@@ -42,14 +42,15 @@ jobs:
           node-version: 24
 
       # The versions are pinned in website/package.json; nothing is installed locally, so there is
-      # no lockfile to install from.
+      # no lockfile to install from. run-logged.sh repeats the end of a failing step's output as an
+      # annotation, which can be read without signing in.
       - name: Install VitePress
         working-directory: website
-        run: npm install --no-audit --no-fund --no-package-lock
+        run: bash ../scripts/yohaku/run-logged.sh npm install --no-audit --no-fund --no-package-lock
 
       - name: Build
         working-directory: website
-        run: npm run docs:build
+        run: bash ../scripts/yohaku/run-logged.sh npm run docs:build
 
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
