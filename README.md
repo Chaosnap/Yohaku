@@ -55,7 +55,7 @@ The icon is an open book: words on the left page, and the right page almost empt
 - **Import a folder** and Yohaku syncs it every time it starts, or **import files** one by one. Your music is only referenced: it is never copied, moved or modified.
 - Browse and search by **albums**, **artists**, **songs** and **favorites**. Songs and albums have details pages: year, genre, format, bitrate, sample rate, file size and location.
 - Reads tags and embedded covers from FLAC, MP3, AAC / M4A, ALAC, Ogg, Opus, WAV, AIFF and more.
-- On Android, music keeps playing in the background and with the screen locked, with controls on the lock screen, in the notification and on Bluetooth headphones.
+- On Android, folders and files are picked in the system file manager, and music keeps playing in the background and with the screen locked, with controls on the lock screen, in the notification and on Bluetooth headphones.
 
 ### 🎧 Listen while you read
 
@@ -159,7 +159,7 @@ The site is built from [`website/`](website/) and the documents in [`docs/yohaku
 
 ## 🗺️ Where it stands
 
-**Yohaku 2.0**: reading, the music library, lyrics, ambient sounds and read-aloud all work. Next comes the **darkroom (暗室)**: a quiet space of your own for books and records, and after it a gramophone and more sounds. See the [roadmap](https://chaosnap.github.io/Yohaku/dev/03-roadmap).
+**Yohaku 2.1**: reading, the music library, lyrics, ambient sounds and read-aloud all work, and on Android the music library now imports through the system file manager, as the book library does. Next comes the **darkroom (暗室)**: a quiet space of your own for books and records, and after it a gramophone and more sounds. See the [roadmap](https://chaosnap.github.io/Yohaku/dev/03-roadmap).
 
 ## 🛠️ How it's built
 

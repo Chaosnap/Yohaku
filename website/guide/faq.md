@@ -40,6 +40,10 @@ Yohaku has no in-app updater. Download the new version from [Releases](https://g
 
 Synced folders sync every time Yohaku starts. If you don't want to restart, click the sync button (Sync Now) next to "+" at the top of the music library.
 
+### On Android, importing music does nothing
+
+That was a bug in Yohaku 2.0 and earlier. Update to 2.1 or later: From Directory and From Local File then open the system file manager, as importing books does.
+
 ### Are my music files copied?
 
 No. Yohaku only remembers where each song is; it never copies, moves or modifies them. If you move your music files, sync or import them again.
