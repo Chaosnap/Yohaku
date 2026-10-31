@@ -245,9 +245,7 @@ export default function MusicPage() {
       </div>
       {tracks.length === 0 && (
         <p className='text-base-content/60 text-sm'>
-          {_(
-            'Add your own audio files. On Android, music keeps playing with the screen locked.',
-          )}
+          {_('Add your own audio files. On Android, music keeps playing with the screen locked.')}
         </p>
       )}
       <ul>

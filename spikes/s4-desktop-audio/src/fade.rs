@@ -49,7 +49,7 @@ impl Fade {
     }
 
     /// The gain for the next frame.
-    pub fn next(&mut self) -> f32 {
+    pub fn tick(&mut self) -> f32 {
         if self.elapsed < self.length {
             self.elapsed += 1;
             self.value = if self.elapsed == self.length {
@@ -84,7 +84,7 @@ mod tests {
     fn a_linear_fade_moves_in_even_steps_and_lands_on_its_target() {
         let mut fade = Fade::new(1.0);
         fade.to(0.0, 4, FadeShape::Linear);
-        let values: Vec<f32> = (0..6).map(|_| fade.next()).collect();
+        let values: Vec<f32> = (0..6).map(|_| fade.tick()).collect();
         assert_eq!(values, [0.75, 0.5, 0.25, 0.0, 0.0, 0.0]);
         assert!(fade.is_settled());
     }
@@ -95,7 +95,7 @@ mod tests {
         out.to(0.0, 100, FadeShape::EqualPower);
         into.to(1.0, 100, FadeShape::EqualPower);
         for _ in 0..100 {
-            let (a, b) = (out.next(), into.next());
+            let (a, b) = (out.tick(), into.tick());
             assert!((a * a + b * b - 1.0).abs() < 1e-5);
         }
     }

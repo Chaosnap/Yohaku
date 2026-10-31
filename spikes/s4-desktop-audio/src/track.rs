@@ -253,9 +253,9 @@ impl Resampling {
     }
 
     fn push(&mut self, stereo: &[f32], out: &mut Vec<f32>) {
-        for frame in stereo.chunks_exact(CHANNELS) {
-            self.input[0].push(frame[0]);
-            self.input[1].push(frame[1]);
+        for [left, right] in stereo.as_chunks::<CHANNELS>().0 {
+            self.input[0].push(*left);
+            self.input[1].push(*right);
         }
         self.frames_in += (stereo.len() / CHANNELS) as u64;
         while self.input[0].len() >= RESAMPLER_CHUNK {

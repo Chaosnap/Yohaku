@@ -261,7 +261,7 @@ impl Engine {
                 rewound = true;
             }
             for frame in 0..frames {
-                let gain = layer.gain.next();
+                let gain = layer.gain.tick();
                 if frame < filled {
                     for channel in 0..CHANNELS {
                         let i = frame * CHANNELS + channel;
@@ -274,9 +274,9 @@ impl Engine {
             .retain(|layer| !layer.broken && !(layer.leaving && layer.gain.is_settled()));
 
         for frame in 0..frames {
-            let music_gain = self.music_gain.next();
-            let ambient_gain = self.ambient_gain.next();
-            let master = self.master.next() * self.sleep_step();
+            let music_gain = self.music_gain.tick();
+            let ambient_gain = self.ambient_gain.tick();
+            let master = self.master.tick() * self.sleep_step();
             for channel in 0..CHANNELS {
                 let i = frame * CHANNELS + channel;
                 let sample = if frame < music {
@@ -344,7 +344,7 @@ impl Engine {
                 }
             }
         }
-        self.sleep_gain.next()
+        self.sleep_gain.tick()
     }
 
     fn frames(&self, ms: u32) -> u32 {

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Spike S3: starts a Linux build of Yohaku on a virtual X display, waits, takes a
 # screenshot and reports, as GitHub annotations, whether a Yohaku window came up
-# and stayed up. Needs Xvfb, ImageMagick and x11-utils.
+# and stayed up. Needs Xvfb, ImageMagick, x11-utils and dbus.
 #
 #   bash scripts/yohaku/smoke-linux.sh <command> [args...]
 #
@@ -18,8 +18,10 @@ xvfb_pid=$!
 export DISPLAY=:99
 sleep 2
 
-# A session of its own, so the browser processes CEF starts go down with it.
-setsid "$@" > "$out/app.log" 2>&1 &
+# A session of its own, so the browser processes CEF starts go down with it,
+# and a session bus of its own: the runners have none, and the single-instance
+# plugin cannot start without one.
+setsid dbus-run-session -- "$@" > "$out/app.log" 2>&1 &
 app_pid=$!
 
 status=running
