@@ -13,7 +13,7 @@ import TOCView from './TOCView';
 import BooknoteView from './BooknoteView';
 import TabNavigation from './TabNavigation';
 import ChatHistoryView from './ChatHistoryView';
-import SidebarMusic from '@/yohaku/music/SidebarMusic';
+import SidebarMusic, { SidebarLyrics } from '@/yohaku/music/SidebarMusic';
 
 const SidebarContent: React.FC<{
   bookDoc: BookDoc;
@@ -90,11 +90,13 @@ const SidebarContent: React.FC<{
           'font-sans text-base font-normal sm:text-sm',
         )}
       >
-        {/* [yohaku] The songs tab scrolls by itself (src/yohaku/music/SidebarMusic.tsx). */}
+        {/* [yohaku] Songs and lyrics scroll by themselves (src/yohaku/music/SidebarMusic.tsx). */}
         {targetTab === 'history' ? (
           <ChatHistoryView bookKey={sideBarBookKey} />
         ) : targetTab === 'songs' ? (
           <SidebarMusic />
+        ) : targetTab === 'lyrics' ? (
+          <SidebarLyrics />
         ) : (
           <OverlayScrollbarsComponent
             className='min-h-0 flex-1'

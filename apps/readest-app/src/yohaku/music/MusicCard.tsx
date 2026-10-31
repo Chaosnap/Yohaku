@@ -1,15 +1,16 @@
 import clsx from 'clsx';
+import { convertFileSrc } from '@tauri-apps/api/core';
 import { useEffect, useRef, useState } from 'react';
 import {
-  MdClose,
-  MdPause,
-  MdPlayArrow,
-  MdSkipNext,
-  MdSkipPrevious,
-  MdVolumeDown,
-  MdVolumeOff,
-  MdVolumeUp,
-} from 'react-icons/md';
+  IoClose,
+  IoPause,
+  IoPlay,
+  IoPlaySkipBack,
+  IoPlaySkipForward,
+  IoVolumeHigh,
+  IoVolumeLow,
+  IoVolumeMute,
+} from 'react-icons/io5';
 import { useEnv } from '@/context/EnvContext';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -18,24 +19,83 @@ import FavoriteButton from './FavoriteButton';
 import { formatDuration } from './library';
 import { useMusicStore } from './store';
 
-/** Frosted glass: what lies behind shows through, blurred. E-ink keeps a plain card. */
-export const GLASS = clsx(
+/** Frosted glass, lit along its top edge. E-ink keeps a plain card. */
+const GLASS = clsx(
   'not-eink:bg-base-100/60 not-eink:backdrop-blur-2xl not-eink:backdrop-saturate-150',
   'not-eink:border not-eink:border-base-content/10',
-  'not-eink:shadow-[0_12px_36px_-12px_rgba(0,0,0,0.4)] eink-bordered',
+  'not-eink:shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_20px_44px_-20px_rgb(0_0_0/0.55)]',
+  'eink-bordered',
 );
 
 const ICON_BUTTON = clsx(
-  'text-base-content/75 hover:text-base-content shrink-0 rounded-full p-1.5',
-  'not-eink:hover:bg-base-content/10 not-eink:transition-colors',
+  'text-base-content/65 hover:text-base-content grid size-8 shrink-0 place-items-center',
+  'not-eink:hover:bg-base-content/10 not-eink:transition rounded-full active:scale-90',
 );
+
+/** The ring's length around the play button: a circle of radius 21 in a 44 box. */
+const RING = 2 * Math.PI * 21;
+
+interface PlayRingProps {
+  playing: boolean;
+  /** How far the song has played, from 0 to 1. */
+  played: number;
+  /** A new song starts its ring empty, instead of winding back to it. */
+  trackId?: string;
+}
+
+/** Play or pause, in a ring that fills as the song plays. */
+const PlayRing: React.FC<PlayRingProps> = ({ playing, played, trackId }) => {
+  const _ = useTranslation();
+  const { appService } = useEnv();
+  const iconSize = useResponsiveSize(17);
+  if (!appService) return null;
+
+  const label = playing ? _('Pause') : _('Play');
+  return (
+    <button
+      type='button'
+      className='not-eink:transition-transform relative grid size-11 shrink-0 place-items-center rounded-full active:scale-95'
+      aria-label={label}
+      title={label}
+      onClick={() => useMusicStore.getState().toggle(appService)}
+    >
+      <svg viewBox='0 0 44 44' aria-hidden='true' className='absolute inset-0 size-full -rotate-90'>
+        <circle
+          cx='22'
+          cy='22'
+          r='21'
+          fill='none'
+          strokeWidth='2'
+          className='stroke-base-content/15'
+        />
+        {played > 0 && (
+          <circle
+            key={trackId}
+            cx='22'
+            cy='22'
+            r='21'
+            fill='none'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeDasharray={RING}
+            strokeDashoffset={RING * (1 - played)}
+            className='stroke-base-content not-eink:transition-[stroke-dashoffset] not-eink:duration-1000 not-eink:ease-linear'
+          />
+        )}
+      </svg>
+      <span className='bg-base-content text-base-100 not-eink:shadow-md grid size-[34px] place-items-center rounded-full'>
+        {playing ? <IoPause size={iconSize} /> : <IoPlay size={iconSize} className='ms-0.5' />}
+      </span>
+    </button>
+  );
+};
 
 /** The music's volume: a slider above the card. The wheel over the button turns it too. */
 const VolumeControl: React.FC = () => {
   const _ = useTranslation();
   const { appService } = useEnv();
   const volume = useMusicStore((state) => state.volume);
-  const iconSize20 = useResponsiveSize(20);
+  const iconSize18 = useResponsiveSize(18);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   // What unmuting goes back to.
@@ -56,7 +116,7 @@ const VolumeControl: React.FC = () => {
     if (next > 0) before.current = next;
     useMusicStore.getState().setVolume(appService, next);
   };
-  const Icon = volume === 0 ? MdVolumeOff : volume < 0.5 ? MdVolumeDown : MdVolumeUp;
+  const Icon = volume === 0 ? IoVolumeMute : volume < 0.5 ? IoVolumeLow : IoVolumeHigh;
   const muteLabel = volume === 0 ? _('Unmute') : _('Mute');
 
   return (
@@ -73,12 +133,12 @@ const VolumeControl: React.FC = () => {
         title={_('Volume')}
         onClick={() => setOpen(!open)}
       >
-        <Icon size={iconSize20} />
+        <Icon size={iconSize18} />
       </button>
       {open && (
         <div
           className={clsx(
-            'absolute bottom-full end-0 mb-3 flex w-56 items-center gap-2 rounded-2xl px-2 py-2',
+            'absolute bottom-full end-0 mb-3 flex w-56 items-center gap-2 rounded-2xl p-2',
             GLASS,
           )}
         >
@@ -89,7 +149,7 @@ const VolumeControl: React.FC = () => {
             title={muteLabel}
             onClick={() => change(volume === 0 ? before.current : 0)}
           >
-            <Icon size={iconSize20} />
+            <Icon size={iconSize18} />
           </button>
           <input
             type='range'
@@ -116,30 +176,40 @@ interface MusicCardProps {
 }
 
 /**
- * What plays, as a small floating card of frosted glass: the cover, the song
- * and how long is left, the controls, the heart and the volume, and a thin
- * line along the bottom for how far the song is.
+ * What plays, as a floating card of frosted glass tinted by the cover: the
+ * cover, which settles back while the song is paused, the song and how long is
+ * left, and the controls, with how far the song is as a ring around the play
+ * button; then the heart, the volume and stopping.
  */
 const MusicCard: React.FC<MusicCardProps> = ({ onExpand }) => {
   const _ = useTranslation();
   const { appService } = useEnv();
   const track = useMusicStore((state) => state.queue[state.playback.index]);
   const { playing, positionMs, durationMs } = useMusicStore((state) => state.playback);
-  const iconSize20 = useResponsiveSize(20);
-  const iconSize24 = useResponsiveSize(24);
-  const iconSize26 = useResponsiveSize(26);
+  const iconSize18 = useResponsiveSize(18);
   if (!appService) return null;
 
-  const { toggle, next, previous, stop } = useMusicStore.getState();
-  const played = durationMs > 0 ? Math.min((positionMs / durationMs) * 100, 100) : 0;
+  const { next, previous, stop } = useMusicStore.getState();
+  const played = durationMs > 0 ? Math.min(positionMs / durationMs, 1) : 0;
   const left = durationMs > 0 ? `-${formatDuration(durationMs - positionMs)}` : '';
   const artist = track ? track.artist || _('Unknown Artist') : '';
   const byline = [artist, left].filter(Boolean).join(' · ');
-  const playLabel = playing ? _('Pause') : _('Play');
 
   return (
-    <div className={clsx('relative rounded-[22px]', GLASS)}>
-      <div className='text-base-content flex h-16 items-center gap-2 pe-2 ps-2.5'>
+    <div className={clsx('relative isolate rounded-[26px]', GLASS)}>
+      {track?.cover && (
+        <div
+          aria-hidden='true'
+          className='eink:hidden absolute inset-0 -z-10 overflow-hidden rounded-[inherit]'
+        >
+          <img
+            src={convertFileSrc(track.cover)}
+            alt=''
+            className='h-full w-full scale-150 object-cover opacity-40 blur-2xl saturate-150'
+          />
+        </div>
+      )}
+      <div className='text-base-content flex h-[72px] items-center gap-3 pe-2 ps-3'>
         <button
           type='button'
           className='flex min-w-0 flex-1 items-center gap-3 text-start'
@@ -150,38 +220,33 @@ const MusicCard: React.FC<MusicCardProps> = ({ onExpand }) => {
           <Cover
             path={track?.cover}
             title={track?.title ?? ''}
-            className='not-eink:shadow-md w-11 shrink-0 rounded-xl'
+            className={clsx(
+              'ring-base-content/10 w-12 shrink-0 rounded-[14px] ring-1',
+              'not-eink:shadow-[0_8px_18px_-8px_rgb(0_0_0/0.6)] not-eink:transition-transform',
+              'not-eink:duration-500 not-eink:ease-[cubic-bezier(0.34,1.56,0.64,1)]',
+              !playing && 'scale-[0.86]',
+            )}
           />
-          <span className='flex min-w-0 flex-col'>
-            <span className='truncate text-sm font-medium'>{track?.title ?? _('Not Playing')}</span>
+          <span className='flex min-w-0 flex-col gap-0.5'>
+            <span className='truncate text-sm font-semibold tracking-tight'>
+              {track?.title ?? _('Not Playing')}
+            </span>
             {byline && (
               <span className='text-base-content/60 truncate text-xs tabular-nums'>{byline}</span>
             )}
           </span>
         </button>
-        <div dir='ltr' className='flex shrink-0 items-center gap-0.5'>
+        <div dir='ltr' className='flex shrink-0 items-center gap-1'>
           <button
             type='button'
-            className={ICON_BUTTON}
+            className={clsx(ICON_BUTTON, 'max-sm:hidden')}
             aria-label={_('Previous Track')}
             title={_('Previous Track')}
             onClick={() => previous(appService)}
           >
-            <MdSkipPrevious size={iconSize24} />
+            <IoPlaySkipBack size={iconSize18} />
           </button>
-          <button
-            type='button'
-            className={clsx(
-              'bg-base-content text-base-100 mx-0.5 flex size-10 shrink-0 items-center',
-              'not-eink:shadow-md not-eink:transition-transform justify-center rounded-full',
-              'active:scale-95',
-            )}
-            aria-label={playLabel}
-            title={playLabel}
-            onClick={() => toggle(appService)}
-          >
-            {playing ? <MdPause size={iconSize26} /> : <MdPlayArrow size={iconSize26} />}
-          </button>
+          <PlayRing playing={playing} played={played} trackId={track?.id} />
           <button
             type='button'
             className={ICON_BUTTON}
@@ -189,11 +254,12 @@ const MusicCard: React.FC<MusicCardProps> = ({ onExpand }) => {
             title={_('Next Track')}
             onClick={() => next(appService)}
           >
-            <MdSkipNext size={iconSize24} />
+            <IoPlaySkipForward size={iconSize18} />
           </button>
         </div>
+        <span aria-hidden='true' className='bg-base-content/10 h-7 w-px shrink-0' />
         <div className='flex shrink-0 items-center'>
-          <FavoriteButton track={track} size={iconSize20} className={ICON_BUTTON} />
+          <FavoriteButton track={track} size={iconSize18} className={ICON_BUTTON} />
           {!appService.isMobile && <VolumeControl />}
           <button
             type='button'
@@ -202,18 +268,9 @@ const MusicCard: React.FC<MusicCardProps> = ({ onExpand }) => {
             title={_('Stop Music')}
             onClick={() => stop(appService)}
           >
-            <MdClose size={iconSize20} />
+            <IoClose size={iconSize18} />
           </button>
         </div>
-      </div>
-      <div
-        aria-hidden='true'
-        className='bg-base-content/10 eink:bg-base-100 absolute inset-x-4 bottom-1.5 h-[3px] overflow-hidden rounded-full'
-      >
-        <div
-          className='not-eink:bg-base-content/60 eink:bg-base-content h-full rounded-full'
-          style={{ width: `${played}%` }}
-        />
       </div>
     </div>
   );

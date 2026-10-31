@@ -37,6 +37,7 @@ import {
   TTS_STOP_AT_CHAPTER_END,
 } from '@/services/tts/TTSSessionManager';
 import { getAnnotationOverlayColor } from '../utils/annotatorUtil';
+import { isYohakuBuild } from '@/yohaku/build';
 
 interface UseTTSControlProps {
   bookKey: string;
@@ -227,7 +228,9 @@ export const useTTSControl = ({ bookKey, onRequestHidePanel }: UseTTSControlProp
         const controller = ttsControllerRef.current;
         const bookHash = getBookHashFromKey(bookKey);
         const session = ttsSessionManager.getSessionByHash(bookHash);
-        if (session?.controller === controller && !controller.terminated) {
+        // [yohaku] Nothing in the library stops a book read aloud with its
+        // reader closed, so Yohaku stops it with the reader.
+        if (session?.controller === controller && !controller.terminated && !isYohakuBuild()) {
           // Ownership transfers to the manager: the session keeps playing
           // headless (route unmount, deep-link book switch, split-view pane
           // close all funnel through this cleanup).
@@ -1121,7 +1124,8 @@ export const useTTSControl = ({ bookKey, onRequestHidePanel }: UseTTSControlProp
     if (bookKey !== closingKey) return;
     const controller = ttsControllerRef.current;
     if (!controller) return;
-    if (!controller.terminated) {
+    // [yohaku] Closing the book stops reading it aloud (see the unmount cleanup).
+    if (!controller.terminated && !isYohakuBuild()) {
       ttsSessionManager.detach(getBookHashFromKey(bookKey));
     } else {
       await handleStop(bookKey);

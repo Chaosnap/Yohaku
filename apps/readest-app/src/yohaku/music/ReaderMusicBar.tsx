@@ -1,9 +1,8 @@
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Insets } from '@/types/misc';
 import { useReaderStore } from '@/store/readerStore';
 import { useThemeStore } from '@/store/themeStore';
-import { useMiniPlayerAutoHide } from '@/app/reader/components/tts/useMiniPlayerAutoHide';
 import { isForcedMobileLayout } from '@/app/reader/utils/mobileLayout';
 import { getTTSMiniPlayerBottomOffset } from '@/app/reader/utils/ttsMiniPlayerPosition';
 import MusicCard from './MusicCard';
@@ -11,8 +10,8 @@ import PlayerSheet from './PlayerSheet';
 import { useMusicStore } from './store';
 import { usePlayback } from './usePlayback';
 
-/** How long a new song shows the player, with the reader's bars away. */
-const NEW_SONG_MS = 4000;
+/** How long the player stays out after anything is done with it, playing or paused. */
+const LINGER_MS = 5000;
 
 interface ReaderMusicBarProps {
   bookKey: string;
@@ -25,29 +24,35 @@ const MusicBar: React.FC<ReaderMusicBarProps> = ({ bookKey, gridInsets }) => {
   const { hoveredBookKey, bottomBarTab, getViewSettings } = useReaderStore();
   const open = useMusicStore((state) => state.miniPlayerOpen);
   const trackId = useMusicStore((state) => state.queue[state.playback.index]?.id);
+  const playing = useMusicStore((state) => state.playback.playing);
   const [showPlayer, setShowPlayer] = useState(false);
-  const [newSong, setNewSong] = useState(false);
-  const lastTrackId = useRef(trackId);
-  // Under the pointer the player stays out, and where it is: the footer it sat on
-  // hides as the pointer leaves it.
+  const [awake, setAwake] = useState(false);
+  const sleep = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Under the pointer the player stays where it is: the footer it sat on hides as
+  // the pointer leaves it.
   const [heldBottom, setHeldBottom] = useState<number | null>(null);
   const mounted = open && !showPlayer;
-  // Like the read-aloud player: out while the reader's bars are, then a few seconds more.
-  const autoShown = useMiniPlayerAutoHide(bookKey, 'full', mounted);
-  const shown = autoShown || heldBottom !== null || newSong;
   const barVisible = hoveredBookKey === bookKey;
+  // Out while the reader's bars are, and for a few seconds after anything is done with it.
   // An action panel of the mobile footer is open where the player would be.
-  const visible = shown && !(barVisible && bottomBarTab);
+  const visible = (barVisible || awake) && !(barVisible && bottomBarTab);
 
-  // A new song comes out for a moment, then hides again.
+  const wake = useCallback(() => {
+    setAwake(true);
+    if (sleep.current) clearTimeout(sleep.current);
+    sleep.current = setTimeout(() => setAwake(false), LINGER_MS);
+  }, []);
+
   useEffect(() => {
-    if (trackId === lastTrackId.current) return;
-    lastTrackId.current = trackId;
-    if (!trackId) return;
-    setNewSong(true);
-    const timer = setTimeout(() => setNewSong(false), NEW_SONG_MS);
-    return () => clearTimeout(timer);
-  }, [trackId]);
+    return () => {
+      if (sleep.current) clearTimeout(sleep.current);
+    };
+  }, []);
+
+  // Out when it opens, the song changes, it plays or pauses, or the reader's bars go away.
+  useEffect(() => {
+    if (mounted) wake();
+  }, [mounted, trackId, playing, barVisible, wake]);
 
   // A player put away under the pointer never hears it leave.
   useEffect(() => {
@@ -77,15 +82,19 @@ const MusicBar: React.FC<ReaderMusicBarProps> = ({ bookKey, gridInsets }) => {
       {mounted && (
         <div
           className={clsx(
-            'absolute inset-x-4 z-40 sm:inset-x-0 sm:mx-auto sm:w-full sm:max-w-md',
-            'transition-[bottom,opacity,transform] duration-300 ease-out',
+            'absolute inset-x-4 z-40 sm:inset-x-0 sm:mx-auto sm:w-full sm:max-w-lg',
+            'transition-[bottom,opacity,translate,scale] duration-500',
+            'ease-[cubic-bezier(0.22,1,0.36,1)]',
             visible
-              ? 'pointer-events-auto translate-y-0 opacity-100'
-              : 'pointer-events-none translate-y-3 opacity-0',
+              ? 'pointer-events-auto translate-y-0 scale-100 opacity-100'
+              : 'pointer-events-none translate-y-4 scale-[0.97] opacity-0',
           )}
           style={{ bottom: `${bottom}px`, marginBottom: `${safeAreaMargin}px` }}
           onMouseEnter={() => setHeldBottom(bottom)}
           onMouseLeave={() => setHeldBottom(null)}
+          onPointerMove={wake}
+          onPointerDown={wake}
+          onFocus={wake}
         >
           <MusicCard onExpand={() => setShowPlayer(true)} />
         </div>
@@ -99,8 +108,8 @@ const MusicBar: React.FC<ReaderMusicBarProps> = ({ bookKey, gridInsets }) => {
 
 /**
  * The music player of the reader, above the footer, brought out by the
- * footer's music button or by music starting. With books side by side it is
- * in the first one.
+ * footer's music button or by music starting, and put away again a few
+ * seconds after. With books side by side it is in the first one.
  */
 const ReaderMusicBar: React.FC<ReaderMusicBarProps> = ({ bookKey, gridInsets }) => {
   const first = useReaderStore((state) => state.bookKeys[0] === bookKey);

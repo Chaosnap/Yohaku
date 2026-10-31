@@ -1179,6 +1179,43 @@ describe('useTTSControl background session lifecycle', () => {
     expect(mockSessionManager.stopController).toHaveBeenCalledWith('book', controller, 'user');
   });
 
+  // [yohaku] The library shows no bar for a book read aloud with its reader closed.
+  describe('in Yohaku', () => {
+    beforeEach(() => {
+      vi.stubEnv('NEXT_PUBLIC_YOHAKU_BUILD', 'true');
+    });
+
+    afterEach(() => {
+      cleanup();
+      vi.unstubAllEnvs();
+    });
+
+    it('tts-close-book stops a live session instead of detaching it', async () => {
+      const controller = await startSession();
+      controller.terminated = false;
+      await act(async () => {
+        await eventDispatcher.dispatch('tts-close-book', { bookKey: 'book-1' });
+        for (let i = 0; i < 5; i++) await Promise.resolve();
+      });
+      expect(mockSessionManager.detach).not.toHaveBeenCalled();
+      expect(mockSessionManager.stopController).toHaveBeenCalledWith('book', controller, 'user');
+    });
+
+    it('unmount stops a live session instead of detaching it', async () => {
+      const controller = await startSession();
+      controller.state = 'playing';
+      controller.terminated = false;
+      mockSessionManager.getSessionByHash.mockReturnValue({
+        bookHash: 'book',
+        bookKey: 'book-1',
+        controller,
+      });
+      cleanup();
+      expect(mockSessionManager.detach).not.toHaveBeenCalled();
+      expect(mockSessionManager.stopController).toHaveBeenCalledWith('book', controller, 'user');
+    });
+  });
+
   it('ignores a stopped event for the controller another reader replaced', async () => {
     const controller = await startSession();
     const listener = mockSessionManager.addEventListener.mock.calls.find(

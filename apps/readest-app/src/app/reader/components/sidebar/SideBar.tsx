@@ -175,6 +175,10 @@ const SideBar = ({}) => {
   // On the annotations tab the header search icon drives the annotation
   // search in the toolbar instead of the in-book text search.
   const isAnnotationsTab = getConfig(sideBarBookKey)?.viewSettings?.sideBarTab === 'annotations';
+  // [yohaku] The songs and lyrics tabs take the book card's room.
+  const isMusicTab = ['songs', 'lyrics'].includes(
+    getConfig(sideBarBookKey)?.viewSettings?.sideBarTab ?? '',
+  );
 
   return isSideBarVisible ? (
     <>
@@ -272,9 +276,11 @@ const SideBar = ({}) => {
               onHideSearchBar={handleHideSearchBar}
             />
           </div>
-          <div className='border-base-300/50 border-b px-3'>
-            <BookCard book={book} />
-          </div>
+          {!isMusicTab && (
+            <div className='border-base-300/50 border-b px-3'>
+              <BookCard book={book} />
+            </div>
+          )}
         </div>
         {isSearchBarVisible && !isAnnotationsTab && searchResults ? (
           <SearchResults

@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React from 'react';
-import { MdBookmarkBorder, MdQueueMusic } from 'react-icons/md';
+import { MdBookmarkBorder, MdMicNone, MdQueueMusic } from 'react-icons/md';
 import { IoIosList } from 'react-icons/io';
 import { PiNotePencil } from 'react-icons/pi';
 import { LuMessageSquare } from 'react-icons/lu';
@@ -26,8 +26,8 @@ const TabNavigation: React.FC<{
   const isMobile = forceMobileLayout || window.innerWidth < 640 || window.innerHeight < 640;
   const tabs = [
     'toc',
-    // [yohaku] Songs to change to while reading (src/yohaku/music/SidebarMusic.tsx).
-    ...(isYohakuBuild() ? ['songs'] : []),
+    // [yohaku] Songs and lyrics while reading (src/yohaku/music/SidebarMusic.tsx).
+    ...(isYohakuBuild() ? ['songs', 'lyrics'] : []),
     'annotations',
     'bookmarks',
     ...(aiEnabled ? ['history'] : []),
@@ -39,6 +39,8 @@ const TabNavigation: React.FC<{
         return _('TOC');
       case 'songs':
         return _('Songs');
+      case 'lyrics':
+        return _('Lyrics');
       case 'annotations':
         return _('Annotate');
       case 'bookmarks':
@@ -54,6 +56,8 @@ const TabNavigation: React.FC<{
     <div
       className={clsx(
         'bottom-tab border-base-300/50 bg-base-200 flex w-full border-t',
+        // [yohaku] Up to six tabs share the narrowest sidebar evenly.
+        isYohakuBuild() && 'overflow-hidden px-1',
         appService?.hasRoundedWindow && 'rounded-window-bottom-left',
         isMobile && 'h-[65px]',
       )}
@@ -68,6 +72,7 @@ const TabNavigation: React.FC<{
             'flex-1 m-1.5 cursor-pointer rounded-lg transition-colors duration-200',
             activeTab === tab && 'bg-base-300/85',
             isMobile ? 'p-3' : 'p-2',
+            isYohakuBuild() && 'm-1! min-w-0 px-0!',
           )}
           onClick={() => onTabChange(tab)}
           onKeyDown={(e) => {
@@ -84,6 +89,8 @@ const TabNavigation: React.FC<{
               <IoIosList className='mx-auto' />
             ) : tab === 'songs' ? (
               <MdQueueMusic className='mx-auto' />
+            ) : tab === 'lyrics' ? (
+              <MdMicNone className='mx-auto' />
             ) : tab === 'annotations' ? (
               <PiNotePencil className='mx-auto' />
             ) : tab === 'bookmarks' ? (

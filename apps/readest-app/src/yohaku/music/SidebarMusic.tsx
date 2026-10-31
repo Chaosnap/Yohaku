@@ -11,11 +11,11 @@ import { favoriteTracks, sortSongs, type MusicTrack } from './library';
 import { useMusicStore } from './store';
 import { usePlayback } from './usePlayback';
 
-type View = 'queue' | 'all' | 'favorites' | 'lyrics';
+type View = 'queue' | 'all' | 'favorites';
 
 /** The panel's view, kept on this device. */
 const VIEW_KEY = 'yohakuSidebarMusicView';
-const VIEWS: View[] = ['queue', 'all', 'favorites', 'lyrics'];
+const VIEWS: View[] = ['queue', 'all', 'favorites'];
 
 const storedView = (): View => {
   try {
@@ -128,14 +128,23 @@ const NowPlaying: React.FC = () => {
   );
 };
 
+/** A book in a window of its own: the library window may have changed the music since. */
+const useFreshMusic = () => {
+  const appService = usePlayback();
+  useEffect(() => {
+    if (appService) useMusicStore.getState().reload(appService);
+  }, [appService]);
+  return appService;
+};
+
 /**
  * The reader sidebar's songs, beside the table of contents: what plays, then
- * the queue, all the songs, the favorites or the lyrics, to change songs or
- * follow the words without leaving the book.
+ * the queue, all the songs or the favorites, to change songs without leaving
+ * the book.
  */
 const SidebarMusic: React.FC = () => {
   const _ = useTranslation();
-  const appService = usePlayback();
+  const appService = useFreshMusic();
   const library = useMusicStore((state) => state.library);
   const queue = useMusicStore((state) => state.queue);
   const index = useMusicStore((state) => state.playback.index);
@@ -143,11 +152,6 @@ const SidebarMusic: React.FC = () => {
   const [view, setView] = useState<View>(storedView);
   const all = useMemo(() => sortSongs(library.tracks), [library.tracks]);
   const favorites = useMemo(() => favoriteTracks(library), [library]);
-
-  // A book in a window of its own: the library window may have changed the library since.
-  useEffect(() => {
-    if (appService) useMusicStore.getState().reload(appService);
-  }, [appService]);
 
   const choose = (next: View) => {
     setView(next);
@@ -161,14 +165,12 @@ const SidebarMusic: React.FC = () => {
     { id: 'queue', label: _('Queue') },
     { id: 'all', label: _('All') },
     { id: 'favorites', label: _('Favorites') },
-    { id: 'lyrics', label: _('Lyrics') },
   ];
   const list = view === 'queue' ? queue : view === 'favorites' ? favorites : all;
   const empty: Record<View, string> = {
     queue: _('Nothing is queued. Choose a song from All.'),
     all: _('No songs yet. Add music in the music library.'),
     favorites: _('Tap the heart beside a song to keep it here.'),
-    lyrics: '',
   };
 
   const play = (i: number) => {
@@ -202,26 +204,34 @@ const SidebarMusic: React.FC = () => {
           </button>
         ))}
       </div>
-      {view === 'lyrics' ? (
-        <LyricsView track={current} className='min-h-0 flex-1' />
-      ) : (
-        <div className='min-h-0 flex-1 overflow-y-auto px-2 pb-3'>
-          {list.length === 0 && (
-            <p className='text-base-content/55 px-3 py-8 text-center text-xs'>{empty[view]}</p>
-          )}
-          <ul>
-            {list.map((track, i) => (
-              <SongRow
-                key={`${track.id}-${i}`}
-                track={track}
-                current={view === 'queue' ? i === index : track.id === current?.id}
-                playing={playing}
-                onPlay={() => play(i)}
-              />
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className='min-h-0 flex-1 overflow-y-auto px-2 pb-3'>
+        {list.length === 0 && (
+          <p className='text-base-content/55 px-3 py-8 text-center text-xs'>{empty[view]}</p>
+        )}
+        <ul>
+          {list.map((track, i) => (
+            <SongRow
+              key={`${track.id}-${i}`}
+              track={track}
+              current={view === 'queue' ? i === index : track.id === current?.id}
+              playing={playing}
+              onPlay={() => play(i)}
+            />
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+/** The reader sidebar's lyrics, beside the songs: what plays, and its words as they are sung. */
+export const SidebarLyrics: React.FC = () => {
+  useFreshMusic();
+  const track = useMusicStore((state) => state.queue[state.playback.index]);
+  return (
+    <div className='flex h-full min-h-0 flex-col'>
+      <NowPlaying />
+      <LyricsView track={track} className='min-h-0 flex-1' />
     </div>
   );
 };
