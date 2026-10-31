@@ -18,7 +18,11 @@ interface SongListProps {
   onAdd?: () => void;
 }
 
-/** Songs; choosing one plays the list from there. */
+/**
+ * Songs; choosing one plays the list from there. An album keeps its whole
+ * order queued, so the song before is a step back; any other list queues the
+ * chosen song and the ones after it.
+ */
 const SongList: React.FC<SongListProps> = ({ tracks, numbered, onShowDetails, onAdd }) => {
   const _ = useTranslation();
   const { appService } = useEnv();
@@ -26,7 +30,10 @@ const SongList: React.FC<SongListProps> = ({ tracks, numbered, onShowDetails, on
   const currentId = useMusicStore((state) => state.queue[state.playback.index]?.id);
 
   const play = (index: number) => {
-    if (appService) useMusicStore.getState().play(appService, tracks, index);
+    if (!appService) return;
+    const { play: start } = useMusicStore.getState();
+    if (numbered) start(appService, tracks, index);
+    else start(appService, tracks.slice(index), 0);
   };
   const byline = (track: MusicTrack) => {
     const artist = track.artist || _('Unknown Artist');

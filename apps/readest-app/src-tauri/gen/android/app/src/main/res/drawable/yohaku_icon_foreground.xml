@@ -1,35 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- [yohaku] Launcher and splash motif; mirrors assets-src/icon/yohaku-icon.svg
+<!-- [yohaku] Launcher and splash motif: concept 留白, mirroring assets-src/icon/yohaku-icon.svg
      inside the 66dp safe zone of a 108dp adaptive icon. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M18,40 Q54,50 90,40"
-        android:strokeColor="#FFC9B48C"
-        android:strokeLineCap="round"
-        android:strokeWidth="1.6" />
     <group
-        android:pivotX="54"
-        android:pivotY="45"
-        android:rotation="-3">
+        android:scaleX="0.08010"
+        android:scaleY="0.08010"
+        android:translateX="13"
+        android:translateY="13">
+        <group
+            android:pivotX="512"
+            android:pivotY="736"
+            android:scaleY="0.13">
+            <path android:pathData="M 162 736 A 350 350 0 1 0 862 736 A 350 350 0 1 0 162 736 Z">
+                <aapt:attr name="android:fillColor">
+                    <gradient
+                        android:type="radial"
+                        android:centerX="512"
+                        android:centerY="736"
+                        android:gradientRadius="350">
+                        <item android:offset="0" android:color="#73000000" />
+                        <item android:offset="0.55" android:color="#33000000" />
+                        <item android:offset="1" android:color="#00000000" />
+                    </gradient>
+                </aapt:attr>
+            </path>
+        </group>
         <path
-            android:fillColor="#38000000"
-            android:pathData="M40,48h32v39h-32z" />
+            android:fillColor="#FFCBBFA8"
+            android:pathData="M 512 408 C 476 376 348 352 184 360 L 184 702 C 348 696 472 706 512 730 Z M 512 408 C 548 376 676 352 840 360 L 840 702 C 676 696 552 706 512 730 Z" />
         <path
-            android:fillColor="#FFF4ECDC"
-            android:pathData="M39,46h32v39h-32z" />
+            android:fillColor="#FFE2D8C5"
+            android:pathData="M 512 400 C 476 368 349.5 344 187 352 L 187 694 C 349.5 688 472 698 512 722 Z M 512 400 C 548 368 674.5 344 837 352 L 837 694 C 674.5 688 552 698 512 722 Z" />
+        <path android:pathData="M 512 392 C 476 360 351 336 190 344 L 190 686 C 351 680 472 690 512 714 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="190"
+                    android:startY="0"
+                    android:endX="512"
+                    android:endY="0">
+                    <item android:offset="0" android:color="#FFF8F2E7" />
+                    <item android:offset="0.72" android:color="#FFF4EDDF" />
+                    <item android:offset="1" android:color="#FFDDD1BC" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path android:pathData="M 512 392 C 548 360 673 336 834 344 L 834 686 C 673 680 552 690 512 714 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="834"
+                    android:startY="0"
+                    android:endX="512"
+                    android:endY="0">
+                    <item android:offset="0" android:color="#FFF8F2E7" />
+                    <item android:offset="0.72" android:color="#FFF4EDDF" />
+                    <item android:offset="1" android:color="#FFDDD1BC" />
+                </gradient>
+            </aapt:attr>
+        </path>
         <path
-            android:fillColor="#FFECE1CB"
-            android:pathData="M42,49h26v26h-26z" />
+            android:strokeColor="#FFCDBFA7"
+            android:strokeWidth="3"
+            android:pathData="M 512 392 L 512 714" />
         <path
-            android:fillColor="#FFC4553F"
-            android:pathData="M60,70m-2.2,0a2.2,2.2 0,1 0,4.4 0a2.2,2.2 0,1 0,-4.4 0" />
+            android:strokeColor="#572B2833"
+            android:strokeWidth="13"
+            android:strokeLineCap="round"
+            android:pathData="M 258 452 L 450 452" />
         <path
-            android:fillColor="#FFA9804F"
-            android:pathData="M53.4,42h3.2v7h-3.2z" />
+            android:strokeColor="#572B2833"
+            android:strokeWidth="13"
+            android:strokeLineCap="round"
+            android:pathData="M 258 498 L 462 498" />
+        <path
+            android:strokeColor="#572B2833"
+            android:strokeWidth="13"
+            android:strokeLineCap="round"
+            android:pathData="M 258 544 L 430 544" />
+        <path
+            android:strokeColor="#572B2833"
+            android:strokeWidth="13"
+            android:strokeLineCap="round"
+            android:pathData="M 258 590 L 346 590" />
+        <path
+            android:fillColor="#FFD2543C"
+            android:pathData="M 643.2 618.6 A 35.8 25.8 -24 1 1 708.8 589.4 A 35.8 25.8 -24 1 1 643.2 618.6 Z M 696.2 599.5 L 696.2 436 L 709.6 436 L 709.6 597.3 Z M 709.6 436 C 711.8 467.4 741 479.7 757.8 503.2 C 772.3 525.6 767.8 551.4 755.5 570.4 C 761.1 545.8 753.3 520 709.6 497.6 Z" />
     </group>
 </vector>

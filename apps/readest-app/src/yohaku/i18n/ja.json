@@ -84,5 +84,6 @@
   "No songs yet. Add music in the music library.": "まだ曲がありません。音楽ライブラリで追加してください。",
   "Volume": "音量",
   "Mute": "ミュート",
-  "Unmute": "ミュート解除"
+  "Unmute": "ミュート解除",
+  "Import Music": "音楽を読み込む"
 }

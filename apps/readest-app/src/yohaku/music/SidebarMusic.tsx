@@ -166,7 +166,9 @@ const SidebarMusic: React.FC = () => {
     { id: 'all', label: _('All') },
     { id: 'favorites', label: _('Favorites') },
   ];
-  const list = view === 'queue' ? queue : view === 'favorites' ? favorites : all;
+  // The queue shows what plays now and what comes after it, not the songs already played.
+  const upNext = queue.slice(index);
+  const list = view === 'queue' ? upNext : view === 'favorites' ? favorites : all;
   const empty: Record<View, string> = {
     queue: _('Nothing is queued. Choose a song from All.'),
     all: _('No songs yet. Add music in the music library.'),
@@ -175,8 +177,9 @@ const SidebarMusic: React.FC = () => {
 
   const play = (i: number) => {
     if (!appService) return;
-    if (view === 'queue') useMusicStore.getState().skipTo(appService, i);
-    else useMusicStore.getState().play(appService, list, i);
+    if (view === 'queue') useMusicStore.getState().skipTo(appService, index + i);
+    // A song chosen from all the songs queues it and the ones after it, not the whole list.
+    else useMusicStore.getState().play(appService, list.slice(i), 0);
   };
 
   return (
@@ -213,7 +216,7 @@ const SidebarMusic: React.FC = () => {
             <SongRow
               key={`${track.id}-${i}`}
               track={track}
-              current={view === 'queue' ? i === index : track.id === current?.id}
+              current={view === 'queue' ? i === 0 : track.id === current?.id}
               playing={playing}
               onPlay={() => play(i)}
             />

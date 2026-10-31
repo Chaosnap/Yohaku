@@ -84,5 +84,6 @@
   "No songs yet. Add music in the music library.": "还没有歌曲，请在音乐库中添加。",
   "Volume": "音量",
   "Mute": "静音",
-  "Unmute": "取消静音"
+  "Unmute": "取消静音",
+  "Import Music": "导入音乐"
 }

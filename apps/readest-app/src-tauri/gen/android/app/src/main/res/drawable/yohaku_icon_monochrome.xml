@@ -1,29 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- [yohaku] Themed-icon layer (Android 13+): the same motif in one colour. -->
+<!-- [yohaku] Themed-icon layer (Android 13+): the open book in one colour, its words and
+     its note cut out. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M18,40 Q54,50 90,40"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round"
-        android:strokeWidth="1.6" />
     <group
-        android:pivotX="54"
-        android:pivotY="45"
-        android:rotation="-3">
+        android:scaleX="0.08010"
+        android:scaleY="0.08010"
+        android:translateX="13"
+        android:translateY="13">
         <path
             android:fillColor="#FFFFFFFF"
             android:fillType="evenOdd"
-            android:pathData="M39,46h32v39h-32z M42,49v26h26v-26z" />
-        <path
-            android:fillColor="#FFFFFFFF"
-            android:pathData="M60,70m-2.2,0a2.2,2.2 0,1 0,4.4 0a2.2,2.2 0,1 0,-4.4 0" />
-        <path
-            android:fillColor="#FFFFFFFF"
-            android:pathData="M53.4,42h3.2v7h-3.2z" />
+            android:pathData="M 507 392 C 471 360 346 336 185 344 L 185 686 C 346 680 467 690 507 714 Z M 517 392 C 553 360 678 336 839 344 L 839 686 C 678 680 557 690 517 714 Z M 258 445.5 L 450 445.5 A 6.5 6.5 0 0 1 450 458.5 L 258 458.5 A 6.5 6.5 0 0 1 258 445.5 Z M 258 491.5 L 462 491.5 A 6.5 6.5 0 0 1 462 504.5 L 258 504.5 A 6.5 6.5 0 0 1 258 491.5 Z M 258 537.5 L 430 537.5 A 6.5 6.5 0 0 1 430 550.5 L 258 550.5 A 6.5 6.5 0 0 1 258 537.5 Z M 258 583.5 L 346 583.5 A 6.5 6.5 0 0 1 346 596.5 L 258 596.5 A 6.5 6.5 0 0 1 258 583.5 Z M 643.2 618.6 A 35.8 25.8 -24 1 1 708.8 589.4 A 35.8 25.8 -24 1 1 643.2 618.6 Z M 696.2 578.2 L 696.2 436 L 709.6 436 L 709.6 591.7 Z M 709.6 436 C 711.8 467.4 741 479.7 757.8 503.2 C 772.3 525.6 767.8 551.4 755.5 570.4 C 761.1 545.8 753.3 520 709.6 497.6 Z" />
     </group>
 </vector>

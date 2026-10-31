@@ -102,7 +102,7 @@ Yohaku/
 | 应用标识 | `com.bilingify.readest` | `io.github.chaosnap.yohaku`（待确认） |
 | Android 包名与 `MainActivity` 路径 | `com.bilingify.readest` | 同上；插件内部包名（如 `com.readest.native_tts`）保持不变以减少改动 |
 | 深链接 | `readest://`、Google Drive / OneDrive 回调 | `yohaku://`；移除 OAuth 回调 |
-| 图标 | Readest 图标 | Phase 0 先用占位图标，Phase 3 换为正式图标 |
+| 图标 | Readest 图标 | Phase 0 起用占位图标；v2.0.0 起为正式图标「留白」：一本摊开的书，左页是字，右页留白，只落着一个朱红的音符（源文件 `assets-src/icon/yohaku-icon.svg`，Android 各层在 `gen/android` 的 `yohaku_icon_*.xml`） |
 | 数据目录与资源作用域 | `**/Readest/**` | `**/Yohaku/**`，与 Readest 共存时互不干扰 |
 | D-Bus ID、窗口标题、NSIS 安装信息 | Readest | Yohaku |
 | 界面文案中的「Readest」 | 数百条翻译 | 在 i18n 层加一个后处理器统一替换，不逐个修改翻译文件 |

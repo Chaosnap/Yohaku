@@ -3,7 +3,6 @@
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
 import { IoMusicalNotesOutline } from 'react-icons/io5';
-import { useEnv } from '@/context/EnvContext';
 import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeStore } from '@/store/themeStore';
@@ -14,6 +13,7 @@ import ArtistGrid from './ArtistGrid';
 import MusicCard from './MusicCard';
 import { AlbumDetails, TrackDetails } from './MusicDetails';
 import MusicHeader from './MusicHeader';
+import { ImportMusicButton } from './MusicImportMenu';
 import PlayerSheet from './PlayerSheet';
 import SongList from './SongList';
 import Sources from './Sources';
@@ -31,13 +31,9 @@ import { usePlayback } from './usePlayback';
 
 type Tab = 'albums' | 'artists' | 'songs' | 'favorites' | 'folders';
 
-/** The first visit: the two ways to bring music in. */
+/** The first visit: the button that opens the ways to bring music in. */
 const EmptyLibrary: React.FC = () => {
   const _ = useTranslation();
-  const { appService } = useEnv();
-  if (!appService) return null;
-
-  const { addFolder, importFiles } = useMusicStore.getState();
   return (
     <div className='flex flex-1 items-center justify-center px-6 text-center'>
       <div className='flex max-w-md flex-col items-center'>
@@ -48,20 +44,7 @@ const EmptyLibrary: React.FC = () => {
         <p className='text-base-content/70 mb-12 text-pretty text-base leading-relaxed'>
           {_('Sync a folder to bring in every song in it, or import songs one by one.')}
         </p>
-        <div className='flex w-full max-w-xs flex-col gap-3'>
-          <button
-            className='btn btn-primary h-11 min-h-11 rounded-lg'
-            onClick={() => addFolder(appService)}
-          >
-            {_('Sync a Folder')}
-          </button>
-          <button
-            className='btn btn-ghost h-11 min-h-11 rounded-lg'
-            onClick={() => importFiles(appService)}
-          >
-            {_('Import Files')}
-          </button>
-        </div>
+        <ImportMusicButton />
       </div>
     </div>
   );

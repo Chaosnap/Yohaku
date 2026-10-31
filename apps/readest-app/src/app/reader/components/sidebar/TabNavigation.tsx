@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React from 'react';
-import { MdBookmarkBorder, MdMicNone, MdQueueMusic } from 'react-icons/md';
+import { MdBookmarkBorder, MdOutlineLyrics, MdQueueMusic } from 'react-icons/md';
 import { IoIosList } from 'react-icons/io';
 import { PiNotePencil } from 'react-icons/pi';
 import { LuMessageSquare } from 'react-icons/lu';
@@ -90,7 +90,7 @@ const TabNavigation: React.FC<{
             ) : tab === 'songs' ? (
               <MdQueueMusic className='mx-auto' />
             ) : tab === 'lyrics' ? (
-              <MdMicNone className='mx-auto' />
+              <MdOutlineLyrics className='mx-auto' />
             ) : tab === 'annotations' ? (
               <PiNotePencil className='mx-auto' />
             ) : tab === 'bookmarks' ? (

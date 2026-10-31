@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- [yohaku] The darkroom behind the launcher icon and the splash screen. -->
-    <color name="yohaku_icon_background">#FF1F1B24</color>
+    <!-- [yohaku] The night behind the open book, on the splash screen. -->
+    <color name="yohaku_icon_background">#FF1C2238</color>
 </resources>

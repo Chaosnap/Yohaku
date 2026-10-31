@@ -14,7 +14,7 @@
 |---|---|---|
 | `apps/readest-app/.env` | 删除 Readest 的 PostHog、Supabase、Stripe 默认密钥；Supabase 指向 `https://supabase.invalid` | 不连接 Readest 的服务；客户端仍需一个 URL 才能构造 |
 | `apps/readest-app/.env.tauri` | `DBUS_ID`；新增 `NEXT_PUBLIC_YOHAKU_BUILD`、`NEXT_PUBLIC_SELF_HOSTED`（解锁全部高级功能，无付费墙）、`NEXT_PUBLIC_DISABLE_UPDATER`；`NEXT_PUBLIC_API_BASE_URL` / `NEXT_PUBLIC_NODE_BASE_URL` 指向 `https://readest.invalid` | 离线、无账户、无更新源；不设置时 Readest 的 Web API 回落到 `web.readest.com`，在线元数据检索、Readest Voice 等调用会连到 Readest，指向永不解析的 `.invalid` 域名后这些调用立即失败 |
-| `apps/readest-app/package.json` | 版本号（当前 `1.9.0`） | Yohaku 独立版本号 |
+| `apps/readest-app/package.json` | 版本号（当前 `2.0.0`） | Yohaku 独立版本号 |
 | `apps/readest-app/src-tauri/tauri.conf.json` | 产品名、可执行文件名、应用标识；CSP 去掉 Sentry、PostHog、Supabase、Stripe、readest.com 与远程字体主机；发布者、版权与描述；macOS ad-hoc 签名；不生成更新包；深链接只保留 `readest`；更新地址改为 Yohaku 的 Releases | 品牌与离线 |
 | `.gitignore` | 合并上游与 Yohaku 的规则 | `references/`、`local/` 与签名文件不入库 |
 | `.github/` | 删除上游全部工作流、资助链接、Issue 模板与 Dependabot；新增 `ci.yml`、`build.yml`、`build-app.yml`、`release.yml` | Yohaku 自己的构建与发布 |
@@ -57,7 +57,7 @@
 | `app/reader/components/tts/TTSControl.tsx` | Yohaku 构建中不显示浮在页面上的朗读小播放器（`TTSMiniPlayer`），而是把它的状态与操作交给右上角的朗读面板（`src/yohaku/reader/readAloud.ts`）；完整的朗读播放器与「回到朗读位置」照旧 |
 | `app/reader/utils/ttsMiniPlayerPosition.ts` | Yohaku 构建中「精简」样式的朗读小播放器不再在正文底部预留空白（它不会出现） |
 | `components/settings/TTSPanel.tsx` | Yohaku 构建中隐藏「播放器样式」（没有浮动的朗读播放器可选） |
-| `app/reader/components/sidebar/TabNavigation.tsx`、`Content.tsx` | 侧栏目录按钮右边加入「歌曲」与「歌词」标签（`src/yohaku/music/SidebarMusic.tsx`）：「歌曲」是正在播放的歌曲与队列、全部、收藏三个视图，「歌词」是正在播放的歌曲与随歌声滚动的歌词；Yohaku 构建中各标签等宽、不留左右内边距，默认宽度的侧栏也放得下所有按钮 |
+| `app/reader/components/sidebar/TabNavigation.tsx`、`Content.tsx` | 侧栏目录按钮右边加入「歌曲」与「歌词」标签（`src/yohaku/music/SidebarMusic.tsx`）：「歌曲」是正在播放的歌曲与队列、全部、收藏三个视图，「歌词」是正在播放的歌曲与随歌声滚动的歌词；Yohaku 构建中各标签等宽、不留左右内边距，默认宽度的侧栏也放得下所有按钮；「歌词」标签的图标是 Material 的「歌词」（v2.0.0 起，此前是麦克风） |
 | `app/reader/components/sidebar/SideBar.tsx` | 「歌曲」与「歌词」标签不显示顶部的书籍卡片 |
 | `app/reader/hooks/useTTSControl.ts` | 关闭书（回到书库、关闭分栏）时停止朗读，不像 Readest 那样转入后台继续：Readest 在书库里用浮动条（`NowPlayingBar`）控制后台朗读，Yohaku 的朗读只在阅读界面的朗读面板里控制。有声书播放器不受影响 |
 | `app/reader/components/footerbar/DesktopFooterBar.tsx`、`NavigationBar.tsx` | 页脚的「朗读」按钮换成「音乐」按钮（`src/yohaku/music/MusicButton.tsx`）：点一下，整条页脚换成音乐控制条（`src/yohaku/music/FooterMusicBar.tsx`，用页脚自己的按钮、「当前 / 总数」标签与滑杆：上一首、播放 / 暂停、下一首、歌名、播放进度、收藏、音量），再点一下换回阅读的页脚；朗读从右上角的朗读按钮开始。v1.5.0–v1.8.0 时这个按钮打开一张浮在页脚上方的播放卡片（挂在 `FooterBar.tsx`），v1.9.0 起阅读界面不再有浮动播放器，`FooterBar.tsx` 恢复原样 |

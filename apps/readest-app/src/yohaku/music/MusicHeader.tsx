@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import { useRef } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { IoDocumentsOutline, IoFolderOpenOutline } from 'react-icons/io5';
 import { MdSync } from 'react-icons/md';
 import { PiPlus } from 'react-icons/pi';
 import { useEnv } from '@/context/EnvContext';
@@ -10,46 +9,10 @@ import { useTrafficLight } from '@/hooks/useTrafficLight';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeStore } from '@/store/themeStore';
 import Dropdown from '@/components/Dropdown';
-import Menu from '@/components/Menu';
-import MenuItem from '@/components/MenuItem';
 import WindowButtons from '@/components/WindowButtons';
 import LibrarySwitcher from '@/yohaku/LibrarySwitcher';
+import MusicImportMenu from './MusicImportMenu';
 import { useMusicStore } from './store';
-
-interface AddMusicMenuProps {
-  setIsDropdownOpen?: (isOpen: boolean) => void;
-}
-
-/** The music library's two ways in: a folder kept in sync, or files one by one. */
-const AddMusicMenu: React.FC<AddMusicMenuProps> = ({ setIsDropdownOpen }) => {
-  const _ = useTranslation();
-  const { appService } = useEnv();
-  const { addFolder, importFiles } = useMusicStore.getState();
-  const close = () => setIsDropdownOpen?.(false);
-
-  return (
-    <Menu className='dropdown-content no-triangle z-20 mt-2 shadow-2xl' onCancel={close}>
-      <MenuItem
-        label={_('Sync a Folder')}
-        description={_('Every song in it, kept up to date')}
-        Icon={<IoFolderOpenOutline className='h-5 w-5' />}
-        onClick={() => {
-          close();
-          if (appService) addFolder(appService);
-        }}
-      />
-      <MenuItem
-        label={_('Import Files')}
-        description={_('Songs one by one')}
-        Icon={<IoDocumentsOutline className='h-5 w-5' />}
-        onClick={() => {
-          close();
-          if (appService) importFiles(appService);
-        }}
-      />
-    </Menu>
-  );
-};
 
 interface MusicHeaderProps {
   query: string;
@@ -110,7 +73,7 @@ const MusicHeader: React.FC<MusicHeaderProps> = ({ query, onQueryChange }) => {
           buttonClassName='btn btn-ghost h-8 min-h-8 w-8 p-0'
           toggleButton={<PiPlus role='none' size={iconSize18} />}
         >
-          <AddMusicMenu />
+          <MusicImportMenu />
         </Dropdown>
         <button
           className='btn btn-ghost h-8 min-h-8 w-8 p-0'

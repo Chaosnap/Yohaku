@@ -8,6 +8,7 @@ import {
   EMPTY_LIBRARY,
   isUnder,
   mergeTracks,
+  sortSongs,
   toggleFavorite,
   toTracks,
   type MusicLibrary,
@@ -280,13 +281,15 @@ export const useMusicStore = create<MusicState>((set, get) => {
         const playback = await engine.getState();
         if (playback.playing) return engine.pause();
         if (playback.durationMs > 0) return engine.play();
-        // Nothing loaded in the engine yet: start the last queue, or the library.
+        // Nothing loaded in the engine yet: start the last queue, or all the songs in the
+        // order the song lists show them, and keep it so other windows show the same queue.
         const { queue, library } = get();
-        const tracks = queue.length > 0 ? queue : library.tracks;
+        const tracks = queue.length > 0 ? queue : sortSongs(library.tracks);
         if (tracks.length === 0) return;
         await engine.setQueue(tracks, Math.min(playback.index, tracks.length - 1));
         await engine.play();
         set({ queue: tracks });
+        if (queue.length === 0) await save(appService, { queue: tracks.map(({ id }) => id) });
       }),
 
     next: (appService) => control(appService, (engine) => engine.next()),
