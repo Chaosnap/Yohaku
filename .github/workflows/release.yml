@@ -1,10 +1,10 @@
 name: Release
 
-# Pushing a tag such as v0.0.1 builds every platform (plus the Google Play
-# bundle) into a draft GitHub release. Previews (v0.* and tags with a suffix
-# such as v1.0.0-rc.1) are published as pre-releases once every platform has
-# built; other releases stay drafts to be reviewed and published by hand.
-# The notes come from docs/yohaku/release-notes/<tag>.md when it exists.
+# Pushing a tag such as v1.0.0 builds every platform (plus the Google Play
+# bundle) into a draft GitHub release; once everything is uploaded,
+# publish-release.yml publishes it. Previews (v0.* and tags with a suffix such
+# as v1.1.0-rc.1) are pre-releases. The notes come from
+# docs/yohaku/release-notes/<tag>.md when it exists.
 on:
   push:
     tags: ['v*']
@@ -73,16 +73,3 @@ jobs:
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir assets --pattern 'Yohaku_*'
           (cd assets && sha256sum Yohaku_* > SHA256SUMS.txt && cat SHA256SUMS.txt)
           gh release upload "$TAG" assets/SHA256SUMS.txt --clobber --repo "$GITHUB_REPOSITORY"
-
-  publish:
-    needs: checksums
-    if: startsWith(github.ref_name, 'v0.') || contains(github.ref_name, '-')
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - name: publish the pre-release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
-        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
