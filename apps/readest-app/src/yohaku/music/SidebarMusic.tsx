@@ -207,9 +207,7 @@ const SidebarMusic: React.FC = () => {
       ) : (
         <div className='min-h-0 flex-1 overflow-y-auto px-2 pb-3'>
           {list.length === 0 && (
-            <p className='text-base-content/55 px-3 py-8 text-center text-xs'>
-              {empty[view]}
-            </p>
+            <p className='text-base-content/55 px-3 py-8 text-center text-xs'>{empty[view]}</p>
           )}
           <ul>
             {list.map((track, i) => (
