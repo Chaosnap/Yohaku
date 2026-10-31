@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { PiUserCircle, PiUserCircleCheck, PiGear } from 'react-icons/pi';
 import { PiSun, PiMoon } from 'react-icons/pi';
 import { TbSunMoon } from 'react-icons/tb';
-import { IoMusicalNotesOutline } from 'react-icons/io5';
 import { MdCloudSync, MdSync, MdSyncProblem, MdOutlineSensors } from 'react-icons/md';
 
 import { useAppRouter } from '@/hooks/useAppRouter';
@@ -416,14 +415,6 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onPullLibrary, setIsDropdow
         }
         onClick={cycleThemeMode}
       />
-      {/* [yohaku] The music player. */}
-      {isYohakuBuild() && (
-        <MenuItem
-          label={_('Music')}
-          Icon={IoMusicalNotesOutline}
-          onClick={() => router.push('/music')}
-        />
-      )}
       <MenuItem label={_('Settings')} Icon={PiGear} onClick={openSettingsDialog} />
       <hr aria-hidden='true' className='border-base-200 my-1' />
       <MenuItem label={_('Advanced Settings')}>

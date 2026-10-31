@@ -14,7 +14,7 @@
 |---|---|---|
 | `apps/readest-app/.env` | 删除 Readest 的 PostHog、Supabase、Stripe 默认密钥；Supabase 指向 `https://supabase.invalid` | 不连接 Readest 的服务；客户端仍需一个 URL 才能构造 |
 | `apps/readest-app/.env.tauri` | `DBUS_ID`；新增 `NEXT_PUBLIC_YOHAKU_BUILD`、`NEXT_PUBLIC_SELF_HOSTED`（解锁全部高级功能，无付费墙）、`NEXT_PUBLIC_DISABLE_UPDATER`；`NEXT_PUBLIC_API_BASE_URL` / `NEXT_PUBLIC_NODE_BASE_URL` 指向 `https://readest.invalid` | 离线、无账户、无更新源；不设置时 Readest 的 Web API 回落到 `web.readest.com`，在线元数据检索、Readest Voice 等调用会连到 Readest，指向永不解析的 `.invalid` 域名后这些调用立即失败 |
-| `apps/readest-app/package.json` | 版本号 `0.0.1` | Yohaku 独立版本号 |
+| `apps/readest-app/package.json` | 版本号（当前 `1.0.0`） | Yohaku 独立版本号 |
 | `apps/readest-app/src-tauri/tauri.conf.json` | 产品名、可执行文件名、应用标识；CSP 去掉 Sentry、PostHog、Supabase、Stripe、readest.com 与远程字体主机；发布者、版权与描述；macOS ad-hoc 签名；不生成更新包；深链接只保留 `readest`；更新地址改为 Yohaku 的 Releases | 品牌与离线 |
 | `.gitignore` | 合并上游与 Yohaku 的规则 | `references/`、`local/` 与签名文件不入库 |
 | `.github/` | 删除上游全部工作流、资助链接、Issue 模板与 Dependabot；新增 `ci.yml`、`build.yml`、`build-app.yml`、`release.yml` | Yohaku 自己的构建与发布 |
@@ -31,7 +31,7 @@
 | `components/settings/IntegrationsPanel.tsx` | 隐藏 Readest Cloud、Google Drive、OneDrive、iCloud、BookOrbit、Readwise、Hardcover、Pagebound、Notion、Audiobookshelf、Send to Readest、Discord，以及「通过 Readest 账户同步」的提示；保留 KOReader、WebDAV、S3、OPDS、Nearby BookDrop |
 | `components/Providers.tsx`、`components/settings/ControlPanel.tsx`、`services/commandRegistry.ts` | 不弹出遥测授权，隐藏遥测开关与命令 |
 | `helpers/updater.ts` | 不读取 Readest 服务器上的更新说明 |
-| `components/AboutWindow.tsx` | 名称、注明基于 Readest 并保留其版权声明、源码链接指向本仓库；隐藏检查更新与 Readest 的法律、社区链接 |
+| `components/AboutWindow.tsx` | 名称；版权「© Yuki」，注明基于 Readest 并保留 Bilingify LLC 的版权声明；源码链接指向本仓库；隐藏检查更新与 Readest 的法律、社区链接 |
 | `app/layout.tsx` | 窗口标题使用 Yohaku |
 | `services/sync/cloudSyncProvider.ts` | Yohaku 构建中 Readest Cloud 永远关闭（`isReadestCloudEnabled` 返回 false），依赖它的上传、同步与传输队列随之关闭 |
 | `utils/nav.ts` | `navigateToLogin` 在 Yohaku 构建中不跳转，作为没有账户时的兜底 |
@@ -52,6 +52,11 @@
 | `components/settings/LayoutPanel.tsx` | 漫画与书库设置中显示「漫画」一节（`src/yohaku/reader/ComicsSettings.tsx`） |
 | `services/tts/TTSController.ts` | 不初始化 Readest Voice（Readest 的服务器）；Edge 在线语音只在用户开启后初始化与列出（开关保存在 localStorage，与 Readest 的朗读偏好相同，见 `src/yohaku/onlineVoices.ts`；不读取设置 store，因为 `services/constants` 导入了这个文件） |
 | `components/settings/TTSPanel.tsx` | 「语音」中加入「在线语音」开关（`src/yohaku/reader/OnlineVoicesRow.tsx`） |
+| `app/library/components/LibraryHeader.tsx` | 搜索框左侧加入「书籍 / 音乐」切换（`src/yohaku/LibrarySwitcher.tsx`），进入音乐库 |
+| `app/reader/components/HeaderBar.tsx` | 右上角加入音乐按钮（`src/yohaku/music/MusicToggler.tsx`）：正在播放的歌曲、播放控制、环境声场景与快捷键提示 |
+| `app/reader/components/ReaderContent.tsx` | 注册音乐快捷键（`src/yohaku/music/useMusicShortcuts.ts`） |
+| `components/Providers.tsx` | 挂载 `useAudioHost()`（`src/yohaku/audio/windows.ts`）：桌面上音乐只在主窗口（书库）播放，书在独立窗口中打开时，那个窗口的音乐按钮与快捷键经 Tauri 事件把指令交给主窗口 |
+| `helpers/shortcuts.ts` | 新增「播放 / 暂停音乐」（M）、「下一首」（.）、「上一首」（,）；Yohaku 构建的快捷键列表多一个「音乐」分组 |
 | `services/translators/providers/index.ts` | 去掉需要 Readest 账户的翻译服务：DeepL 总是经过 Readest 的服务器；Azure、Yandex 只在网页版中需要，应用里直连，保留 |
 
 ## 原生层
@@ -59,8 +64,8 @@
 | 文件 | 改动 |
 |---|---|
 | `src-tauri/src/lib.rs` | 单实例 ID 改为 `io.github.chaosnap.yohaku`；窗口标题；注册 `tauri-plugin-yohaku-audio` |
-| `src-tauri/Cargo.toml`、`src-tauri/capabilities/default.json` | 加入 Yohaku 的音频插件 `tauri-plugin-yohaku-audio`（Android 的 Media3 后台播放服务；桌面上只负责让 WebView 读取用户选择的音频文件）及其权限 |
-| `app/library/components/SettingsMenu.tsx` | 菜单中加入「音乐」，进入 `/music`；新增路由 `app/music/page.tsx`（页面在 `src/yohaku/music/`） |
+| `src-tauri/Cargo.toml`、`src-tauri/capabilities/default.json` | 加入 Yohaku 的音频插件 `tauri-plugin-yohaku-audio`（Android 的 Media3 后台播放服务与音乐库扫描；桌面上用 lofty 扫描音乐库、读取标签与封面，并让 WebView 读取这些文件）及其权限 |
+| 新增 `app/music/page.tsx` | 音乐库路由（页面在 `src/yohaku/music/`），从书库顶部的「书籍 / 音乐」切换进入；v0.0.4 曾放在书库菜单中，v1.0.0 起菜单恢复原样 |
 | `src-tauri/src/macos/menu.rs` | 「帮助」菜单指向本仓库与 `PRIVACY.md` |
 | `src-tauri/plugins/tauri-plugin-native-tts/src/now_playing.rs` | 系统媒体控制名称与 MPRIS 名 `yohaku` |
 | `src-tauri/plugins/tauri-plugin-native-bridge/src/desktop.rs` | 钥匙串条目 `Yohaku Safe Storage` |

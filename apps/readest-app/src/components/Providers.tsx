@@ -31,6 +31,7 @@ import {
 } from '@/utils/telemetry';
 import { getLibraryViewSettings } from '@/helpers/settings';
 import { isYohakuBuild } from '@/yohaku/build';
+import { useAudioHost } from '@/yohaku/audio/windows';
 import { SETTINGS_FILENAME } from '@/services/constants';
 import type { AppService } from '@/types/system';
 import type { SystemSettings } from '@/types/settings';
@@ -128,6 +129,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   const [showTelemetryConsent, setShowTelemetryConsent] = useState(false);
   useSafeAreaInsets(); // Initialize safe area insets
   useSettingsSync(); // Adopt global settings broadcast by other windows (#4580)
+  useAudioHost(); // [yohaku] The main window plays the music for every window
 
   useEffect(() => {
     const handlerLanguageChanged = (lng: string) => {

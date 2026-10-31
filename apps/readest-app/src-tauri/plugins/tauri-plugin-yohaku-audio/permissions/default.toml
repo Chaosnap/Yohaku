@@ -1,7 +1,10 @@
 [default]
-description = "Everything the music player uses."
+description = "Everything the music library and player use."
 permissions = [
-  "allow-pick-audio",
+  "allow-pick-folder",
+  "allow-pick-files",
+  "allow-scan-music",
+  "allow-allow-files",
   "allow-set-queue",
   "allow-play",
   "allow-pause",
@@ -12,5 +15,4 @@ permissions = [
   "allow-apply-ambient",
   "allow-set-sleep-timer",
   "allow-get-state",
-  "allow-allow-files",
 ]

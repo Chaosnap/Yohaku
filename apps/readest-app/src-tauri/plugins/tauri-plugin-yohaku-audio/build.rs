@@ -1,7 +1,11 @@
-// The playback commands are Kotlin (android/), called from JavaScript as
-// `plugin:yohaku-audio|<command>`; `allow_files` is the desktop's only command.
+// Called from JavaScript as `plugin:yohaku-audio|<command>`. Playback and the
+// pickers are Kotlin (android/); scan_music is Rust on the desktop
+// (src/desktop.rs) and Kotlin on Android; allow_files is desktop only.
 const COMMANDS: &[&str] = &[
-    "pick_audio",
+    "pick_folder",
+    "pick_files",
+    "scan_music",
+    "allow_files",
     "set_queue",
     "play",
     "pause",
@@ -12,7 +16,6 @@ const COMMANDS: &[&str] = &[
     "apply_ambient",
     "set_sleep_timer",
     "get_state",
-    "allow_files",
 ];
 
 fn main() {

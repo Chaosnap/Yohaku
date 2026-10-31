@@ -45,6 +45,7 @@ import { writeTextToClipboard } from '@/utils/clipboard';
 
 import useBooksManager from '../hooks/useBooksManager';
 import useBookShortcuts from '../hooks/useBookShortcuts';
+import { useMusicShortcuts } from '@/yohaku/music/useMusicShortcuts';
 import Spinner from '@/components/Spinner';
 import SideBar from './sidebar/SideBar';
 import Notebook from './notebook/Notebook';
@@ -97,6 +98,8 @@ const ReaderContent: React.FC<{ ids?: string; settings: SystemSettings }> = ({ i
   const pendingNotebookTransitionRef = useRef<(() => Promise<void>) | null>(null);
 
   useBookShortcuts({ sideBarBookKey, bookKeys });
+  // [yohaku] Play, pause and skip music while reading.
+  useMusicShortcuts();
   const isAndroidApp = appService?.isAndroidApp === true;
   // Settings > Behavior > Device > Gamepad Support. Off when the device's own
   // remapper already binds the controller to keys (issue #5979).

@@ -175,13 +175,19 @@ export const AboutWindow = () => {
             className='flex flex-1 flex-col items-center justify-start gap-2 px-4 text-center'
             dir='ltr'
           >
-            {/* [yohaku] Yohaku is a modified version of Readest; keep its notice. */}
-            {isYohakuBuild() && (
-              <p className='text-neutral-content text-sm'>Yohaku is built on Readest.</p>
+            {/* [yohaku] Yohaku's own copyright; as a modified Readest it keeps Readest's notice. */}
+            {isYohakuBuild() ? (
+              <>
+                <p className='text-neutral-content text-sm'>© {new Date().getFullYear()} Yuki</p>
+                <p className='text-neutral-content text-xs'>
+                  Yohaku is built on Readest, © {new Date().getFullYear()} Bilingify LLC.
+                </p>
+              </>
+            ) : (
+              <p className='text-neutral-content text-sm'>
+                © {new Date().getFullYear()} Bilingify LLC. All rights reserved.
+              </p>
             )}
-            <p className='text-neutral-content text-sm'>
-              © {new Date().getFullYear()} Bilingify LLC. All rights reserved.
-            </p>
 
             <p className='text-neutral-content text-xs'>
               This software is licensed under the{' '}

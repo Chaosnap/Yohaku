@@ -1,5 +1,6 @@
 import { stubTranslation as _ } from '@/utils/misc';
 import { filterPlatformKeys, normalizeShortcut } from '@/utils/shortcutKeys';
+import { isYohakuBuild } from '@/yohaku/build';
 
 export type ShortcutEntry = {
   keys: string[];
@@ -317,6 +318,22 @@ const DEFAULT_SHORTCUTS = {
     description: _('Close'),
     section: 'General',
   },
+  // [yohaku] The music player, in the reader (src/yohaku/music/useMusicShortcuts.ts).
+  onMusicPlayPause: {
+    keys: ['m'],
+    description: _('Play / Pause Music'),
+    section: 'Music',
+  },
+  onMusicNext: {
+    keys: ['.'],
+    description: _('Next Track'),
+    section: 'Music',
+  },
+  onMusicPrevious: {
+    keys: [','],
+    description: _('Previous Track'),
+    section: 'Music',
+  },
 };
 
 export type ShortcutConfig = {
@@ -333,6 +350,8 @@ export const SHORTCUT_SECTIONS = [
   _('Zoom'),
   _('Window'),
   _('Notes'),
+  // [yohaku] Only Yohaku has a music player.
+  ...(isYohakuBuild() ? [_('Music')] : []),
 ] as const;
 
 type ShortcutDisplayItem = {

@@ -17,6 +17,8 @@ import { useTrafficLight } from '@/hooks/useTrafficLight';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import useShortcuts from '@/hooks/useShortcuts';
 import WindowButtons from '@/components/WindowButtons';
+import { isYohakuBuild } from '@/yohaku/build';
+import LibrarySwitcher from '@/yohaku/LibrarySwitcher';
 import Dropdown from '@/components/Dropdown';
 import SettingsMenu from './SettingsMenu';
 import ImportMenu from './ImportMenu';
@@ -111,6 +113,8 @@ const LibraryHeader: React.FC<LibraryHeaderProps> = ({
     >
       <div className='flex w-full items-center justify-between space-x-6 sm:space-x-12'>
         <div className='exclude-title-bar-mousedown relative flex w-full items-center ps-4'>
+          {/* [yohaku] Switches between the book library and the music library. */}
+          {isYohakuBuild() && <LibrarySwitcher current='books' />}
           <div className='relative flex h-9 w-full items-center sm:h-7'>
             {/* The icon doubles as the mode indicator and toggle: magnifier
                 for book search, full-text glyph for content search. */}

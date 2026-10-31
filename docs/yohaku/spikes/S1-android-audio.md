@@ -1,6 +1,6 @@
 # Spike S1：Android 后台音频
 
-> 状态：已直接做成正式功能（v0.0.4 起：书库菜单 →「音乐」），等待真机测试。
+> 状态：已直接做成正式功能（v0.0.4 起；v1.0.0 起从书库顶部的「书籍 / 音乐」切换进入音乐库），等待真机测试。
 > 代码：[`tauri-plugin-yohaku-audio`](../../../apps/readest-app/src-tauri/plugins/tauri-plugin-yohaku-audio)（Kotlin：`YohakuPlaybackService` 与 `YohakuAudioPlugin`）；页面在 `src/yohaku/music/`。
 
 ## 原型的结构

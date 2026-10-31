@@ -22,11 +22,21 @@ import app.tauri.plugin.JSObject
 import app.tauri.plugin.Plugin
 import com.google.common.util.concurrent.ListenableFuture
 import org.json.JSONArray
+import java.io.File
+import java.util.concurrent.Executors
 
 @InvokeArg
 class QueueArgs {
     var uris: Array<String> = arrayOf()
+    var titles: Array<String> = arrayOf()
+    var artists: Array<String> = arrayOf()
+    var covers: Array<String> = arrayOf()
     var start: Int = 0
+}
+
+@InvokeArg
+class ScanArgs {
+    var paths: Array<String> = arrayOf()
 }
 
 @InvokeArg
@@ -86,18 +96,39 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
         }, ContextCompat.getMainExecutor(activity))
     }
 
+    private val scanner by lazy { MusicScanner(activity) }
+    private val background = Executors.newSingleThreadExecutor()
+
+    /** A folder to sync the library from; its access is kept across restarts. */
     @Command
-    fun pick_audio(invoke: Invoke) {
+    fun pick_folder(invoke: Invoke) {
+        startActivityForResult(invoke, Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), "pickFolderResult")
+    }
+
+    @ActivityCallback
+    fun pickFolderResult(invoke: Invoke, result: ActivityResult) {
+        val ret = JSObject()
+        val uri = result.data?.data
+        if (result.resultCode == Activity.RESULT_OK && uri != null) {
+            keepAccess(uri)
+            ret.put("path", uri.toString())
+        }
+        invoke.resolve(ret)
+    }
+
+    /** Audio files to import one by one. */
+    @Command
+    fun pick_files(invoke: Invoke) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "audio/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
-        startActivityForResult(invoke, intent, "pickAudioResult")
+        startActivityForResult(invoke, intent, "pickFilesResult")
     }
 
     @ActivityCallback
-    fun pickAudioResult(invoke: Invoke, result: ActivityResult) {
+    fun pickFilesResult(invoke: Invoke, result: ActivityResult) {
         val uris = mutableListOf<Uri>()
         val data = result.data
         if (result.resultCode == Activity.RESULT_OK && data != null) {
@@ -108,33 +139,56 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
                 data.data?.let { uris.add(it) }
             }
         }
-        for (uri in uris) {
+        uris.forEach { keepAccess(it) }
+        val ret = JSObject()
+        ret.put("paths", JSONArray(uris.map { it.toString() }))
+        invoke.resolve(ret)
+    }
+
+    /** The tracks under folder or file URIs, with tags and covers, read off the main thread. */
+    @Command
+    fun scan_music(invoke: Invoke) {
+        val args = invoke.parseArgs(ScanArgs::class.java)
+        background.execute {
             try {
-                // Keeps the files playable after a restart, as a library would.
-                activity.contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-            } catch (ignored: SecurityException) {
-                // Not every provider grants persistable access; it still plays now.
+                val ret = JSObject()
+                ret.put("tracks", scanner.scan(args.paths))
+                invoke.resolve(ret)
+            } catch (e: Exception) {
+                invoke.reject(e.message ?: "Cannot read the music")
             }
         }
-        val ret = JSObject()
-        ret.put("uris", JSONArray(uris.map { it.toString() }))
-        invoke.resolve(ret)
+    }
+
+    private fun keepAccess(uri: Uri) {
+        try {
+            // Keeps the music playable after a restart, as a library must.
+            activity.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (ignored: SecurityException) {
+            // Not every provider grants lasting access; it still plays now.
+        }
     }
 
     @Command
     fun set_queue(invoke: Invoke) {
         val args = invoke.parseArgs(QueueArgs::class.java)
-        val items = args.uris.map { uri ->
+        val items = args.uris.mapIndexed { i, uri ->
+            // The library's tags, so the lock screen shows them even for an untagged file.
+            val metadata = MediaMetadata.Builder()
+                .setTitle(args.titles.getOrNull(i) ?: Uri.parse(uri).lastPathSegment)
+                .setArtist(args.artists.getOrNull(i)?.ifEmpty { null })
+                .setArtworkUri(args.covers.getOrNull(i)?.ifEmpty { null }?.let { Uri.fromFile(File(it)) })
+                .build()
             MediaItem.Builder()
                 .setMediaId(uri)
                 .setUri(uri)
                 .setRequestMetadata(
                     MediaItem.RequestMetadata.Builder().setMediaUri(Uri.parse(uri)).build()
                 )
-                .setMediaMetadata(MediaMetadata.Builder().setTitle(Uri.parse(uri).lastPathSegment).build())
+                .setMediaMetadata(metadata)
                 .build()
         }
         withController(invoke) { controller ->

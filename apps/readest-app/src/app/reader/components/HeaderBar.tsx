@@ -33,6 +33,8 @@ import NotebookToggler from './NotebookToggler';
 import TranslationToggler from './TranslationToggler';
 import ViewMenu from './ViewMenu';
 import SyncInfoDialog from './SyncInfoDialog';
+import { isYohakuBuild } from '@/yohaku/build';
+import MusicToggler from '@/yohaku/music/MusicToggler';
 
 interface HeaderBarProps {
   bookKey: string;
@@ -335,6 +337,8 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
         </div>
 
         <div className='header-tools-end bg-base-100 z-20 ms-auto flex h-full min-w-max items-center gap-x-4 ps-2 max-[350px]:gap-x-2'>
+          {/* [yohaku] The music player, at hand while reading. */}
+          {isYohakuBuild() && <MusicToggler onToggle={handleToggleDropdown} />}
           <NotebookToggler bookKey={bookKey} />
           <Dropdown
             label={_('View Options')}

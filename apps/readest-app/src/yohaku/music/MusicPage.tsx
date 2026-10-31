@@ -1,276 +1,150 @@
 'use client';
 
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
-import { IoArrowBack, IoClose, IoPause, IoPlay } from 'react-icons/io5';
-import { IoPlaySkipBack, IoPlaySkipForward } from 'react-icons/io5';
+import { useMemo, useState } from 'react';
+import { IoMusicalNotesOutline } from 'react-icons/io5';
 import { useEnv } from '@/context/EnvContext';
-import { useAppRouter } from '@/hooks/useAppRouter';
+import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useSettingsStore } from '@/store/settingsStore';
 import { useThemeStore } from '@/store/themeStore';
-import { androidEngine } from '@/yohaku/audio/androidEngine';
-import { getWebEngine } from '@/yohaku/audio/webEngine';
-import type { AmbientLayer, AudioEngine, PlaybackState } from '@/yohaku/audio/engine';
-import { getYohakuSettings, saveYohakuSettings } from '@/yohaku/settings';
+import AlbumDetail from './AlbumDetail';
+import AlbumGrid from './AlbumGrid';
+import MusicHeader from './MusicHeader';
+import NowPlayingBar from './NowPlayingBar';
+import PlayerSheet from './PlayerSheet';
+import SongList from './SongList';
+import Sources from './Sources';
+import { groupAlbums, searchTracks, sortSongs } from './library';
+import { useMusicStore } from './store';
+import { usePlayback } from './usePlayback';
 
-const SLEEP_MINUTES = [0, 15, 30, 45, 60, 90];
-const SLEEP_FADE_MS = 30_000;
-const MAX_AMBIENT = 3;
-const STOPPED: PlaybackState = { playing: false, index: 0, positionMs: 0, durationMs: 0 };
+type Tab = 'albums' | 'songs' | 'folders';
 
-const formatTime = (ms: number) => {
-  const seconds = Math.floor(ms / 1000);
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+/** The first visit: the two ways to bring music in. */
+const EmptyLibrary: React.FC = () => {
+  const _ = useTranslation();
+  const { appService } = useEnv();
+  if (!appService) return null;
+
+  const { addFolder, importFiles } = useMusicStore.getState();
+  return (
+    <div className='flex flex-1 items-center justify-center px-6 text-center'>
+      <div className='flex max-w-md flex-col items-center'>
+        <IoMusicalNotesOutline aria-hidden className='text-base-content/60 mb-10 size-16' />
+        <h1 className='mb-5 text-balance text-4xl font-semibold leading-tight tracking-tight'>
+          {_('Start your music library')}
+        </h1>
+        <p className='text-base-content/70 mb-12 text-pretty text-base leading-relaxed'>
+          {_('Sync a folder to bring in every song in it, or import songs one by one.')}
+        </p>
+        <div className='flex w-full max-w-xs flex-col gap-3'>
+          <button
+            className='btn btn-primary h-11 min-h-11 rounded-lg'
+            onClick={() => addFolder(appService)}
+          >
+            {_('Sync a Folder')}
+          </button>
+          <button
+            className='btn btn-ghost h-11 min-h-11 rounded-lg'
+            onClick={() => importFiles(appService)}
+          >
+            {_('Import Files')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 /**
- * Yohaku's music player, in its first form: the user's own audio files in a
- * queue, up to three ambient sounds looping beside them and a sleep timer. On
- * Android it plays in a background media service, so it keeps going with the
- * screen locked; the gramophone room (Phase 4) is built on top of it.
+ * The music library (docs/yohaku/02-architecture.md §3): songs from synced
+ * folders and from files imported one by one, by album or by song, with the
+ * player and Yohaku's ambient sounds. On Android the music plays in a
+ * background media service and keeps going with the screen locked.
  */
 export default function MusicPage() {
   const _ = useTranslation();
-  const router = useAppRouter();
-  const { envConfig, appService } = useEnv();
-  const { settings } = useSettingsStore();
-  const insets = useThemeStore((state) => state.safeAreaInsets);
-  const { musicTracks: tracks, ambientLayers: ambient } = getYohakuSettings(settings);
-  const [engine, setEngine] = useState<AudioEngine | null>(null);
-  const [playback, setPlayback] = useState(STOPPED);
-  const [sleepMinutes, setSleepMinutes] = useState(0);
-  const [error, setError] = useState('');
+  const appService = usePlayback();
+  const { safeAreaInsets: insets, isRoundedWindow } = useThemeStore();
+  const library = useMusicStore((state) => state.library);
+  const loaded = useMusicStore((state) => state.loaded);
+  const syncing = useMusicStore((state) => state.syncing);
+  const [tab, setTab] = useState<Tab | null>(null);
+  const [query, setQuery] = useState('');
+  const [albumKey, setAlbumKey] = useState<string | null>(null);
+  const [showPlayer, setShowPlayer] = useState(false);
+  useTheme({ systemUIVisible: true, appThemeColor: 'base-200' });
 
-  useEffect(() => {
-    if (appService) setEngine(appService.isAndroidApp ? androidEngine : getWebEngine());
-  }, [appService]);
+  const tracks = useMemo(() => searchTracks(library.tracks, query), [library.tracks, query]);
+  const albums = useMemo(() => groupAlbums(tracks), [tracks]);
+  const songs = useMemo(() => sortSongs(tracks), [tracks]);
 
-  // The engine reports where it is once a second; the slider moves between.
-  useEffect(() => {
-    if (!engine) return;
-    const refresh = () => engine.getState().then(setPlayback, () => {});
-    refresh();
-    const timer = setInterval(refresh, 1000);
-    return () => clearInterval(timer);
-  }, [engine]);
+  if (!appService || !insets) return <div className='full-height bg-base-200' />;
 
-  const run = async (action: (engine: AudioEngine) => Promise<unknown>) => {
-    if (!engine) return;
-    try {
-      setError('');
-      await action(engine);
-      setPlayback(await engine.getState());
-    } catch (e) {
-      setError(String(e));
-    }
+  const isEmpty = library.folders.length + library.files.length === 0;
+  const current = tab ?? (albums.length > 0 ? 'albums' : 'songs');
+  const album = albums.find(({ key }) => key === albumKey);
+  const tabs: { id: Tab; label: string }[] = [
+    { id: 'albums', label: _('Albums') },
+    { id: 'songs', label: _('Songs') },
+    { id: 'folders', label: _('Folders') },
+  ];
+  const showTab = (id: Tab) => {
+    setTab(id);
+    setAlbumKey(null);
   };
-
-  const addTracks = () =>
-    run(async (engine) => {
-      const picked = await engine.pickFiles();
-      if (picked.length === 0) return;
-      const next = [...tracks, ...picked];
-      await saveYohakuSettings(envConfig, { musicTracks: next });
-      if (!playback.playing) await engine.setQueue(next, tracks.length);
-    });
-
-  const playTrack = (index: number) =>
-    run(async (engine) => {
-      await engine.setQueue(tracks, index);
-      await engine.play();
-    });
-
-  const removeTrack = (index: number) =>
-    run(async (engine) => {
-      const next = tracks.filter((_track, i) => i !== index);
-      await saveYohakuSettings(envConfig, { musicTracks: next });
-      if (!playback.playing && next.length > 0) await engine.setQueue(next, 0);
-    });
-
-  const togglePlay = () =>
-    run(async (engine) => {
-      if (playback.playing) return engine.pause();
-      // Nothing queued yet in this session: start from the first track.
-      if (playback.durationMs === 0 && tracks.length > 0) {
-        await engine.setQueue(tracks, Math.min(playback.index, tracks.length - 1));
-      }
-      await engine.play();
-    });
-
-  const saveAmbient = (layers: AmbientLayer[]) =>
-    run(async (engine) => {
-      await saveYohakuSettings(envConfig, { ambientLayers: layers });
-      await engine.setAmbient(layers);
-    });
-
-  const addAmbient = () =>
-    run(async (engine) => {
-      const picked = await engine.pickFiles();
-      const room = MAX_AMBIENT - ambient.length;
-      const layers = picked.slice(0, room).map((file) => ({ ...file, volume: 0.6 }));
-      if (layers.length > 0) await saveAmbient([...ambient, ...layers]);
-    });
-
-  const setVolume = (index: number, volume: number) =>
-    saveAmbient(ambient.map((layer, i) => (i === index ? { ...layer, volume } : layer)));
-
-  const setSleep = (minutes: number) =>
-    run(async (engine) => {
-      setSleepMinutes(minutes);
-      await engine.setSleepTimer(minutes * 60_000, SLEEP_FADE_MS);
-    });
-
-  const current = tracks[playback.index];
-  const section = 'text-base-content/60 mb-2 mt-6 text-xs font-semibold uppercase tracking-wider';
 
   return (
     <div
-      className='bg-base-100 text-base-content h-full min-h-screen overflow-y-auto px-5 pb-10'
-      style={{ paddingTop: (insets?.top ?? 0) + 16 }}
+      className={clsx(
+        'text-base-content full-height bg-base-200 flex select-none flex-col overflow-hidden',
+        appService.hasRoundedWindow && isRoundedWindow && 'window-border rounded-window',
+      )}
     >
-      <div className='flex items-center gap-2'>
-        <button
-          className='btn btn-ghost btn-sm btn-square'
-          aria-label={_('Back')}
-          onClick={() => router.push('/library')}
-        >
-          <IoArrowBack size={20} />
-        </button>
-        <h1 className='text-lg font-semibold'>{_('Music')}</h1>
-      </div>
-
-      <div className='bg-base-200 mt-4 rounded-2xl p-5'>
-        <p className='truncate text-base font-medium'>
-          {current && playback.durationMs > 0 ? current.name : _('Not Playing')}
-        </p>
-        <input
-          type='range'
-          className='range range-xs mt-4 w-full'
-          min={0}
-          max={Math.max(playback.durationMs, 1)}
-          value={Math.min(playback.positionMs, playback.durationMs)}
-          disabled={playback.durationMs === 0}
-          onChange={(e) => run((engine) => engine.seekTo(Number(e.target.value)))}
-        />
-        <div className='text-base-content/60 flex justify-between text-xs'>
-          <span>{formatTime(playback.positionMs)}</span>
-          <span>{formatTime(playback.durationMs)}</span>
-        </div>
-        <div className='mt-3 flex items-center justify-center gap-6'>
-          <button
-            className='btn btn-ghost btn-circle'
-            aria-label={_('Previous')}
-            onClick={() => run((engine) => engine.previous())}
-          >
-            <IoPlaySkipBack size={22} />
-          </button>
-          <button
-            className='btn btn-primary btn-circle btn-lg'
-            aria-label={playback.playing ? _('Pause') : _('Play')}
-            disabled={tracks.length === 0}
-            onClick={togglePlay}
-          >
-            {playback.playing ? <IoPause size={26} /> : <IoPlay size={26} />}
-          </button>
-          <button
-            className='btn btn-ghost btn-circle'
-            aria-label={_('Next')}
-            onClick={() => run((engine) => engine.next())}
-          >
-            <IoPlaySkipForward size={22} />
-          </button>
-        </div>
-        <label className='mt-4 flex items-center justify-between text-sm'>
-          {_('Sleep Timer')}
-          <select
-            className='select select-bordered select-sm'
-            value={sleepMinutes}
-            onChange={(e) => setSleep(Number(e.target.value))}
-          >
-            {SLEEP_MINUTES.map((minutes) => (
-              <option key={minutes} value={minutes}>
-                {minutes === 0 ? _('Off') : _('{{minutes}} min', { minutes })}
-              </option>
+      <MusicHeader query={query} onQueryChange={setQuery} />
+      <progress
+        className={clsx('progress progress-success h-1 shrink-0', !syncing && 'invisible')}
+        aria-label={_('Syncing')}
+      />
+      {isEmpty && loaded && <EmptyLibrary />}
+      {!isEmpty && (
+        <>
+          <div role='tablist' className='flex shrink-0 gap-1 px-4 pb-3 sm:px-6'>
+            {tabs.map(({ id, label }) => (
+              <button
+                key={id}
+                role='tab'
+                aria-selected={current === id}
+                className={clsx(
+                  'rounded-full px-3 py-1 text-sm',
+                  current === id ? 'bg-base-content text-base-100' : 'hover:bg-base-300/60',
+                )}
+                onClick={() => showTab(id)}
+              >
+                {label}
+              </button>
             ))}
-          </select>
-        </label>
-      </div>
-
-      {error && <p className='text-error mt-3 text-sm'>{error}</p>}
-
-      <div className='flex items-center justify-between'>
-        <p className={section}>{_('Ambient Sounds')}</p>
-        <button
-          className='btn btn-ghost btn-xs mt-4'
-          disabled={ambient.length >= MAX_AMBIENT}
-          onClick={addAmbient}
-        >
-          {_('Add Sound')}
-        </button>
-      </div>
-      {ambient.length === 0 && (
-        <p className='text-base-content/60 text-sm'>
-          {_('Rain, wind or any recording: up to three sounds loop beside the music.')}
-        </p>
-      )}
-      {ambient.map((layer, index) => (
-        <div key={layer.uri} className='flex items-center gap-3 py-2'>
-          <span className='w-1/3 truncate text-sm'>{layer.name}</span>
-          <input
-            type='range'
-            className='range range-xs flex-1'
-            min={0}
-            max={1}
-            step={0.05}
-            value={layer.volume}
-            aria-label={layer.name}
-            onChange={(e) => setVolume(index, Number(e.target.value))}
-          />
-          <button
-            className='btn btn-ghost btn-xs btn-square'
-            aria-label={_('Remove')}
-            onClick={() => saveAmbient(ambient.filter((_layer, i) => i !== index))}
+          </div>
+          <div
+            className='min-h-0 flex-1 overflow-y-auto px-4 pb-8 sm:px-6'
+            style={{ marginLeft: insets.left, marginRight: insets.right }}
           >
-            <IoClose size={16} />
-          </button>
-        </div>
-      ))}
-
-      <div className='flex items-center justify-between'>
-        <p className={section}>{_('Tracks')}</p>
-        <button className='btn btn-ghost btn-xs mt-4' onClick={addTracks}>
-          {_('Add Music')}
-        </button>
-      </div>
-      {tracks.length === 0 && (
-        <p className='text-base-content/60 text-sm'>
-          {_('Add your own audio files. On Android, music keeps playing with the screen locked.')}
-        </p>
+            {current === 'albums' && album && (
+              <AlbumDetail album={album} onBack={() => setAlbumKey(null)} />
+            )}
+            {current === 'albums' && !album && (
+              <AlbumGrid albums={albums} onOpen={({ key }) => setAlbumKey(key)} />
+            )}
+            {current === 'songs' && <SongList tracks={songs} />}
+            {current === 'folders' && <Sources />}
+            {current !== 'folders' && tracks.length === 0 && (
+              <p className='text-base-content/60 py-10 text-center text-sm'>{_('No Songs')}</p>
+            )}
+          </div>
+        </>
       )}
-      <ul>
-        {tracks.map((track, index) => (
-          <li key={`${index}-${track.uri}`} className='flex items-center gap-2'>
-            <button
-              className={clsx(
-                'flex-1 truncate rounded-lg px-2 py-2 text-left text-sm',
-                'hover:bg-base-200',
-                index === playback.index && playback.durationMs > 0 && 'text-primary font-medium',
-              )}
-              onClick={() => playTrack(index)}
-            >
-              {track.name}
-            </button>
-            <button
-              className='btn btn-ghost btn-xs btn-square'
-              aria-label={_('Remove')}
-              onClick={() => removeTrack(index)}
-            >
-              <IoClose size={16} />
-            </button>
-          </li>
-        ))}
-      </ul>
+      <NowPlayingBar onOpen={() => setShowPlayer(true)} />
+      {showPlayer && <PlayerSheet onClose={() => setShowPlayer(false)} />}
     </div>
   );
 }

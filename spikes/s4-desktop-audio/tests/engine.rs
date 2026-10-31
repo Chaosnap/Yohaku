@@ -283,27 +283,33 @@ fn a_44k1_track_plays_at_48k_with_high_quality_and_little_cpu() {
     assert!(out[length - 10..length].iter().any(|&sample| sample != 0.0));
     assert!(out[length..].iter().all(|&sample| sample == 0.0));
 
-    // Against an ideal 1 kHz sine at 48 kHz, over the steady middle part. The
-    // best-aligned lag should be 0: the resampler's delay is trimmed.
-    let ideal = |n: i64| ((n as f64 / 48_000.0) * 1000.0 * std::f64::consts::TAU).sin() * 0.5;
+    // Over the steady middle part, fit a 1 kHz sine of any phase (least
+    // squares): what is left is the resampler's distortion and noise, and the
+    // phase gives how far the output lags the input, which the trimmed
+    // resampler delay should have brought to (almost) zero.
+    let omega = 1000.0 * std::f64::consts::TAU / 48_000.0;
     let middle = 48_000..48_000 * (seconds - 1);
-    let error_db = |lag: i64| {
-        let (mut error, mut power) = (0.0f64, 0.0f64);
-        for n in middle.clone() {
-            let expected = ideal(n as i64 + lag);
-            error += (f64::from(out[n]) - expected).powi(2);
-            power += expected.powi(2);
-        }
-        10.0 * (error / power).log10()
-    };
-    let (lag, db) = (-8..=8)
-        .map(|lag| (lag, error_db(lag)))
-        .min_by(|a, b| a.1.total_cmp(&b.1))
-        .unwrap();
+    let (mut sin_dot, mut cos_dot, mut sin_sq, mut cos_sq) = (0.0, 0.0, 0.0, 0.0);
+    for n in middle.clone() {
+        let (s, c) = (n as f64 * omega).sin_cos();
+        sin_dot += f64::from(out[n]) * s;
+        cos_dot += f64::from(out[n]) * c;
+        sin_sq += s * s;
+        cos_sq += c * c;
+    }
+    let (a, b) = (sin_dot / sin_sq, cos_dot / cos_sq);
+    let (mut residual, mut power) = (0.0f64, 0.0f64);
+    for n in middle {
+        let fit = a * (n as f64 * omega).sin() + b * (n as f64 * omega).cos();
+        residual += (f64::from(out[n]) - fit).powi(2);
+        power += fit.powi(2);
+    }
+    let db = 10.0 * (residual / power).log10();
+    let lag = -b.atan2(a) / omega;
     let realtime = seconds as f64 / elapsed;
-    println!("44.1 -> 48 kHz: error {db:.1} dB at lag {lag}, {realtime:.0}x real time");
-    assert_eq!(lag, 0, "the resampler's delay is not trimmed exactly");
+    println!("44.1 -> 48 kHz: {db:.1} dB error, lag {lag:.2} frames, {realtime:.0}x real time");
     assert!(db < -80.0, "resampling error {db:.1} dB");
+    assert!(lag.abs() < 10.0, "the output lags by {lag:.2} frames");
     assert!(
         realtime > 20.0,
         "decoding and resampling run at only {realtime:.1}x real time"

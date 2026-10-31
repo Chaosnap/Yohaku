@@ -1,6 +1,6 @@
 import { convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
-import { fileName, type AmbientLayer, type AudioEngine, type AudioFile } from './engine';
+import type { AmbientSource, AudioEngine, QueueItem, TrackInfo } from './engine';
 
 const AUDIO_EXTENSIONS = ['flac', 'mp3', 'm4a', 'aac', 'ogg', 'opus', 'wav', 'aif', 'aiff'];
 const FADE_STEP_MS = 50;
@@ -12,7 +12,7 @@ const FADE_STEP_MS = 50;
 class WebEngine implements AudioEngine {
   private music = new Audio();
   private ambient: { audio: HTMLAudioElement; volume: number }[] = [];
-  private queue: AudioFile[] = [];
+  private queue: QueueItem[] = [];
   private ambientUris: string[] = [];
   private index = 0;
   private sleepTimer: ReturnType<typeof setTimeout> | null = null;
@@ -36,17 +36,24 @@ class WebEngine implements AudioEngine {
     }
   }
 
+  async pickFolder() {
+    const picked = await open({ directory: true });
+    return typeof picked === 'string' ? picked : null;
+  }
+
   async pickFiles() {
     const picked = await open({
       multiple: true,
       filters: [{ name: 'Audio', extensions: AUDIO_EXTENSIONS }],
     });
-    const paths = picked === null ? [] : Array.isArray(picked) ? picked : [picked];
-    await this.allow(paths);
-    return paths.map((path) => ({ uri: path, name: fileName(path) }));
+    return picked === null ? [] : Array.isArray(picked) ? picked : [picked];
   }
 
-  async setQueue(tracks: AudioFile[], start: number) {
+  async scan(paths: string[]) {
+    return invoke<TrackInfo[]>('plugin:yohaku-audio|scan_music', { paths });
+  }
+
+  async setQueue(tracks: QueueItem[], start: number) {
     await this.allow(tracks.map(({ uri }) => uri));
     this.queue = tracks;
     this.load(start);
@@ -86,7 +93,7 @@ class WebEngine implements AudioEngine {
     this.music.currentTime = positionMs / 1000;
   }
 
-  async setAmbient(layers: AmbientLayer[]) {
+  async setAmbient(layers: AmbientSource[]) {
     const uris = layers.map(({ uri }) => uri);
     // The same sounds: only their volumes change, without restarting them.
     if (uris.join('\n') === this.ambientUris.join('\n')) {
@@ -131,7 +138,11 @@ class WebEngine implements AudioEngine {
     this.index = index;
     this.music.src = convertFileSrc(track.uri);
     if ('mediaSession' in navigator) {
-      navigator.mediaSession.metadata = new MediaMetadata({ title: track.name });
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: track.artist ?? '',
+        artwork: track.cover ? [{ src: convertFileSrc(track.cover) }] : [],
+      });
     }
   }
 
