@@ -10,6 +10,7 @@
 - 改造计划与里程碑：`docs/yohaku/03-roadmap.md`
 - 构建、测试与发布：`docs/yohaku/04-ci-release.md`
 - 对上游的每一处改动：`docs/yohaku/upstream-patches.md`
+- 文档网站：<https://chaosnap.github.io/Yohaku/>，源文件在 `website/`（VitePress），由 `.github/workflows/pages.yml` 构建发布。指南写在 `website/guide/`；开发文档与更新日志直接读取 `docs/yohaku/`，不另存副本。README 用英文（可夹杂中文），详细的中文内容放在网站上。
 
 当前阶段：Phase 1（阅读核心验证与精修），Phase 2 的音乐库与环境声音已先行提供；最新版本 v2.0.0，之后在 2.x 上递增。偏离架构文档的决定要回写到文档中。
 

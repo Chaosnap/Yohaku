@@ -1,0 +1,5 @@
+node_modules
+.vitepress/dist
+.vitepress/cache
+# Copied from assets-src/icon and docs/screenshots by scripts/copy-assets.mjs
+public/images

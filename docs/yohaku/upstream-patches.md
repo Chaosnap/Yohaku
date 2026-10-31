@@ -17,7 +17,7 @@
 | `apps/readest-app/package.json` | 版本号（当前 `2.0.0`） | Yohaku 独立版本号 |
 | `apps/readest-app/src-tauri/tauri.conf.json` | 产品名、可执行文件名、应用标识；CSP 去掉 Sentry、PostHog、Supabase、Stripe、readest.com 与远程字体主机；发布者、版权与描述；macOS ad-hoc 签名；不生成更新包；深链接只保留 `readest`；更新地址改为 Yohaku 的 Releases | 品牌与离线 |
 | `.gitignore` | 合并上游与 Yohaku 的规则 | `references/`、`local/` 与签名文件不入库 |
-| `.github/` | 删除上游全部工作流、资助链接、Issue 模板与 Dependabot；新增 `ci.yml`、`build.yml`、`build-app.yml`、`release.yml` | Yohaku 自己的构建与发布 |
+| `.github/` | 删除上游全部工作流、资助链接、Issue 模板与 Dependabot；新增 `ci.yml`、`build.yml`、`build-app.yml`、`release.yml`、`publish-release.yml`、`upstream-sync.yml` 与文档网站的 `pages.yml` | Yohaku 自己的构建与发布 |
 
 ## 前端（`apps/readest-app/src`）
 

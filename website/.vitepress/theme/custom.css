@@ -1,0 +1,312 @@
+/* Yohaku's look for the VitePress default theme, taken from the 留白 icon: night blue, paper and
+ * one vermilion accent, serif headings and plenty of blank space. Dark (night) is the default;
+ * light is paper. */
+
+:root {
+  --yh-serif:
+    'Noto Serif SC', 'Noto Serif CJK SC', 'Source Han Serif SC', 'Songti SC', 'STSong', serif;
+  --yh-vermilion: #d2543c;
+  --yh-night: #131829;
+
+  --vp-c-brand-1: #b4432d;
+  --vp-c-brand-2: #c24f38;
+  --vp-c-brand-3: #d2543c;
+  --vp-c-brand-soft: rgba(210, 84, 60, 0.12);
+
+  --vp-c-bg: #f8f4ec;
+  --vp-c-bg-alt: #f1ebdf;
+  --vp-c-bg-elv: #fcfaf5;
+  --vp-c-bg-soft: #eee7d9;
+  --vp-c-text-1: #24212c;
+  --vp-c-text-2: #585367;
+  --vp-c-text-3: #8b8596;
+  --vp-c-divider: rgba(43, 40, 51, 0.12);
+  --vp-c-gutter: #e8e1d2;
+  --vp-c-border: rgba(43, 40, 51, 0.18);
+
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #fff9f2;
+  --vp-button-brand-bg: #c24f38;
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #fff9f2;
+  --vp-button-brand-hover-bg: #d2543c;
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: #fff9f2;
+  --vp-button-brand-active-bg: #a93e29;
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #2c365c 30%, #d2543c);
+  --vp-home-hero-image-background-image: radial-gradient(
+    circle,
+    rgba(48, 58, 94, 0.3),
+    transparent 66%
+  );
+  --vp-home-hero-image-filter: blur(64px);
+}
+
+.dark {
+  --vp-c-brand-1: #ec9079;
+  --vp-c-brand-2: #e47c64;
+  --vp-c-brand-3: #d2543c;
+  --vp-c-brand-soft: rgba(226, 112, 88, 0.16);
+
+  --vp-c-bg: #131829;
+  --vp-c-bg-alt: #0f1322;
+  --vp-c-bg-elv: #1a2035;
+  --vp-c-bg-soft: #1b2137;
+  --vp-c-text-1: #ede5d5;
+  --vp-c-text-2: rgba(237, 229, 213, 0.72);
+  --vp-c-text-3: rgba(237, 229, 213, 0.46);
+  --vp-c-divider: rgba(226, 216, 197, 0.1);
+  --vp-c-gutter: #0b0e19;
+  --vp-c-border: rgba(226, 216, 197, 0.16);
+
+  --vp-button-brand-bg: #d2543c;
+  --vp-button-brand-hover-bg: #dc6650;
+  --vp-button-brand-active-bg: #b8442f;
+
+  --vp-home-hero-name-background: linear-gradient(120deg, #f4ecdd 30%, #e8836b);
+  --vp-home-hero-image-background-image: radial-gradient(
+    circle,
+    rgba(244, 237, 223, 0.2),
+    transparent 64%
+  );
+}
+
+::selection {
+  background: rgba(210, 84, 60, 0.24);
+}
+
+/* Serif headings, like the title page of a book. */
+.VPHero .name,
+.VPHero .text,
+.VPFeature .title,
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.motto {
+  font-family: var(--yh-serif);
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3 {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.vp-doc p,
+.vp-doc li {
+  line-height: 1.85;
+}
+
+/* The home page: the brand line, the title, and the icon on a soft light. */
+.motto {
+  margin: 0 0 14px;
+  color: var(--vp-c-brand-1);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.VPHero .name {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.VPHero .text {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+}
+
+.VPHero .tagline {
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+@media (min-width: 640px) {
+  .VPHero .text {
+    font-size: 28px;
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHero .text {
+    font-size: 30px;
+  }
+
+  .VPHero .tagline {
+    font-size: 18px;
+  }
+}
+
+.dark .VPContent.is-home {
+  background:
+    radial-gradient(ellipse 70% 46% at 50% 0%, rgba(92, 108, 168, 0.16), transparent 72%),
+    var(--vp-c-bg);
+}
+
+.VPFeature .title {
+  font-size: 18px;
+}
+
+.VPFeature .details {
+  line-height: 1.75;
+}
+
+.VPHome .vp-doc {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 32px 24px 88px;
+}
+
+/* Screenshots: rounded, lifted a little off the page. */
+.vp-doc img {
+  border-radius: 10px;
+  box-shadow: 0 18px 44px -26px rgba(20, 24, 41, 0.55);
+}
+
+.dark .vp-doc img {
+  box-shadow: 0 22px 50px -24px rgba(0, 0, 0, 0.85);
+}
+
+.vp-doc img[src$='.svg'] {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.vp-doc figure {
+  margin: 28px 0;
+}
+
+.vp-doc figure p {
+  margin: 0;
+}
+
+.vp-doc figcaption {
+  margin-top: 10px;
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 8px 24px;
+  margin: 24px 0;
+}
+
+.gallery figure {
+  margin: 0 0 16px;
+}
+
+.phones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 28px;
+}
+
+.phones figure {
+  width: 260px;
+  margin: 0;
+}
+
+.page-icon {
+  display: block;
+  width: 132px;
+  margin: 8px auto 4px;
+}
+
+.vp-doc blockquote.motto-quote {
+  border-left-color: var(--yh-vermilion);
+}
+
+.vp-doc kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 6px;
+  border: 1px solid var(--vp-c-border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--vp-c-bg-soft);
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.82em;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* The changelog. */
+.release-meta {
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+}
+
+.releases {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.vp-doc a.release {
+  display: block;
+  padding: 18px 22px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+  color: inherit;
+  font-weight: 400;
+  text-decoration: none;
+  transition: border-color 0.25s;
+}
+
+.vp-doc a.release:hover {
+  border-color: var(--vp-c-brand-2);
+}
+
+.release .version {
+  color: var(--vp-c-text-1);
+  font-family: var(--yh-serif);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.release .date {
+  margin-left: 10px;
+  color: var(--vp-c-text-3);
+  font-size: 13px;
+}
+
+.vp-doc .release .summary {
+  margin: 6px 0 0;
+  color: var(--vp-c-text-2);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+/* Diagrams in the development documents. */
+.mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+}
+
+/* The ambient sounds, as small tiles. */
+.sound-grid ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-doc .sound-grid li {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--vp-c-bg-soft);
+}

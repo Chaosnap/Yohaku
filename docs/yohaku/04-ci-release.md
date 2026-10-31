@@ -18,11 +18,12 @@
 | 文件 | 触发条件 | 内容 | 预计耗时 |
 |---|---|---|---|
 | `ci.yml` | push 到 `main` / `phase-*`、PR | Yohaku 配置检查（离线、身份、无 Readest 服务）；Biome 格式与 lint、TypeScript 类型检查；构建 Tauri 前端；Vitest 单元测试（两路分片）与 Playwright 浏览器测试；`cargo fmt` / `clippy` / `cargo test` | 15–30 分钟 |
-| `build.yml` | push 到 `main` / `phase-*`（只改文档时跳过）、手动触发 | 调用 `build-app.yml` 构建全部平台的测试包，上传为 Artifacts（保留 14 天） | 60–100 分钟（并行） |
+| `build.yml` | push 到 `main` / `phase-*`（只改文档或文档网站时跳过）、手动触发 | 调用 `build-app.yml` 构建全部平台的测试包，上传为 Artifacts（保留 14 天） | 60–100 分钟（并行） |
 | `build-app.yml` | 被 `build.yml` 与 `release.yml` 调用 | 实际的构建矩阵与打包、检查、上传 | — |
 | `release.yml` | 推送 `v*` tag | 创建 Draft Release → 构建全部平台与 Google Play AAB 并上传 → 生成 `SHA256SUMS.txt` 与构建来源证明 | 90–150 分钟（并行） |
 | `publish-release.yml` | `release.yml` 成功完成 | 自动发布这个 Release：预览版为 Pre-release，正式版为最新版本（Latest）；tag 已移到别的提交时跳过（见 §4） | 1 分钟 |
 | `upstream-sync.yml` | 每月 1 日、手动触发 | 尝试合并 Readest 最新发布版到 `upstream-sync/<版本>` 分支，用 Issue 报告结果（见 §8） | 5–10 分钟 |
+| `pages.yml` | push 到 `main` 且改动了 `website/`、`docs/` 或图标；`publish-release.yml` 完成后；手动触发 | 用 VitePress 构建文档网站并发布到 GitHub Pages（<https://chaosnap.github.io/Yohaku/>）：开发文档与发布说明直接读取 `docs/yohaku/`，图标与截图在构建时复制；依赖版本固定在 `website/package.json`，在 CI 上安装 | 2 分钟 |
 
 - CI 的 Linux 任务固定在 `ubuntu-24.04`：`ubuntu-latest` 自 2026-10-19 起迁移到 Ubuntu 26.04，Playwright 1.60 还无法在上面安装 Chromium。
 - 构建与测试命令经 `scripts/yohaku/run-logged.sh` 运行：失败时把日志末尾写成 annotation，不登录 GitHub 也能在 API 与运行页面上看到错误原因。

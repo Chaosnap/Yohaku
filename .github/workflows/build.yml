@@ -8,6 +8,9 @@ on:
     paths-ignore:
       - 'docs/**'
       - '**.md'
+      # The documentation site, built by pages.yml.
+      - 'website/**'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:

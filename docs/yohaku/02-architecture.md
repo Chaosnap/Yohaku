@@ -81,6 +81,7 @@ Yohaku/
 ├── packages/                         # 上游子模块（foliate-js、Tauri 分叉等）
 ├── assets-src/                       # 🆕 可公开的素材源文件 + LICENSES.md
 ├── docs/yohaku/                      # 🆕 本系列文档
+├── website/                          # 🆕 文档网站（VitePress，由 pages.yml 发布到 GitHub Pages）
 ├── references/                       # 本地参考克隆（.gitignore，不提交）
 └── local/                            # 本地原始素材（.gitignore，不提交）
 ```
