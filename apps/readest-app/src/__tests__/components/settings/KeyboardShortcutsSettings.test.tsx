@@ -153,15 +153,16 @@ describe('KeyboardShortcutsSettings', () => {
     });
 
     fireEvent.click(screen.getByLabelText('Toggle Notebook: N'));
-    fireEvent.keyDown(window, { key: 'm' });
+    // [yohaku] 'b' rather than 'm', which is Yohaku's music shortcut: any free key does.
+    fireEvent.keyDown(window, { key: 'b' });
     expect(JSON.parse(localStorage.getItem('customShortcuts') ?? '{}')).toEqual({
-      onToggleNotebook: ['m', 'shift+N'],
+      onToggleNotebook: ['b', 'shift+N'],
     });
 
     fireEvent.click(screen.getByLabelText('Remove: Toggle Notebook (Shift+N)'));
     expect(screen.queryByLabelText('Toggle Notebook: Shift+N')).toBeNull();
     expect(JSON.parse(localStorage.getItem('customShortcuts') ?? '{}')).toEqual({
-      onToggleNotebook: ['m'],
+      onToggleNotebook: ['b'],
     });
   });
 

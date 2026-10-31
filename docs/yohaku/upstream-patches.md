@@ -88,6 +88,7 @@
 | `__tests__/utils/supabase-storage-key.test.ts` | 「默认指向 Readest Cloud」改为「不带 Readest Cloud 默认值」 |
 | `__tests__/android/themed-icon.test.ts` | 单色图层改为检查 Yohaku 的矢量图标 |
 | `__tests__/android/android-auto-declarations.test.ts` | 「仅 Play 版不声明 Android Auto」改为「所有构建都不声明」 |
+| `__tests__/components/settings/KeyboardShortcutsSettings.test.tsx` | 改绑测试用的按键由 `m` 换成 `b`：`m` 是 Yohaku 的音乐快捷键，会触发冲突确认 |
 
 ## 暂缓的改动（已知差异）
 
