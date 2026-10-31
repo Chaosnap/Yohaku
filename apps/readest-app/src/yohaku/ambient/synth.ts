@@ -177,7 +177,11 @@ const RECIPES: Record<AmbientSoundId, (canvas: Canvas) => void> = {
     });
   },
   eaves: (canvas) => {
-    bed(canvas, () => [new Biquad('highpass', 500), new Biquad('lowpass', 5000)], () => 0.1);
+    bed(
+      canvas,
+      () => [new Biquad('highpass', 500), new Biquad('lowpass', 5000)],
+      () => 0.1,
+    );
     events(canvas, 18, (start, pan) => {
       const pitch = between(canvas.random, 2000, 5000);
       drop(canvas, start, pan, pitch, between(canvas.random, 3, 8));
@@ -230,8 +234,16 @@ const RECIPES: Record<AmbientSoundId, (canvas: Canvas) => void> = {
     }
   },
   fire: (canvas) => {
-    bed(canvas, () => [new Biquad('lowpass', 250)], () => 1.2);
-    bed(canvas, () => [new Biquad('lowpass', 3000)], () => 0.02);
+    bed(
+      canvas,
+      () => [new Biquad('lowpass', 250)],
+      () => 1.2,
+    );
+    bed(
+      canvas,
+      () => [new Biquad('lowpass', 3000)],
+      () => 0.02,
+    );
     // Crackles: mostly small, now and then a loud one.
     events(canvas, 9, (start, pan) => {
       const filter = new Biquad('highpass', 1500);
@@ -248,7 +260,11 @@ const RECIPES: Record<AmbientSoundId, (canvas: Canvas) => void> = {
     });
   },
   forest: (canvas) => {
-    bed(canvas, () => [new Biquad('bandpass', 700, 0.6)], () => 0.12);
+    bed(
+      canvas,
+      () => [new Biquad('bandpass', 700, 0.6)],
+      () => 0.12,
+    );
     // Birds: phrases of a few quick chirps, each a short pitch sweep.
     events(canvas, 0.35, (start, pan) => {
       const { random } = canvas;
@@ -282,7 +298,11 @@ const RECIPES: Record<AmbientSoundId, (canvas: Canvas) => void> = {
     }
   },
   crickets: (canvas) => {
-    bed(canvas, () => [new Biquad('lowpass', 2000)], () => 0.01);
+    bed(
+      canvas,
+      () => [new Biquad('lowpass', 2000)],
+      () => 0.01,
+    );
     for (const pan of [0.2, 0.75]) {
       const { random } = canvas;
       const pitch = between(random, 4200, 4800);
@@ -311,8 +331,16 @@ const RECIPES: Record<AmbientSoundId, (canvas: Canvas) => void> = {
     });
   },
   vinyl: (canvas) => {
-    bed(canvas, () => [new Biquad('highpass', 2000)], () => 0.015);
-    bed(canvas, () => [new Biquad('lowpass', 40)], () => 0.08);
+    bed(
+      canvas,
+      () => [new Biquad('highpass', 2000)],
+      () => 0.015,
+    );
+    bed(
+      canvas,
+      () => [new Biquad('lowpass', 40)],
+      () => 0.08,
+    );
     events(canvas, 12, (start, pan) => {
       const filter = new Biquad('highpass', 1000);
       const amplitude = Math.min(0.3, 0.02 / Math.sqrt(canvas.random() + 0.005));

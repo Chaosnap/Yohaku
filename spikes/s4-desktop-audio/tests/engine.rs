@@ -36,11 +36,13 @@ fn constant(value: f32, frames: usize) -> Vec<(f32, f32)> {
     vec![(value, value); frames]
 }
 
-fn sine(frequency: f32, rate: u32, frames: usize) -> Vec<(f32, f32)> {
+fn sine(frequency: f64, rate: u32, frames: usize) -> Vec<(f32, f32)> {
     (0..frames)
         .map(|i| {
-            let t = i as f32 / rate as f32;
-            let sample = (t * frequency * TAU).sin() * 0.5;
+            // The phase in f64: in f32 it is off by up to 0.004 rad after ten
+            // seconds, which alone would measure as -56 dB of error.
+            let phase = i as f64 * frequency * std::f64::consts::TAU / f64::from(rate);
+            let sample = (phase.sin() * 0.5) as f32;
             (sample, sample)
         })
         .collect()
