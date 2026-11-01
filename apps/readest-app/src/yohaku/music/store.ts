@@ -3,6 +3,7 @@ import type { AppService } from '@/types/system';
 import { getAudioEngine } from '@/yohaku/audio';
 import type { AmbientSource, AudioEngine, PlaybackState } from '@/yohaku/audio/engine';
 import { ambientFile, ambientIdOf, type AmbientChoice } from '@/yohaku/ambient/sounds';
+import { errorMessage } from '@/yohaku/errors';
 import { eventDispatcher } from '@/utils/event';
 import {
   EMPTY_LIBRARY,
@@ -103,7 +104,7 @@ export const useMusicStore = create<MusicState>((set, get) => {
     try {
       await action();
     } catch (error) {
-      eventDispatcher.dispatch('toast', { type: 'error', message: String(error) });
+      eventDispatcher.dispatch('toast', { type: 'error', message: errorMessage(error) });
     }
   };
 

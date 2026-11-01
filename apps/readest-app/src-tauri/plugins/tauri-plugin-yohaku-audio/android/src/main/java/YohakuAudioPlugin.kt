@@ -80,6 +80,12 @@ class SleepTimerArgs {
  * The WebView's remote control for [YohakuPlaybackService]. Every command goes
  * through a MediaController, so the page can be reloaded or the Activity
  * recreated without touching what is playing.
+ *
+ * Tauri runs a JavaScript call under the lowerCamelCase form of its name:
+ * `plugin:yohaku-audio|pick_folder` reaches [pickFolder]. The permissions and
+ * the JavaScript side keep the names as written (build.rs), so every command
+ * here is named in camelCase; under any other name it is never found and the
+ * call fails (src/__tests__/yohaku/android-commands.test.ts checks this).
  */
 @TauriPlugin
 class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
@@ -124,8 +130,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
 
     // The pickers are started with the Activity's own startActivityForResult and
     // answered from MainActivity.onActivityResult, the way the book library's
-    // pickers in the native bridge are: the Tauri ActivityResult launcher never
-    // brought them up in this app on Android.
+    // pickers in the native bridge are.
     @Volatile
     private var pendingPick: Invoke? = null
 
@@ -138,13 +143,13 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
 
     /** A folder to sync the library from; its access is kept across restarts. */
     @Command
-    fun pick_folder(invoke: Invoke) {
+    fun pickFolder(invoke: Invoke) {
         startPicker(invoke, Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), PICK_FOLDER_REQUEST)
     }
 
     /** Audio files to import one by one. */
     @Command
-    fun pick_files(invoke: Invoke) {
+    fun pickFiles(invoke: Invoke) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "audio/*"
@@ -196,7 +201,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
 
     /** The tracks under folder or file URIs, with tags and covers, read off the main thread. */
     @Command
-    fun scan_music(invoke: Invoke) {
+    fun scanMusic(invoke: Invoke) {
         val args = invoke.parseArgs(ScanArgs::class.java)
         background.execute {
             try {
@@ -222,7 +227,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     @Command
-    fun set_queue(invoke: Invoke) {
+    fun setQueue(invoke: Invoke) {
         val args = invoke.parseArgs(QueueArgs::class.java)
         val items = args.uris.mapIndexed { i, uri ->
             // The library's tags, so the lock screen shows them even for an untagged file.
@@ -280,7 +285,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     @Command
-    fun skip_to(invoke: Invoke) {
+    fun skipTo(invoke: Invoke) {
         val args = invoke.parseArgs(IndexArgs::class.java)
         withController(invoke) { controller ->
             controller.seekToDefaultPosition(args.index)
@@ -290,7 +295,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     @Command
-    fun seek_to(invoke: Invoke) {
+    fun seekTo(invoke: Invoke) {
         val args = invoke.parseArgs(SeekArgs::class.java)
         withController(invoke) { controller ->
             controller.seekTo(args.positionMs)
@@ -299,7 +304,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     @Command
-    fun apply_ambient(invoke: Invoke) {
+    fun applyAmbient(invoke: Invoke) {
         val args = invoke.parseArgs(AmbientArgs::class.java)
         val extras = Bundle().apply {
             putStringArray(
@@ -319,7 +324,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     @Command
-    fun set_sleep_timer(invoke: Invoke) {
+    fun setSleepTimer(invoke: Invoke) {
         val args = invoke.parseArgs(SleepTimerArgs::class.java)
         val extras = Bundle().apply {
             putLong(YohakuPlaybackService.EXTRA_AFTER_MS, args.afterMs)
@@ -333,7 +338,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     @Command
-    fun set_volume(invoke: Invoke) {
+    fun setVolume(invoke: Invoke) {
         val args = invoke.parseArgs(VolumeArgs::class.java)
         withController(invoke) { controller ->
             controller.volume = args.volume.coerceIn(0f, 1f)
@@ -343,7 +348,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
 
     /** A song's lyrics: a `.lrc` file's bytes (it may not be UTF-8), or the lyrics tag's text. */
     @Command
-    fun read_lyrics(invoke: Invoke) {
+    fun readLyrics(invoke: Invoke) {
         val args = invoke.parseArgs(LyricsArgs::class.java)
         background.execute {
             val ret = JSObject()
@@ -363,7 +368,7 @@ class YohakuAudioPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     @Command
-    fun get_state(invoke: Invoke) {
+    fun getState(invoke: Invoke) {
         withController(invoke) { controller ->
             val state = JSObject()
             state.put("playing", controller.isPlaying)

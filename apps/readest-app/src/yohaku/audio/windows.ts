@@ -4,6 +4,7 @@ import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEnv } from '@/context/EnvContext';
 import { isYohakuBuild } from '@/yohaku/build';
+import { errorMessage } from '@/yohaku/errors';
 import type { AmbientSource, AudioEngine, PlaybackState, TrackInfo } from './engine';
 import { getWebEngine } from './webEngine';
 
@@ -51,7 +52,7 @@ export const useAudioHost = () => {
       try {
         reply = { id, result: await engine[method](...args) };
       } catch (error) {
-        reply = { id, error: String(error) };
+        reply = { id, error: errorMessage(error) };
       }
       await emitTo(from, REPLY_EVENT, reply);
     });

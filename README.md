@@ -159,7 +159,7 @@ The site is built from [`website/`](website/) and the documents in [`docs/yohaku
 
 ## 🗺️ Where it stands
 
-**Yohaku 2.1**: reading, the music library, lyrics, ambient sounds and read-aloud all work, and on Android the music library now imports through the system file manager, as the book library does. Next comes the **darkroom (暗室)**: a quiet space of your own for books and records, and after it a gramophone and more sounds. See the [roadmap](https://chaosnap.github.io/Yohaku/dev/03-roadmap).
+**Yohaku 2.2**: reading, the music library, lyrics, ambient sounds and read-aloud all work, on Android too: since 2.2 the music library imports through the system file manager, as the book library does, and the ambient sounds play. Next comes the **darkroom (暗室)**: a quiet space of your own for books and records, and after it a gramophone and more sounds. See the [roadmap](https://chaosnap.github.io/Yohaku/dev/03-roadmap).
 
 ## 🛠️ How it's built
 

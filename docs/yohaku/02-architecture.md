@@ -242,7 +242,8 @@ sequenceDiagram
 - **进程死亡后恢复**：队列与位置每 5 秒及暂停时写入状态文件；实现 `onPlaybackResumption()`，让蓝牙耳机或系统媒体控件的「播放」在进程被回收后也能恢复上次的音乐。
 - **前台时限**：Media3 在暂停超过约 10 分钟后会退出前台状态，系统可以回收服务；这是预期行为，依靠上面的恢复机制衔接。
 - **合规**：Media3 为纯 Java / Kotlin 库，不引入新的原生库，不影响 16 KB 页对齐。
-- **系统文件选择器**：音乐库的「从本地文件导入」「从文件夹导入」分别打开 `ACTION_OPEN_DOCUMENT`（`audio/*`，可多选）与 `ACTION_OPEN_DOCUMENT_TREE`，由 Activity 自己的 `startActivityForResult` 启动，结果经 `MainActivity.onActivityResult` 交回插件，与书库在 native-bridge 中的做法相同；Tauri 插件的 ActivityResult 启动器在这个应用里不会弹出选择器（v2.1.0 修复）。选到的文件与文件夹都保留长期读取权限，供重启后播放与启动时同步。
+- **系统文件选择器**：音乐库的「从本地文件导入」「从文件夹导入」分别打开 `ACTION_OPEN_DOCUMENT`（`audio/*`，可多选）与 `ACTION_OPEN_DOCUMENT_TREE`，由 Activity 自己的 `startActivityForResult` 启动，结果经 `MainActivity.onActivityResult` 交回插件，与书库在 native-bridge 中的做法相同。选到的文件与文件夹都保留长期读取权限，供重启后播放与启动时同步。
+- **命令名**：JavaScript 直接调用 Kotlin 插件时（`plugin:yohaku-audio|pick_folder`），Tauri 按命令名的 lowerCamelCase 形式查找方法（`pickFolder`），权限与 `build.rs` 则保留原名。所以 Kotlin 的 `@Command` 方法一律用 camelCase；用其他写法的命令在 Android 上永远找不到，调用以一个错误对象失败。v2.1.0 及之前所有带下划线的命令都是这样（选择器、扫描、队列、环境声音、音量、歌词、睡眠定时），v2.2.0 修复，`src/__tests__/yohaku/android-commands.test.ts` 检查每个调用都有对应的方法。
 
 ### 3.5 媒体会话仲裁（音乐与朗读）
 

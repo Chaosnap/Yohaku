@@ -42,7 +42,7 @@ Synced folders sync every time Yohaku starts. If you don't want to restart, clic
 
 ### On Android, importing music does nothing
 
-That was a bug in Yohaku 2.0 and earlier. Update to 2.1 or later: From Directory and From Local File then open the system file manager, as importing books does.
+That was a bug in Yohaku 2.1 and earlier: on Android almost none of the music library's and ambient sounds' calls reached the app's native side, so the pickers never opened, ambient sounds stayed silent, and an error reading "[object Object]" could appear. Update to 2.2 or later: From Directory and From Local File then open the system file manager, as importing books does, and ambient sounds play.
 
 ### Are my music files copied?
 

@@ -157,7 +157,7 @@ class YohakuPlaybackService : MediaSessionService() {
         }
 
         // Media items cross from the controller without their URI; it travels
-        // in the request metadata (see YohakuAudioPlugin.set_queue).
+        // in the request metadata (see YohakuAudioPlugin.setQueue).
         override fun onAddMediaItems(
             mediaSession: MediaSession,
             controller: MediaSession.ControllerInfo,

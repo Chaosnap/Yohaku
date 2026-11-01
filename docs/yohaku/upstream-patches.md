@@ -14,7 +14,7 @@
 |---|---|---|
 | `apps/readest-app/.env` | 删除 Readest 的 PostHog、Supabase、Stripe 默认密钥；Supabase 指向 `https://supabase.invalid` | 不连接 Readest 的服务；客户端仍需一个 URL 才能构造 |
 | `apps/readest-app/.env.tauri` | `DBUS_ID`；新增 `NEXT_PUBLIC_YOHAKU_BUILD`、`NEXT_PUBLIC_SELF_HOSTED`（解锁全部高级功能，无付费墙）、`NEXT_PUBLIC_DISABLE_UPDATER`；`NEXT_PUBLIC_API_BASE_URL` / `NEXT_PUBLIC_NODE_BASE_URL` 指向 `https://readest.invalid` | 离线、无账户、无更新源；不设置时 Readest 的 Web API 回落到 `web.readest.com`，在线元数据检索、Readest Voice 等调用会连到 Readest，指向永不解析的 `.invalid` 域名后这些调用立即失败 |
-| `apps/readest-app/package.json` | 版本号（当前 `2.1.0`） | Yohaku 独立版本号 |
+| `apps/readest-app/package.json` | 版本号（当前 `2.2.0`） | Yohaku 独立版本号 |
 | `apps/readest-app/src-tauri/tauri.conf.json` | 产品名、可执行文件名、应用标识；CSP 去掉 Sentry、PostHog、Supabase、Stripe、readest.com 与远程字体主机；发布者、版权与描述；macOS ad-hoc 签名；不生成更新包；深链接只保留 `readest`；更新地址改为 Yohaku 的 Releases | 品牌与离线 |
 | `.gitignore` | 合并上游与 Yohaku 的规则 | `references/`、`local/` 与签名文件不入库 |
 | `.github/` | 删除上游全部工作流、资助链接、Issue 模板与 Dependabot；新增 `ci.yml`、`build.yml`、`build-app.yml`、`release.yml`、`publish-release.yml`、`upstream-sync.yml` 与文档网站的 `pages.yml` | Yohaku 自己的构建与发布 |
